@@ -60,6 +60,8 @@ def parse_deviceconfiguration(node=None, target="", path=""):
 			elif xml_url:
 				if xml_url.startswith(BASE_URL_TEASER):
 					params = { "mode": MODE_TEASER_LIST, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_TITLE):
+					params = { "mode": MODE_TITLE_LIST, "url": xml_url }
 				elif xml_url.startswith(BASE_URL_VIDEO):
 					params = { "mode": MODE_VIDEO_LIST, "url": xml_url }
 				else:
@@ -73,7 +75,7 @@ def parse_deviceconfiguration(node=None, target="", path=""):
 			if target.startswith(next_path):
 				parse_deviceconfiguration(outline, target, next_path)
 
-def parse_title_list(ids="", url=""):	
+def parse_title_list(ids="", url=""):
 	if ids:
 		doc = load_xml(BASE_URL_TITLE + ids)
 	elif url:
