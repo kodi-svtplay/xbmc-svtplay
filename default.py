@@ -10,7 +10,7 @@ from xml.dom.minidom import parse, parseString
 
 # The SETTINGS_ contstants should be read from addon settings instead
 SETTINGS_HIGHEST_BITRATE = float(100000000)
-SETTINGS_MAX_ITEMS_PER_PAGE = 50
+SETTINGS_MAX_ITEMS_PER_PAGE = 100
 
 TEXT_NEXT_PAGE = "Nästa sida"
 
@@ -107,8 +107,8 @@ def title_list(ids="", url="", offset=1, list_size=0):
 
 	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
 	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
-
-	if total_results > offset and offset < SETTINGS_MAX_ITEMS_PER_PAGE:
+	
+	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
 		title_list(ids, url, offset, list_size)
 	elif total_results > offset:
 		params = { "mode": MODE_TITLE_LIST, "ids": ids, "url": url, "offset": offset }
@@ -139,7 +139,7 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
 	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
-
+	
 	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
 		video_list(ids, url, offset, list_size)
 	elif total_results > offset:
