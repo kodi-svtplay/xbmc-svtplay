@@ -29,7 +29,7 @@ def get_child_outlines(node):
 		if child.nodeType == child.ELEMENT_NODE and child.nodeName == "outline":
 			yield child
 
-def parse_deviceconfiguration(node=None, target="", path=""):
+def deviceconfiguration(node=None, target="", path=""):
 	
 	if node is None:
 		node = load_xml("http://svtplay.se/mobil/deviceconfiguration.xml").documentElement.getElementsByTagName("body")[0]
@@ -49,8 +49,6 @@ def parse_deviceconfiguration(node=None, target="", path=""):
 			or not (type == "rss" or type == "menu"):
 				continue
 
-			
-			
 			thumbnail = outline.getAttributeNS(NS_PLAYOPML, "thumbnail")
 			ids = outline.getAttributeNS(NS_PLAYOPML, "contentNodeIds")
 			xml_url = outline.getAttribute("xmlUrl")
@@ -73,9 +71,9 @@ def parse_deviceconfiguration(node=None, target="", path=""):
 
 		else:
 			if target.startswith(next_path):
-				parse_deviceconfiguration(outline, target, next_path)
+				deviceconfiguration(outline, target, next_path)
 
-def parse_title_list(ids="", url=""):
+def title_list(ids="", url=""):
 	if ids:
 		doc = load_xml(BASE_URL_TITLE + ids)
 	elif url:
@@ -96,7 +94,7 @@ def parse_title_list(ids="", url=""):
 
 		add_directory_item(title, params, thumb)
 		
-def parse_video_list(ids="", url=""):
+def video_list(ids="", url=""):
 
 	if ids:
 		doc = load_xml(BASE_URL_VIDEO + ids)
@@ -113,7 +111,7 @@ def parse_video_list(ids="", url=""):
 
 		add_directory_item(title, params, thumb.getAttribute("url"), False)
 
-def parse_teaser_list(url):
+def teaser_list(url):
 	xbmc.log("parse teaser list: " + url)	
 
 def get_media_thumbnail(node):
@@ -212,14 +210,14 @@ path = urllib.unquote_plus(params.get("path", ""))
 url = urllib.unquote_plus(params.get("url",  ""))
 
 if not sys.argv[2] or not mode:
-	parse_deviceconfiguration()
+	deviceconfiguration()
 elif mode == MODE_DEVICECONFIG:
-	parse_deviceconfiguration(None, path)
+	deviceconfiguration(None, path)
 elif mode == MODE_TEASER_LIST:
-	parse_teaser_list(url)
+	teaser_list(url)
 elif mode == MODE_TITLE_LIST:
-	parse_title_list(ids, url)
+	title_list(ids, url)
 elif mode == MODE_VIDEO_LIST:
-	parse_video_list(ids, url)
+	video_list(ids, url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
