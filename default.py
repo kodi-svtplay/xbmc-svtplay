@@ -10,6 +10,9 @@ from xml.dom.minidom import parse, parseString
 
 # The SETTINGS_ contstants should be read from addon settings instead
 SETTINGS_HIGHEST_BITRATE = float(100000000)
+SETTINGS_MAX_ITEMS_PER_PAGE = 100
+
+TEXT_NEXT_PAGE = "Nästa sida"
 
 MODE_DEVICECONFIG = "deviceconfig"
 MODE_TITLE_LIST = "title"
@@ -23,6 +26,7 @@ BASE_URL_VIDEO = "http://xml.svtplay.se/v1/video/list/"
 NS_MEDIA = "http://search.yahoo.com/mrss/"
 NS_PLAYOPML = "http://xml.svtplay.se/ns/playopml"
 NS_PLAYRSS = "http://xml.svtplay.se/ns/playrss"
+NS_OPENSEARCH = "http://a9.com/-/spec/opensearch/1.1/"
 
 def get_child_outlines(node):
 	for child in node.childNodes:
@@ -73,13 +77,15 @@ def deviceconfiguration(node=None, target="", path=""):
 			if target.startswith(next_path):
 				deviceconfiguration(outline, target, next_path)
 
-def title_list(ids="", url=""):
+def title_list(ids="", url="", start=0, listCount=0):
+
 	if ids:
-		doc = load_xml(BASE_URL_TITLE + ids)
-	elif url:
-		doc = load_xml(url)
+		url = BASE_URL_TITLE + ids
+
+	doc = load_xml(get_offset_url(url, start))
 
 	for item in doc.getElementsByTagName("item"):
+
 		title = item.getElementsByTagName("title")[0].childNodes[0].data
 		
 		thumb = None
@@ -91,15 +97,26 @@ def title_list(ids="", url=""):
 		id = item.getElementsByTagNameNS(NS_PLAYRSS, "titleId")[0].childNodes[0].data
 
 		params = { "mode": MODE_VIDEO_LIST, "ids": id }
-
-		add_directory_item(title, params, thumb)
 		
-def video_list(ids="", url=""):
+		listCount += 1
+
+		add_directory_item(title, params, thumb)		
+
+	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
+	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
+
+	if total_results > start + items_per_page and listCount < SETTINGS_MAX_ITEMS_PER_PAGE:
+		title_list(ids, url, start + items_per_page, listCount)
+	elif total_results > start + items_per_page:
+		params = { "mode": MODE_TITLE_LIST, "ids": ids, "url": url, "start": start + items_per_page }
+		add_directory_item(TEXT_NEXT_PAGE, params)
+	
+def video_list(ids="", url="", start=0, listCount=0):
 
 	if ids:
-		doc = load_xml(BASE_URL_VIDEO + ids)
-	elif url:
-		doc = load_xml(url)
+		url = BASE_URL_VIDEO + ids
+
+	doc = load_xml(get_offset_url(url, start))
 		
 	for item in doc.getElementsByTagName("item"):
 		media = get_media_content(item)
@@ -108,11 +125,31 @@ def video_list(ids="", url=""):
 		title = media.getElementsByTagNameNS(NS_MEDIA, "title")[0].childNodes[0].data
 
 		params = { "url": media.getAttribute("url") }
+		
+		listCount += 1
 
 		add_directory_item(title, params, thumb.getAttribute("url"), False)
 
+	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
+	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
+
+	if total_results > start + items_per_page and listCount < SETTINGS_MAX_ITEMS_PER_PAGE:
+		video_list(ids, url, start + items_per_page, listCount)
+	elif total_results > start + items_per_page:
+		params = { "mode": MODE_VIDEO_LIST, "ids": ids, "url": url, "start": start + items_per_page }
+		add_directory_item(TEXT_NEXT_PAGE, params)
+
 def teaser_list(url):
 	xbmc.log("parse teaser list: " + url)	
+
+def get_offset_url(url, start):
+	if start == 0:
+		return url
+
+	if url.find("?") == -1:
+		return url + "?start=" + str(start)
+	else:
+		return url + "&start=" + str(start)
 
 def get_media_thumbnail(node):
 
@@ -206,6 +243,7 @@ params = parameters_string_to_dict(sys.argv[2])
 
 mode = params.get("mode", None)
 ids = params.get("ids",  "")
+start = int(params.get("start",  "0"))
 path = urllib.unquote_plus(params.get("path", ""))
 url = urllib.unquote_plus(params.get("url",  ""))
 
@@ -216,8 +254,8 @@ elif mode == MODE_DEVICECONFIG:
 elif mode == MODE_TEASER_LIST:
 	teaser_list(url)
 elif mode == MODE_TITLE_LIST:
-	title_list(ids, url)
+	title_list(ids, url, start)
 elif mode == MODE_VIDEO_LIST:
-	video_list(ids, url)
+	video_list(ids, url, start)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
