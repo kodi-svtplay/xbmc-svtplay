@@ -131,11 +131,16 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			title = media.getElementsByTagNameNS(NS_MEDIA, "title")[0].childNodes[0].data
 
 			params = { "url": media.getAttribute("url") }
-		
+			
+			thumbnail = None
+			
+			if thumb:
+				thumbnail = thumb.getAttribute("url")
+
 			list_size += 1
 			offset += 1
 
-			add_directory_item(title, params, thumb.getAttribute("url"), False)
+			add_directory_item(title, params, thumbnail, False)
 
 	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
 	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
