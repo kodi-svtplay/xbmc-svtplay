@@ -88,7 +88,7 @@ def title_list(ids="", url="", offset=1, list_size=0):
 
 		if list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
 
-			title = item.getElementsByTagName("title")[0].childNodes[0].data
+			title = get_node_value(item, "title")
 		
 			thumb = None
 			thumbnail_nodes = item.getElementsByTagNameNS(NS_MEDIA, "thumbnail")
@@ -96,7 +96,7 @@ def title_list(ids="", url="", offset=1, list_size=0):
 			if thumbnail_nodes:
 				thumb = thumbnail_nodes[0].getAttribute("url")
 		
-			id = item.getElementsByTagNameNS(NS_PLAYRSS, "titleId")[0].childNodes[0].data
+			id = get_node_value(item, "titleId", NS_PLAYRSS)
 
 			params = { "mode": MODE_VIDEO_LIST, "ids": id }
 		
@@ -105,14 +105,7 @@ def title_list(ids="", url="", offset=1, list_size=0):
 
 			add_directory_item(title, params, thumb)
 
-	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
-	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
-	
-	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
-		title_list(ids, url, offset, list_size)
-	elif total_results > offset:
-		params = { "mode": MODE_TITLE_LIST, "ids": ids, "url": url, "offset": offset }
-		add_directory_item(TEXT_NEXT_PAGE, params)
+	pager(doc, ids, url, offset, list_size, MODE_TITLE_LIST, title_list)
 	
 def video_list(ids="", url="", offset=1, list_size=0):
 
@@ -127,8 +120,7 @@ def video_list(ids="", url="", offset=1, list_size=0):
 		
 			media = get_media_content(item)
 			thumb = get_media_thumbnail(item)
-
-			title = media.getElementsByTagNameNS(NS_MEDIA, "title")[0].childNodes[0].data
+			title = get_node_value(media, "title", NS_MEDIA)
 
 			params = { "url": media.getAttribute("url") }
 			
@@ -142,13 +134,16 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 			add_directory_item(title, params, thumbnail, False)
 
-	total_results = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "totalResults")[0].childNodes[0].data)
-	items_per_page = int(doc.getElementsByTagNameNS(NS_OPENSEARCH, "itemsPerPage")[0].childNodes[0].data)
-	
+	pager(doc, ids, url, offset, list_size, MODE_TITLE_LIST, title_list)
+
+def pager(doc, ids, url, offset, list_size, mode, callback):
+
+	total_results = int(get_node_value(doc, "totalResults", NS_OPENSEARCH))
+
 	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
-		video_list(ids, url, offset, list_size)
+		callback(ids, url, offset, list_size)
 	elif total_results > offset:
-		params = { "mode": MODE_VIDEO_LIST, "ids": ids, "url": url, "offset": offset }
+		params = { "mode": mode, "ids": ids, "url": url, "offset": offset }
 		add_directory_item(TEXT_NEXT_PAGE, params)
 
 def teaser_list(url, offset=1, list_size=0):
@@ -161,9 +156,8 @@ def teaser_list(url, offset=1, list_size=0):
 		
 			media = get_media_content(item)
 			thumb = get_media_thumbnail(item)
-
-			title = item.getElementsByTagName("title")[0].childNodes[0].data
-			id = item.getElementsByTagNameNS(NS_PLAYRSS, "titleId")[0].childNodes[0].data
+			title = get_node_value(item, "title")
+			id = get_node_value(item, "titleId", NS_PLAYRSS)
 
 			params = { "mode": MODE_VIDEO_LIST, "ids": id }
 			
@@ -171,6 +165,12 @@ def teaser_list(url, offset=1, list_size=0):
 			offset += 1
 
 			add_directory_item(title, params)
+
+def get_node_value(parent, name, ns=""):
+	if ns:
+		return parent.getElementsByTagNameNS(ns, name)[0].childNodes[0].data
+	else:
+		return parent.getElementsByTagName(name)[0].childNodes[0].data
 
 def get_offset_url(url, offset):
 	if offset == 0:
@@ -247,7 +247,6 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 
 	if not thumbnail is None:
 		li.setThumbnailImage(thumbnail)
-
 	
 	if isFolder == True:
 		url = sys.argv[0] + '?' + urllib.urlencode(params)
@@ -257,17 +256,24 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=isFolder)
 
 def parameters_string_to_dict(str):
+
 	params = {}
+
 	if str:
+
 		pairs = str[1:].split("&")
+
 		for pair in pairs:
+
 			split = pair.split('=')
+
 			if (len(split)) == 2:
 				params[split[0]] = split[1]
 	
 	return params
 
 def load_xml(url):
+
 	req = urllib2.Request(url)
 	response = urllib2.urlopen(req)
 	xml = response.read()
