@@ -199,7 +199,6 @@ def get_media_content(node):
 		content_list = group[0].getElementsByTagNameNS(NS_MEDIA, "content");
 	else:
 		content_list = node.getElementsByTagNameNS(NS_MEDIA, "content");
-		xbmc.log(str(len(content_list)))
  
 	content = None
  
@@ -269,7 +268,6 @@ def parameters_string_to_dict(str):
 	return params
 
 def load_xml(url):
-	xbmc.log(url)
 	req = urllib2.Request(url)
 	response = urllib2.urlopen(req)
 	xml = response.read()
