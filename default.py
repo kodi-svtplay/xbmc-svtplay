@@ -151,8 +151,26 @@ def video_list(ids="", url="", offset=1, list_size=0):
 		params = { "mode": MODE_VIDEO_LIST, "ids": ids, "url": url, "offset": offset }
 		add_directory_item(TEXT_NEXT_PAGE, params)
 
-def teaser_list(url):
-	xbmc.log("parse teaser list: " + url)	
+def teaser_list(url, offset=1, list_size=0):
+
+	doc = load_xml(get_offset_url(url, offset))
+	
+	for item in doc.getElementsByTagName("item"):
+		
+		if list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
+		
+			media = get_media_content(item)
+			thumb = get_media_thumbnail(item)
+
+			title = item.getElementsByTagName("title")[0].childNodes[0].data
+			id = item.getElementsByTagNameNS(NS_PLAYRSS, "titleId")[0].childNodes[0].data
+
+			params = { "mode": MODE_VIDEO_LIST, "ids": id }
+			
+			list_size += 1
+			offset += 1
+
+			add_directory_item(title, params)
 
 def get_offset_url(url, offset):
 	if offset == 0:
@@ -181,6 +199,7 @@ def get_media_content(node):
 		content_list = group[0].getElementsByTagNameNS(NS_MEDIA, "content");
 	else:
 		content_list = node.getElementsByTagNameNS(NS_MEDIA, "content");
+		xbmc.log(str(len(content_list)))
  
 	content = None
  
@@ -213,6 +232,12 @@ def get_media_content(node):
 				continue
 			
 			if not content or framerate > float(content.getAttribute("framerate")):
+				content = c
+
+	# hopefully we never get here, but some old streams that does't report biterate has been spotted
+	if not content:
+		for c in content_list:
+			if c.getAttribute("medium") == "video":
 				content = c
 				
 	return content
