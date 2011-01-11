@@ -136,17 +136,10 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 	pager(doc, ids, url, offset, list_size, MODE_TITLE_LIST, title_list)
 
-def pager(doc, ids, url, offset, list_size, mode, callback):
+def teaser_list(ids="", url="", offset=1, list_size=0):
 
-	total_results = int(get_node_value(doc, "totalResults", NS_OPENSEARCH))
-
-	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
-		callback(ids, url, offset, list_size)
-	elif total_results > offset:
-		params = { "mode": mode, "ids": ids, "url": url, "offset": offset }
-		add_directory_item(TEXT_NEXT_PAGE, params)
-
-def teaser_list(url, offset=1, list_size=0):
+	if ids:
+		url = BASE_URL_TEASER + ids
 
 	doc = load_xml(get_offset_url(url, offset))
 	
@@ -165,6 +158,18 @@ def teaser_list(url, offset=1, list_size=0):
 			offset += 1
 
 			add_directory_item(title, params)
+
+	pager(doc, ids, url, offset, list_size, MODE_TEASER_LIST, teaser_list)
+
+def pager(doc, ids, url, offset, list_size, mode, callback):
+
+	total_results = int(get_node_value(doc, "totalResults", NS_OPENSEARCH))
+
+	if total_results > offset and list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
+		callback(ids, url, offset, list_size)
+	elif total_results > offset:
+		params = { "mode": mode, "ids": ids, "url": url, "offset": offset }
+		add_directory_item(TEXT_NEXT_PAGE, params)
 
 def get_node_value(parent, name, ns=""):
 	if ns:
@@ -294,7 +299,7 @@ if not sys.argv[2] or not mode:
 elif mode == MODE_DEVICECONFIG:
 	deviceconfiguration(None, path)
 elif mode == MODE_TEASER_LIST:
-	teaser_list(url)
+	teaser_list(ids, url)
 elif mode == MODE_TITLE_LIST:
 	title_list(ids, url, offset)
 elif mode == MODE_VIDEO_LIST:
