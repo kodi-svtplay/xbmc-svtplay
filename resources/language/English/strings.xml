@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+	<string id="30000">Video quality</string>
+	<string id="30001">List size</string>
+    <string id="30002">Saved searches</string>
+
+    <string id="30100">Low</string>
+    <string id="30101">Mid</string>
+    <string id="30102">High</string>
+    <string id="30103">HD</string>
+
+    <string id="30200">Next page...</string>
+
+</strings>

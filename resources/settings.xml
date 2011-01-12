@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <setting id="highest_bitrate" type="enum" label="30000" lvalues="30100|30101|30102|30103" default="3" />
+    <setting id="list_size" type="enum" label="30001" values="20|50|100|200" default="1" />
+    <setting id="saved_searches" type="enum" label="30002" values="0|10|20|30|40" default="1" />
+</settings>

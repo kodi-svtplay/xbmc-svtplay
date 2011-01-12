@@ -8,11 +8,14 @@ import xbmcaddon
 
 from xml.dom.minidom import parse, parseString
 
-# The SETTINGS_ contstants should be read from addon settings instead
-SETTINGS_HIGHEST_BITRATE = float(100000000)
-SETTINGS_MAX_ITEMS_PER_PAGE = 100
+__settings__ = xbmcaddon.Addon(id='plugin.video.svtplay')
+__language__ = __settings__.getLocalizedString
 
-TEXT_NEXT_PAGE = "Nästa sida"
+SETTINGS_HIGHEST_BITRATE = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate"))]
+SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("list_size"))]
+SETTINGS_SAVED_SEARCHES = [0, 10, 20, 30, 40][int(__settings__.getSetting("saved_searches"))]
+
+TEXT_NEXT_PAGE = __language__(30200)
 
 MODE_DEVICECONFIG = "deviceconfig"
 MODE_TITLE_LIST = "title"
@@ -27,11 +30,6 @@ NS_MEDIA = "http://search.yahoo.com/mrss/"
 NS_PLAYOPML = "http://xml.svtplay.se/ns/playopml"
 NS_PLAYRSS = "http://xml.svtplay.se/ns/playrss"
 NS_OPENSEARCH = "http://a9.com/-/spec/opensearch/1.1/"
-
-def get_child_outlines(node):
-	for child in node.childNodes:
-		if child.nodeType == child.ELEMENT_NODE and child.nodeName == "outline":
-			yield child
 
 def deviceconfiguration(node=None, target="", path=""):
 	
@@ -134,7 +132,7 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 			add_directory_item(title, params, thumbnail, False)
 
-	pager(doc, ids, url, offset, list_size, MODE_TITLE_LIST, title_list)
+	pager(doc, ids, url, offset, list_size, MODE_VIDEO_LIST, video_list)
 
 def teaser_list(ids="", url="", offset=1, list_size=0):
 
@@ -170,6 +168,11 @@ def pager(doc, ids, url, offset, list_size, mode, callback):
 	elif total_results > offset:
 		params = { "mode": mode, "ids": ids, "url": url, "offset": offset }
 		add_directory_item(TEXT_NEXT_PAGE, params)
+
+def get_child_outlines(node):
+	for child in node.childNodes:
+		if child.nodeType == child.ELEMENT_NODE and child.nodeName == "outline":
+			yield child
 
 def get_node_value(parent, name, ns=""):
 	if ns:
@@ -218,7 +221,7 @@ def get_media_content(node):
 		if type == 'application/vnd.apple.mpegurl':
 			continue
 		
-		if not content or (bitrate > float(content.getAttribute("bitrate")) and bitrate <= SETTINGS_HIGHEST_BITRATE):
+		if not (content and bitrate <= SETTINGS_HIGHEST_BITRATE) or (bitrate > float(content.getAttribute("bitrate")) and bitrate <= SETTINGS_HIGHEST_BITRATE):
 			content = c
 
 	# probably a live stream, check framerate instead
@@ -277,14 +280,33 @@ def parameters_string_to_dict(str):
 	
 	return params
 
-def load_xml(url):
+def store_search(query):
 
-	req = urllib2.Request(url)
-	response = urllib2.urlopen(req)
-	xml = response.read()
-	response.close()
+	query = urllib.unquote_plus(query)
+
+	try:
+		stored_searches = eval(self.__settings__.getSetting("stored_searches"))
+	except:
+		stored_searches = []
 	
-	return parseString(xml)
+	for s in stored_searches:
+		if (s.lower() == query.lower()):
+			del(stored_searches[s])
+			break
+
+	searches = [query] + stored_searches[:SETTINGS_SAVED_SEARCHES]
+	self.__settings__.setSetting("stored_searches", repr(searches))
+
+def load_xml(url):
+	try:
+		req = urllib2.Request(url)
+		response = urllib2.urlopen(req)
+		xml = response.read()
+		response.close()
+	
+		return parseString(xml)
+	except:
+		xbmc.log("unable to load url: " + url)
 
 params = parameters_string_to_dict(sys.argv[2])
 
@@ -305,4 +327,4 @@ elif mode == MODE_TITLE_LIST:
 elif mode == MODE_VIDEO_LIST:
 	video_list(ids, url, offset)
 
-xbmcplugin.endOfDirectory(int(sys.argv[1]))
+xbmcplugin.endOfDirectory(int(sys.argv[1]), succeeded=True, cacheToDisc=True)
