@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+	<string id="30000">Videokvalitet</string>
+	<string id="30001">Antal per sida</string>
+    <string id="30002">Spara antal sökningar</string>
+
+    <string id="30100">Låg</string>
+    <string id="30101">Medel</string>
+    <string id="30102">Hög</string>
+    <string id="30103">HD</string>
+
+    <string id="30200">Nästa sida...</string>
+
+</strings>

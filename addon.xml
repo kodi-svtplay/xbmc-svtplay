@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.svtplay"
        name="SVT Play"
-       version="1.0"
+       version="1.0.0"
        provider-name="Olov Nilzén">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
@@ -11,7 +11,9 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Watch content from SVT Play.</summary>
+    <summary lang="sv">Titta på innehåll från SVT Play.</summary>
     <description lang="en">With this addon you can stream content from SVT Play (svtplay.se).</description>
+	<description lang="sv">Med denna addon kan du strömma innehåll från SVT Play (svtplay.se).</description>
     <platform>all</platform>
   </extension>
 </addon>
