@@ -129,6 +129,9 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 			list_size += 1
 			offset += 1
+			#Check if livestream
+			if media.getAttribute("expression") == "nonstop":
+				params = { "url": media.getAttribute("url"), "live": "true"}
 
 			add_directory_item(title, params, thumbnail, False)
 
@@ -260,7 +263,10 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 		url = sys.argv[0] + '?' + urllib.urlencode(params)
 	else:
 		url = params["url"]
-
+		#Check if it's a live stream
+		if params.has_key('live'):
+			li.setProperty("IsLive", "true")
+	
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=isFolder)
 
 def parameters_string_to_dict(str):
