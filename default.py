@@ -21,18 +21,18 @@ MODE_DEVICECONFIG = "deviceconfig"
 MODE_TITLE_LIST = "title"
 MODE_TEASER_LIST = "teaser"
 MODE_VIDEO_LIST = "video"
-MODE_SEARCH = "search"
-MODE_SEARCH_FULL = "SearchFull"
-MODE_SEARCH_SAMPLE = "SearchSample"
+MODE_SEARCH_TITLE = "searchtitle"
+MODE_SEARCH_VIDEO = "searchfull"
+MODE_SEARCH_CLIP = "searchsample"
 
 BASE_URL_TEASER = "http://xml.svtplay.se/v1/teaser/list/"
 BASE_URL_TITLE = "http://xml.svtplay.se/v1/title/list/"
 BASE_URL_VIDEO = "http://xml.svtplay.se/v1/video/list/"
-BASE_URL_SEARCH = "http://xml.svtplay.se/v1/title/search/"
-BASE_URL_SEARCH_OTHER = "http://xml.svtplay.se/v1/video/search/"
+BASE_URL_SEARCH_TITLE = "http://xml.svtplay.se/v1/title/search/"
+BASE_URL_SEARCH_VIDEO = "http://xml.svtplay.se/v1/video/search/"
 
-END_URL_SEARCH_FULL = "expression=full"
-END_URL_SEARCH_SAMPLE = "expression=sample"
+END_URL_SEARCH_VIDEO = "expression=full"
+END_URL_SEARCH_CLIP = "expression=sample"
 
 NS_MEDIA = "http://search.yahoo.com/mrss/"
 NS_PLAYOPML = "http://xml.svtplay.se/ns/playopml"
@@ -65,12 +65,12 @@ def deviceconfiguration(node=None, target="", path=""):
 			if ids:
 				params = { "mode": MODE_TITLE_LIST, "ids": ids }
 			elif xml_url:
-				if xml_url.startswith(BASE_URL_SEARCH):
-					params = { "mode": MODE_SEARCH, "url": xml_url }
-				elif xml_url.startswith(BASE_URL_SEARCH_OTHER) and xml_url.endswith(END_URL_SEARCH_FULL):
-					params = { "mode": MODE_SEARCH_FULL, "url": xml_url }
-				elif xml_url.startswith(BASE_URL_SEARCH_OTHER) and xml_url.endswith(END_URL_SEARCH_SAMPLE):
-					params = { "mode": MODE_SEARCH_SAMPLE, "url": xml_url }
+				if xml_url.startswith(BASE_URL_SEARCH_TITLE ):
+					params = { "mode": MODE_SEARCH_TITLE, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_SEARCH_VIDEO) and xml_url.endswith(END_URL_SEARCH_VIDEO):
+					params = { "mode": MODE_SEARCH_VIDEO, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_SEARCH_VIDEO) and xml_url.endswith(END_URL_SEARCH_CLIP):
+					params = { "mode": MODE_SEARCH_CLIP, "url": xml_url }
 				elif xml_url.startswith(BASE_URL_TEASER):
 					params = { "mode": MODE_TEASER_LIST, "url": xml_url }
 				elif xml_url.startswith(BASE_URL_TITLE):
@@ -276,6 +276,7 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 		url = sys.argv[0] + '?' + urllib.urlencode(params)
 	else:
 		url = params["url"]
+
 		#Check if it's a live stream
 		if params.has_key('live'):
 			li.setProperty("IsLive", "true")
@@ -310,12 +311,10 @@ def search(mode,url):
 		#The XBMC onscreen keyboard outputs utf-8 and this need to be encoded to unicode
 		encodedSearchString = urllib.quote_plus(searchString.decode("utf_8").encode("raw_unicode_escape"))
 		url = url + "?q=" + encodedSearchString
-		print "URL: " + url
-		if mode == MODE_SEARCH:
+
+		if mode == MODE_SEARCH_TITLE:
 			title_list("", url, 1, 0)
-		if mode == MODE_SEARCH_FULL:
-			video_list("", url, 1, 0)
-		if mode == MODE_SEARCH_SAMPLE:
+		if mode == MODE_SEARCH_VIDEO or mode == MODE_SEARCH_CLIP:
 			video_list("", url, 1, 0)
 	return
 
@@ -373,7 +372,7 @@ elif mode == MODE_TITLE_LIST:
 	title_list(ids, url, offset)
 elif mode == MODE_VIDEO_LIST:
 	video_list(ids, url, offset)
-elif mode == MODE_SEARCH or mode == MODE_SEARCH_FULL or MODE_SEARCH_SAMPLE:
+elif mode == MODE_SEARCH_TITLE or mode == MODE_SEARCH_VIDEO or mode == MODE_SEARCH_CLIP:
 	search(mode,url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]), succeeded=True, cacheToDisc=True)
