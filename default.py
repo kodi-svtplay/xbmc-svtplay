@@ -21,10 +21,18 @@ MODE_DEVICECONFIG = "deviceconfig"
 MODE_TITLE_LIST = "title"
 MODE_TEASER_LIST = "teaser"
 MODE_VIDEO_LIST = "video"
+MODE_SEARCH = "search"
+MODE_SEARCH_FULL = "SearchFull"
+MODE_SEARCH_SAMPLE = "SearchSample"
 
 BASE_URL_TEASER = "http://xml.svtplay.se/v1/teaser/list/"
 BASE_URL_TITLE = "http://xml.svtplay.se/v1/title/list/"
 BASE_URL_VIDEO = "http://xml.svtplay.se/v1/video/list/"
+BASE_URL_SEARCH = "http://xml.svtplay.se/v1/title/search/"
+BASE_URL_SEARCH_OTHER = "http://xml.svtplay.se/v1/video/search/"
+
+END_URL_SEARCH_FULL = "expression=full"
+END_URL_SEARCH_SAMPLE = "expression=sample"
 
 NS_MEDIA = "http://search.yahoo.com/mrss/"
 NS_PLAYOPML = "http://xml.svtplay.se/ns/playopml"
@@ -46,7 +54,6 @@ def deviceconfiguration(node=None, target="", path=""):
 			type = outline.getAttribute("type")
 
 			if path + title == "Karusellen" \
-			or path + title == "Sök" \
 			or path + title == "Hjälpmeny" \
 			or not (type == "rss" or type == "menu"):
 				continue
@@ -58,7 +65,13 @@ def deviceconfiguration(node=None, target="", path=""):
 			if ids:
 				params = { "mode": MODE_TITLE_LIST, "ids": ids }
 			elif xml_url:
-				if xml_url.startswith(BASE_URL_TEASER):
+				if xml_url.startswith(BASE_URL_SEARCH):
+					params = { "mode": MODE_SEARCH, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_SEARCH_OTHER) and xml_url.endswith(END_URL_SEARCH_FULL):
+					params = { "mode": MODE_SEARCH_FULL, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_SEARCH_OTHER) and xml_url.endswith(END_URL_SEARCH_SAMPLE):
+					params = { "mode": MODE_SEARCH_SAMPLE, "url": xml_url }
+				elif xml_url.startswith(BASE_URL_TEASER):
 					params = { "mode": MODE_TEASER_LIST, "url": xml_url }
 				elif xml_url.startswith(BASE_URL_TITLE):
 					params = { "mode": MODE_TITLE_LIST, "url": xml_url }
@@ -286,6 +299,34 @@ def parameters_string_to_dict(str):
 	
 	return params
 
+def search(mode,url):
+	searchString = unikeyboard(__settings__.getSetting( "latestSearch" ), "" )
+	if searchString == "":
+		xbmcgui.Dialog().ok( __language__( 30301 ), __language__( 30302 ) )
+	elif searchString:
+		latestSearch = __settings__.setSetting( "latestSearch", searchString )
+		dialogProgress = xbmcgui.DialogProgress()
+		dialogProgress.create( "", __language__( 30303 ) , searchString)
+		#The XBMC onscreen keyboard outputs utf-8 and this need to be encoded to unicode
+		encodedSearchString = urllib.quote_plus(searchString.decode("utf_8").encode("raw_unicode_escape"))
+		url = url + "?q=" + encodedSearchString
+		print "URL: " + url
+		if mode == MODE_SEARCH:
+			title_list("", url, 1, 0)
+		if mode == MODE_SEARCH_FULL:
+			video_list("", url, 1, 0)
+		if mode == MODE_SEARCH_SAMPLE:
+			video_list("", url, 1, 0)
+	return
+
+def unikeyboard(default, message):
+	keyboard = xbmc.Keyboard(default, message)
+	keyboard.doModal()
+	if (keyboard.isConfirmed()):
+		return keyboard.getText()
+	else:
+		return None
+
 def store_search(query):
 
 	query = urllib.unquote_plus(query)
@@ -332,5 +373,7 @@ elif mode == MODE_TITLE_LIST:
 	title_list(ids, url, offset)
 elif mode == MODE_VIDEO_LIST:
 	video_list(ids, url, offset)
+elif mode == MODE_SEARCH or mode == MODE_SEARCH_FULL or MODE_SEARCH_SAMPLE:
+	search(mode,url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]), succeeded=True, cacheToDisc=True)
