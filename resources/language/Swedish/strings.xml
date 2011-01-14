@@ -11,4 +11,9 @@
 
     <string id="30200">Nästa sida...</string>
 
+    <string id="30300">Sök</string>
+    <string id="30301">Fel</string>
+    <string id="30302">Söksträngen var tom.</string>
+    <string id="30403">Söker...</string>
+
 </strings>
