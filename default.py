@@ -313,9 +313,9 @@ def search(mode,url):
 		url = url + "?q=" + encodedSearchString
 
 		if mode == MODE_SEARCH_TITLE:
-			title_list("", url, 1, 0)
+			title_list("", url)
 		if mode == MODE_SEARCH_VIDEO or mode == MODE_SEARCH_CLIP:
-			video_list("", url, 1, 0)
+			video_list("", url)
 	return
 
 def unikeyboard(default, message):
