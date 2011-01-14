@@ -238,7 +238,7 @@ def get_media_content(node):
 		if type == 'application/vnd.apple.mpegurl':
 			continue
 		
-		if not (content and bitrate <= SETTINGS_HIGHEST_BITRATE) or (bitrate > float(content.getAttribute("bitrate")) and bitrate <= SETTINGS_HIGHEST_BITRATE):
+		if (not content and bitrate <= SETTINGS_HIGHEST_BITRATE) or (bitrate > float(content.getAttribute("bitrate")) and bitrate <= SETTINGS_HIGHEST_BITRATE):
 			content = c
 
 	# probably a live stream, check framerate instead
