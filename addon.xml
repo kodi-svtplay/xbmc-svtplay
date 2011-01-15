@@ -2,7 +2,7 @@
 <addon id="plugin.video.svtplay"
        name="SVT Play"
        version="1.0.0"
-       provider-name="Olov Nilzén">
+       provider-name="nilzen">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
   </requires>
