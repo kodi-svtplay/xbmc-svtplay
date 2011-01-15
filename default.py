@@ -142,7 +142,7 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 			list_size += 1
 			offset += 1
-			#Check if livestream
+			#Check if live stream
 			if media.getAttribute("expression") == "nonstop":
 				params = { "url": media.getAttribute("url"), "live": "true"}
 
