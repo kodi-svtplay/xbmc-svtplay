@@ -13,7 +13,6 @@ __language__ = __settings__.getLocalizedString
 
 SETTINGS_HIGHEST_BITRATE = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate"))]
 SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("list_size"))]
-SETTINGS_SAVED_SEARCHES = [0, 10, 20, 30, 40][int(__settings__.getSetting("saved_searches"))]
 
 TEXT_NEXT_PAGE = __language__(30200)
 
@@ -325,23 +324,6 @@ def unikeyboard(default, message):
 		return keyboard.getText()
 	else:
 		return None
-
-def store_search(query):
-
-	query = urllib.unquote_plus(query)
-
-	try:
-		stored_searches = eval(self.__settings__.getSetting("stored_searches"))
-	except:
-		stored_searches = []
-	
-	for s in stored_searches:
-		if (s.lower() == query.lower()):
-			del(stored_searches[s])
-			break
-
-	searches = [query] + stored_searches[:SETTINGS_SAVED_SEARCHES]
-	self.__settings__.setSetting("stored_searches", repr(searches))
 
 def load_xml(url):
 	try:
