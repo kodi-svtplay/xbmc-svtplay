@@ -12,7 +12,11 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.svtplay')
 __language__ = __settings__.getLocalizedString
 
 SETTINGS_HIGHEST_BITRATE = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate"))]
+SETTINGS_HIGHEST_BITRATE_DEBUG = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate_debug"))]
 SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("list_size"))]
+SETTINGS_DEBUG = __settings__.getSetting("debug")
+SETTINGS_CONTEXT_MENU =__settings__.getSetting("context_menu")
+SETTINGS_COMMAND = __settings__.getSetting("command")
 
 TEXT_NEXT_PAGE = __language__(30200)
 
@@ -23,7 +27,7 @@ MODE_VIDEO_LIST = "video"
 MODE_SEARCH_TITLE = "searchtitle"
 MODE_SEARCH_VIDEO = "searchfull"
 MODE_SEARCH_CLIP = "searchsample"
-
+MODE_DEBUG = "debug"
 
 BASE_URL_TEASER = "http://xml.svtplay.se/v1/teaser/list/"
 BASE_URL_TITLE = "http://xml.svtplay.se/v1/title/list/"
@@ -142,9 +146,12 @@ def video_list(ids="", url="", offset=1, list_size=0):
 
 			list_size += 1
 			offset += 1
-			#Check if live stream
+			#Check if live stream and if debug is enabled
 			if media.getAttribute("expression") == "nonstop":
 				params = { "url": media.getAttribute("url"), "live": "true"}
+			elif SETTINGS_DEBUG:
+				media_debug = get_media_content(item, SETTINGS_HIGHEST_BITRATE_DEBUG)
+				params = { "url": media.getAttribute("url"), "url_debug": media_debug.getAttribute("url")}
 
 			add_directory_item(title, params, thumbnail, False)
 
@@ -215,7 +222,7 @@ def get_media_thumbnail(node):
 
 	return None
 	
-def get_media_content(node):
+def get_media_content(node, settings_bitrate = SETTINGS_HIGHEST_BITRATE):
  
 	group = node.getElementsByTagNameNS(NS_MEDIA, "group")
 	
@@ -237,7 +244,7 @@ def get_media_content(node):
 		if type == 'application/vnd.apple.mpegurl':
 			continue
 		
-		if (not content and bitrate <= SETTINGS_HIGHEST_BITRATE) or (content and bitrate > float(content.getAttribute("bitrate")) and bitrate <= SETTINGS_HIGHEST_BITRATE):
+		if (not content and bitrate <= settings_bitrate) or (content and bitrate > float(content.getAttribute("bitrate")) and bitrate <= settings_bitrate):
 			content = c
 
 	# probably a live stream, check framerate instead
@@ -277,10 +284,15 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 	else:
 		url = params["url"]
 
-		#Check if it's a live stream
+		#Check if it's a live stream or if debug is enabled
 		if params.has_key('live'):
 			li.setProperty("IsLive", "true")
-	
+		elif params.has_key('url_debug'):
+			cm = []
+			cm_url = sys.argv[0] + '?' + "url=" + params["url_debug"] + "&mode=debug" + "&name=" + urllib.quote_plus(name.encode('utf_8'))
+			cm.append((SETTINGS_CONTEXT_MENU , "XBMC.RunPlugin(%s)" % (cm_url)))
+			li.addContextMenuItems( cm, replaceItems=False )
+
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=isFolder)
 
 def parameters_string_to_dict(str):
@@ -318,6 +330,34 @@ def search(mode,url):
 			video_list("", url)
 	return
 
+def debug(url, name):
+	from unicodedata import normalize
+		
+	if url:
+		name = normalize('NFKD', name.decode("unicode_escape")).encode('ASCII', 'ignore').lower()
+		name = name.replace("\\", "-")
+		name = name.replace("/","-")
+		name = name.replace(" ",".")
+		name = name.replace(":",".")
+		name = name.replace("?","")
+		name = name.replace("&","")
+		command = None
+		try:
+			command = SETTINGS_COMMAND % (url, name)
+			if (sys.platform == 'win32'):
+				cmd = "System.Exec"
+				xbmc.executebuiltin("%s(\\\"%s\\\")" % (cmd, command))
+			elif (sys.platform.startswith('linux')):
+				os.system("%s" % (command))
+			elif (sys.platform.startswith('darwin')):
+				os.system("\"%s\"" % (command))
+			else:
+				pass;
+		except:
+			pass
+
+	return None
+
 def unikeyboard(default, message):
 	keyboard = xbmc.Keyboard(default, message)
 	keyboard.doModal()
@@ -344,6 +384,7 @@ ids = params.get("ids",  "")
 offset = int(params.get("offset",  "1"))
 path = urllib.unquote_plus(params.get("path", ""))
 url = urllib.unquote_plus(params.get("url",  ""))
+name = urllib.unquote_plus(params.get("name",  ""))
 
 if not sys.argv[2] or not mode:
 	deviceconfiguration()
@@ -357,5 +398,7 @@ elif mode == MODE_VIDEO_LIST:
 	video_list(ids, url, offset)
 elif mode == MODE_SEARCH_TITLE or mode == MODE_SEARCH_VIDEO or mode == MODE_SEARCH_CLIP:
 	search(mode,url)
+elif mode == MODE_DEBUG:
+	debug(url, name)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]), succeeded=True, cacheToDisc=True)

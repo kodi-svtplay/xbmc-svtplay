@@ -14,4 +14,9 @@
     <string id="30301">Error</string>
     <string id="30302">The search string was empty.</string>
     <string id="30403">Searching...</string>
+	
+	<string id="30500">Debug</string>
+	<string id="30501">Context menu label</string>
+	<string id="30502">URL video quality</string>
+	<string id="30503">Command</string>
 </strings>
