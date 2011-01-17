@@ -283,7 +283,7 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 		url = sys.argv[0] + '?' + urllib.urlencode(params)
 	else:
 		url = params["url"]
-
+		li.setInfo(type="Video", infoLabels={ "Title": name })
 		#Check if it's a live stream or if debug is enabled
 		if params.has_key('live'):
 			li.setProperty("IsLive", "true")
