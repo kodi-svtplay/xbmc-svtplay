@@ -1,6 +1,7 @@
 Version 1.0.2
 -------------
 - Added subtitle support (by kokangit)
+- Added video descriptions (by kokangit)
 
 Version 1.0.1
 -------------
