@@ -402,7 +402,7 @@ def play(url, subtitle):
 	while tries > 0:
 		tries -= 1
 		time.sleep(2)
-		if xbmc.Player().isPlayingVideo():
+		if xbmc.Player().isPlayingVideo() and not subtitle is None:
 			xbmc.Player().setSubtitles(subtitle)
 			return
 	xbmc.log("Failed to set subtitle", xbmc.LOGERROR)
