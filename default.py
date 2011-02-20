@@ -15,12 +15,10 @@ __language__ = __settings__.getLocalizedString
 SETTINGS_HIGHEST_BITRATE = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate"))]
 SETTINGS_HIGHEST_BITRATE_DEBUG = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate_debug"))]
 SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("list_size"))]
-SETTINGS_DEBUG = (__settings__.getSetting("debug") == "True" or
-		  __settings__.getSetting("debug") == "true")
+SETTINGS_DEBUG = (__settings__.getSetting("debug").lower() == "true")
 SETTINGS_CONTEXT_MENU =__settings__.getSetting("context_menu")
 SETTINGS_COMMAND = __settings__.getSetting("command")
-SETTINGS_SUBTITLES = (__settings__.getSetting("subtitles") == "True" or
-		      __settings__.getSetting("subtitles") == "true")
+SETTINGS_SUBTITLES = (__settings__.getSetting("subtitles").lower() == "true")
 
 TEXT_NEXT_PAGE = __language__(30200)
 
@@ -133,7 +131,7 @@ def video_list(ids="", url="", offset=1, list_size=0):
 		url = BASE_URL_VIDEO + ids
 
 	doc = load_xml(get_offset_url(url, offset))
-		
+
 	for item in doc.getElementsByTagName("item"):
 		
 		if list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
