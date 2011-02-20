@@ -15,10 +15,12 @@ __language__ = __settings__.getLocalizedString
 SETTINGS_HIGHEST_BITRATE = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate"))]
 SETTINGS_HIGHEST_BITRATE_DEBUG = [320, 850, 1400, 2400][int(__settings__.getSetting("highest_bitrate_debug"))]
 SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("list_size"))]
-SETTINGS_DEBUG = __settings__.getSetting("debug")
+SETTINGS_DEBUG = (__settings__.getSetting("debug") == "True" or
+		  __settings__.getSetting("debug") == "true")
 SETTINGS_CONTEXT_MENU =__settings__.getSetting("context_menu")
 SETTINGS_COMMAND = __settings__.getSetting("command")
-SETTINGS_SUBTITLES = __settings__.getSetting("subtitles")
+SETTINGS_SUBTITLES = (__settings__.getSetting("subtitles") == "True" or
+		      __settings__.getSetting("subtitles") == "true")
 
 TEXT_NEXT_PAGE = __language__(30200)
 
