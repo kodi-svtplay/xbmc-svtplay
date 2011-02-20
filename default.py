@@ -140,6 +140,13 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			subtitle = get_media_subtitle(item)
 			thumb = get_media_thumbnail(item)
 			title = get_node_value(media, "title", NS_MEDIA)
+			description = get_node_value(item, "description")
+			pubDate = get_node_value(item, "pubDate")
+			# TODO: parse date/time
+			# TODO: add label "date" (string (%d.%m.%Y / 01.01.2009) - file date)
+			# TODO: add label "premiered" (string (2005-03-04))
+			infoLabels = { "Title": title,
+				       "Plot": description }
 
 			params = { "url": media.getAttribute("url"),
 				   "subtitle": subtitle,
@@ -158,8 +165,8 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			elif SETTINGS_DEBUG:
 				media_debug = get_media_content(item, SETTINGS_HIGHEST_BITRATE_DEBUG)
 				params["url_debug"] = media_debug.getAttribute("url")
-
-			add_directory_item(title, params, thumbnail, False)
+			add_directory_item(title, params, thumbnail, False,
+					   infoLabels)
 
 	pager(doc, ids, url, offset, list_size, MODE_VIDEO_LIST, video_list)
 
@@ -205,9 +212,14 @@ def get_child_outlines(node):
 
 def get_node_value(parent, name, ns=""):
 	if ns:
-		return parent.getElementsByTagNameNS(ns, name)[0].childNodes[0].data
+		if parent.getElementsByTagNameNS(ns, name) and \
+			    parent.getElementsByTagNameNS(ns, name)[0].childNodes:
+			return parent.getElementsByTagNameNS(ns, name)[0].childNodes[0].data
 	else:
-		return parent.getElementsByTagName(name)[0].childNodes[0].data
+		if parent.getElementsByTagName(name) and \
+			    parent.getElementsByTagName(name)[0].childNodes:
+			return parent.getElementsByTagName(name)[0].childNodes[0].data
+	return None
 
 def get_offset_url(url, offset):
 	if offset == 0:
@@ -285,7 +297,8 @@ def get_media_subtitle(node):
 	# Do not return None: urllib.urlencode() will translate to the string None
 	return ""
 
-def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
+def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
+		       infoLabels=None):
 
 	li = xbmcgui.ListItem(name)
 
@@ -295,7 +308,9 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True):
 	url = sys.argv[0] + '?' + urllib.urlencode(params)
 	if isFolder == False:
 		li.setProperty('IsPlayable', 'true')
-		li.setInfo(type="Video", infoLabels={ "Title": name })
+		if not infoLabels:
+			infoLabels = { "Title": name }
+		li.setInfo(type="Video", infoLabels=infoLabels)
 		#Check if it's a live stream or if debug is enabled
 		if params.has_key('live'):
 			li.setProperty("IsLive", "true")
