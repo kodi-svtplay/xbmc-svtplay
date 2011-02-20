@@ -405,22 +405,20 @@ def load_xml(url):
 		xbmc.log("unable to load url: " + url)
 
 def play(url, subtitle):
-	if not SETTINGS_SUBTITLES:
-		subtitle = None
-	elif not subtitle or len(subtitle) == 0:
-		xbmc.log("No subtitles for " + url)
-		subtitle = None
 	item = xbmcgui.ListItem(path=url)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
-	# The player must be started to set subtitle, wait for player to start
-	tries = 20
-	while tries > 0:
-		tries -= 1
-		time.sleep(2)
-		if xbmc.Player().isPlayingVideo() and not subtitle is None:
-			xbmc.Player().setSubtitles(subtitle)
-			return
-	xbmc.log("Failed to set subtitle", xbmc.LOGERROR)
+	if SETTINGS_SUBTITLES and (subtitle == None or len(subtitle) == 0):
+		xbmc.log("No subtitles for " + url)
+	elif SETTINGS_SUBTITLES:
+		# The player must be started to set subtitle, wait for player to start
+		tries = 20
+		while tries > 0:
+			tries -= 1
+			time.sleep(2)
+			if xbmc.Player().isPlayingVideo():
+				xbmc.Player().setSubtitles(subtitle)
+				return
+		xbmc.log("Failed to set subtitle", xbmc.LOGERROR)
 
 params = parameters_string_to_dict(sys.argv[2])
 
