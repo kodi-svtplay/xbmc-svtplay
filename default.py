@@ -17,7 +17,6 @@ SETTINGS_MAX_ITEMS_PER_PAGE = [20, 50, 100, 200][int(__settings__.getSetting("li
 SETTINGS_DEBUG = (__settings__.getSetting("debug").lower() == "true")
 SETTINGS_CONTEXT_MENU =__settings__.getSetting("context_menu")
 SETTINGS_COMMAND = __settings__.getSetting("command")
-SETTINGS_SUBTITLES = (__settings__.getSetting("subtitles").lower() == "true")
 
 TEXT_NEXT_PAGE = __language__(30200)
 
