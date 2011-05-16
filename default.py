@@ -298,6 +298,7 @@ def get_media_subtitles(node):
 def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
 		       infoLabels=None, subtitles=None):
 
+	cm = []
 	li = xbmcgui.ListItem(name)
 
 	if not thumbnail is None:
@@ -314,12 +315,14 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
 		if params.has_key('live'):
 			li.setProperty("IsLive", "true")
 		elif params.has_key('url_debug'):
-			cm = []
 			cm_url = sys.argv[0] + '?' + "url=" + params["url_debug"] + "&mode=debug" + "&name=" + urllib.quote_plus(name.encode('utf_8'))
 			cm.append((SETTINGS_CONTEXT_MENU , "XBMC.RunPlugin(%s)" % (cm_url)))
-			li.addContextMenuItems( cm, replaceItems=False )
+
 		add_subtitles(li, subtitles)
 
+	cm.append(("Favvo" , "XBMC.RunPlugin(%s)" % ("foo")))
+	li.addContextMenuItems( cm, replaceItems=False )
+		
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=isFolder)
 
 def add_subtitles(listItem, subtitles):
