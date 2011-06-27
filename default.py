@@ -320,7 +320,7 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
 
 		add_subtitles(li, subtitles)
 
-	//cm.append(("Favvo" , "XBMC.RunPlugin(%s)" % ("foo")))
+	#cm.append(("Favvo" , "XBMC.RunPlugin(%s)" % ("foo")))
 	li.addContextMenuItems( cm, replaceItems=False )
 		
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=isFolder)
