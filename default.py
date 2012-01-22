@@ -184,7 +184,7 @@ def teaser_list(ids="", url="", offset=1, list_size=0):
 		
 			media = get_media_content(item)
 			thumb = get_media_thumbnail(item)
-			title = get_node_value(item, "title")
+			title = unicode(get_node_value(item, "title")).encode('utf-8')
 			id = get_node_value(item, "titleId", NS_PLAYRSS)
 
 			params = { "mode": MODE_VIDEO_LIST, "ids": id }
