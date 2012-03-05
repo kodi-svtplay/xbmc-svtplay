@@ -242,16 +242,16 @@ def get_media_thumbnail(node):
 	return None
 	
 def get_media_content(node, settings_bitrate = SETTINGS_HIGHEST_BITRATE):
- 
+
 	group = node.getElementsByTagNameNS(NS_MEDIA, "group")
 	
 	if group:
 		content_list = group[0].getElementsByTagNameNS(NS_MEDIA, "content");
 	else:
 		content_list = node.getElementsByTagNameNS(NS_MEDIA, "content");
- 
+
 	content = None
- 
+
 	for c in content_list:
 	
 		if not c.getAttribute("bitrate"):
