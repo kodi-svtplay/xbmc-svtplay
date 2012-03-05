@@ -57,11 +57,11 @@ def deviceconfiguration(node=None, target="", path=""):
 		
 		if target == path:
 
-			type = outline.getAttribute("type")
+			outline_type = outline.getAttribute("type")
 
 			if path + title == "Karusellen" \
 			or path + title == "Hjälpmeny" \
-			or not (type == "rss" or type == "menu"):
+			or not (outline_type == "rss" or outline_type == "menu"):
 				continue
 
 			thumbnail = outline.getAttributeNS(NS_PLAYOPML, "thumbnail")
@@ -113,9 +113,9 @@ def title_list(ids="", url="", offset=1, list_size=0):
 			if thumbnail_nodes:
 				thumb = thumbnail_nodes[0].getAttribute("url")
 		
-			id = get_node_value(item, "titleId", NS_PLAYRSS)
+			title_id = get_node_value(item, "titleId", NS_PLAYRSS)
 
-			params = { "mode": MODE_VIDEO_LIST, "ids": id }
+			params = { "mode": MODE_VIDEO_LIST, "ids": title_id }
 		
 			list_size += 1
 			offset += 1
@@ -184,9 +184,9 @@ def teaser_list(ids="", url="", offset=1, list_size=0):
 		if list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
 		
 			title = unicode(get_node_value(item, "title")).encode('utf-8')
-			id = get_node_value(item, "titleId", NS_PLAYRSS)
+			title_id = get_node_value(item, "titleId", NS_PLAYRSS)
 
-			params = { "mode": MODE_VIDEO_LIST, "ids": id }
+			params = { "mode": MODE_VIDEO_LIST, "ids": title_id }
 			
 			list_size += 1
 			offset += 1
@@ -257,9 +257,9 @@ def get_media_content(node, settings_bitrate = SETTINGS_HIGHEST_BITRATE):
 			continue
 	
 		bitrate = float(c.getAttribute("bitrate"))
-		type = c.getAttribute("type")
+		mime_type = c.getAttribute("type")
 
-		if type == 'application/vnd.apple.mpegurl':
+		if mime_type == 'application/vnd.apple.mpegurl':
 			continue
 		
 		if (not content and bitrate <= settings_bitrate) or (content and bitrate > float(content.getAttribute("bitrate")) and bitrate <= settings_bitrate):
@@ -274,9 +274,9 @@ def get_media_content(node, settings_bitrate = SETTINGS_HIGHEST_BITRATE):
 				continue
 		
 			framerate = float(c.getAttribute("framerate"))
-			type = c.getAttribute("type")
+			mime_type = c.getAttribute("type")
 
-			if type == 'application/vnd.apple.mpegurl':
+			if mime_type == 'application/vnd.apple.mpegurl':
 				continue
 			
 			if not content or framerate > float(content.getAttribute("framerate")):
@@ -334,13 +334,13 @@ def add_subtitles(listItem, subtitles):
 	for i in range(len(subtitles)):
 		listItem.setProperty("upnp:subtitle:" + str(i+1), subtitles[i])
 
-def parameters_string_to_dict(str):
+def parameters_string_to_dict(param_string):
 
 	params = {}
 
-	if str:
+	if param_string:
 
-		pairs = str[1:].split("&")
+		pairs = param_string[1:].split("&")
 
 		for pair in pairs:
 
