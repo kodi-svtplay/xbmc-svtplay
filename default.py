@@ -389,10 +389,9 @@ def debug(url, name):
 				os.system("%s" % (command))
 			elif (sys.platform.startswith('darwin')):
 				os.system("\"%s\"" % (command))
-			else:
-				pass;
-		except:
-			pass
+
+		except Exception as ex:
+			xbmc.log( str(ex) )
 
 	return None
 
@@ -412,8 +411,15 @@ def load_xml(url):
 		response.close()
 	
 		return parseString(xml)
-	except:
-		xbmc.log("unable to load url: " + url)
+
+	except (urllib2.HTTPError, urllib2.URLError) as ex:
+		xbmcgui.Dialog().ok( __language__(30301), __language__(30600))
+		raise ex
+		
+	except Exception as ex:
+		xbmc.log( "An unhandled exception was triggered in the SVT Play adddon." )
+		raise ex
+		
 
 params = parameters_string_to_dict(sys.argv[2])
 
