@@ -309,7 +309,7 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
 		url = params["url"]
 
 		if url.find('rtmp') == 0:
-			url += " swfUrl=http://svtplay.se/flash/svtplayer-2011.18.swf swfVfy=1"
+			url += " swfUrl=http://svtplay.se/flash/svtplayer-2012.1.swf swfVfy=1"
 		
 		if not infoLabels:
 			infoLabels = { "Title": name }
