@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import urllib
 import urllib2
+import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
