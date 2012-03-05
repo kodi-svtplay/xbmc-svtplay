@@ -6,7 +6,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 
-from xml.dom.minidom import parse, parseString
+from xml.dom.minidom import parseString
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.svtplay')
 __language__ = __settings__.getLocalizedString
@@ -136,7 +136,6 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			thumb = get_media_thumbnail(item)
 			title = get_node_value(media, "title", NS_MEDIA)
 			description = get_node_value(item, "description")
-			pubDate = get_node_value(item, "pubDate")
 
 			# TODO: parse date/time
 			# TODO: add label "date" (string (%d.%m.%Y / 01.01.2009) - file date)
@@ -182,8 +181,6 @@ def teaser_list(ids="", url="", offset=1, list_size=0):
 		
 		if list_size < SETTINGS_MAX_ITEMS_PER_PAGE:
 		
-			media = get_media_content(item)
-			thumb = get_media_thumbnail(item)
 			title = unicode(get_node_value(item, "title")).encode('utf-8')
 			id = get_node_value(item, "titleId", NS_PLAYRSS)
 
@@ -357,7 +354,6 @@ def search(mode,url):
 	if searchString == "":
 		xbmcgui.Dialog().ok( __language__( 30301 ), __language__( 30302 ) )
 	elif searchString:
-		latestSearch = __settings__.setSetting( "latestSearch", searchString )
 		dialogProgress = xbmcgui.DialogProgress()
 		dialogProgress.create( "", __language__( 30303 ) , searchString)
 		#The XBMC onscreen keyboard outputs utf-8 and this need to be encoded to unicode
