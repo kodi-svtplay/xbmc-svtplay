@@ -9,6 +9,7 @@ import xbmcplugin
 import xbmcaddon
 
 from xml.dom.minidom import parseString
+from datetime import datetime
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.svtplay')
 __language__ = __settings__.getLocalizedString
@@ -139,10 +140,9 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			thumb = get_media_thumbnail(item)
 			title = get_node_value(media, "title", NS_MEDIA)
 			description = get_node_value(item, "description")
+			date = parse_svt_date( get_node_value(item, "pubDate"), "%d.%m.%Y" )
 
-			# TODO: parse date/time
-			# TODO: add label "date" (string (%d.%m.%Y / 01.01.2009) - file date)
-			# TODO: add label "premiered" (string (2005-03-04))
+			# TODO: add label "premiered" (string (2005-03-04) - %Y-%m-%d")
 			
 			if title is None:
 				title = "";
@@ -151,7 +151,8 @@ def video_list(ids="", url="", offset=1, list_size=0):
 				description = "";
 			
 			infoLabels = { "Title": title.encode('utf_8'),
-				       "Plot": description.encode('utf_8') }
+				       "Plot": description.encode('utf_8'),
+				       "date": date }
 
 			params = { "url": media.getAttribute("url") }
 			
@@ -351,6 +352,15 @@ def parameters_string_to_dict(param_string):
 				params[split[0]] = split[1]
 	
 	return params
+
+def parse_svt_date(date_string, date_format):
+	"""
+	@param date_string    A string on the format "Sun, 04 Mar 2012 18:35:31 GMT"
+	@return:              A string on the format "2012-03-04"
+	"""
+	day_month_year = date_string[5:16]
+	datetime_object = datetime.strptime(day_month_year, "%d %b %Y")
+	return datetime_object.strftime(date_format)
 
 def search(mode,url):
 	searchString = unikeyboard(__settings__.getSetting( "latestSearch" ), "" )
