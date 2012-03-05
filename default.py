@@ -36,6 +36,7 @@ BASE_URL_TITLE = "http://xml.svtplay.se/v1/title/list/"
 BASE_URL_VIDEO = "http://xml.svtplay.se/v1/video/list/"
 BASE_URL_SEARCH_TITLE = "http://xml.svtplay.se/v1/title/search/"
 BASE_URL_SEARCH_VIDEO = "http://xml.svtplay.se/v1/video/search/"
+SWF_PLAYER_URL = "http://svtplay.se/flash/svtplayer-2012.1.swf"
 
 END_URL_SEARCH_VIDEO = "expression=full"
 END_URL_SEARCH_CLIP = "expression=sample"
@@ -309,7 +310,7 @@ def add_directory_item(name, params={}, thumbnail=None, isFolder=True,
 		url = params["url"]
 
 		if url.find('rtmp') == 0:
-			url += " swfUrl=http://svtplay.se/flash/svtplayer-2012.1.swf swfVfy=1"
+			url += " swfUrl=%s swfVfy=1" % SWF_PLAYER_URL
 		
 		if not infoLabels:
 			infoLabels = { "Title": name }
