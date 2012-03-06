@@ -365,7 +365,7 @@ def parse_svt_date(date_string, date_format):
 		return datetime_object.strftime(date_format)
 	
 	except Exception as ex:
-		xbmc.log( str(ex) )
+		xbmc.log( "Exception in parse_svt_date(): " + str(ex) )
 		return ""
 
 
