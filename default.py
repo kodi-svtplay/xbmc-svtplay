@@ -358,9 +358,16 @@ def parse_svt_date(date_string, date_format):
 	@param date_string    A string on the format "Sun, 04 Mar 2012 18:35:31 GMT"
 	@return:              A string on the format "2012-03-04"
 	"""
-	day_month_year = date_string[5:16]
-	datetime_object = datetime.strptime(day_month_year, "%d %b %Y")
-	return datetime_object.strftime(date_format)
+	
+	try:
+		day_month_year = date_string[5:16]
+		datetime_object = datetime.strptime(day_month_year, "%d %b %Y")
+		return datetime_object.strftime(date_format)
+	
+	except Exception as ex:
+		xbmc.log( str(ex) )
+		return ""
+
 
 def search(mode,url):
 	searchString = unikeyboard(__settings__.getSetting( "latestSearch" ), "" )
