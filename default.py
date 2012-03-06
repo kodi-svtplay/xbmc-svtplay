@@ -142,8 +142,6 @@ def video_list(ids="", url="", offset=1, list_size=0):
 			description = get_node_value(item, "description")
 			date = parse_svt_date( get_node_value(item, "pubDate"), "%d.%m.%Y" )
 
-			# TODO: add label "premiered" (string (2005-03-04) - %Y-%m-%d")
-			
 			if title is None:
 				title = "";
 
