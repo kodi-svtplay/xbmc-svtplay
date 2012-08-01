@@ -10,6 +10,7 @@
         <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
+    <language>sv</language>
     <summary lang="en">Watch content from SVT Play.</summary>
     <summary lang="sv">Titta på innehåll från SVT Play.</summary>
     <description lang="en">With this addon you can stream content from SVT Play (svtplay.se).</description>
