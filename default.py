@@ -12,10 +12,13 @@ import CommonFunctions
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "program"
 MODE_VIDEO = "video"
+MODE_CATEGORIES = "categories"
+MODE_CATEGORY = "category"
 
 BASE_URL = "http://www.svtplay.se"
 
 URL_A_TO_O = "/program"
+URL_CATEGORIES = "/kategorier"
 
 VIDEO_PATH_RE = "/(klipp|video)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
@@ -36,6 +39,7 @@ else:
 def viewStart():
 	
 	addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
+	addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
 
 def viewAtoO():
 	html = getPage(BASE_URL + URL_A_TO_O)
@@ -45,6 +49,38 @@ def viewAtoO():
 
 	for index, text in enumerate(texts):
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": hrefs[index] })
+
+def viewCategories():
+	html = getPage(BASE_URL + URL_CATEGORIES)
+
+	container = common.parseDOM(html, "ul", attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })
+
+	lis = common.parseDOM(container, "li" , attrs = { "class": "[^\"']*svtMediaBlock[^\"']*" })
+
+	for li in lis:
+	
+		href = common.parseDOM(li, "a", ret = "href")[0]
+		text = common.parseDOM(li, "h2")[0]
+
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_CATEGORY, "url": href })
+
+def viewCategory(url):
+	
+	if not url.startswith("/"):
+		url = "/" + url
+
+	html = getPage(BASE_URL + url)
+
+	container = common.parseDOM(html, "div", attrs = { "class": "[^\"']*playPagerSections[^\"']*" })[0]
+
+	articles = common.parseDOM(container, "article")
+
+	for article in articles:
+	
+		href = common.parseDOM(article, "a", ret = "href")[0]
+		text = common.parseDOM(article, "h5")[0]
+
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": href })
 
 def viewProgram(url):
 	
@@ -90,7 +126,6 @@ def startVideo(url):
 	
 	common.log(jsonString)
 	
-	# TODO: Check for subtitles and add subtitle setting to switch subtitles on/off for addon
 	for video in jsonObj["video"]["videoReferences"]:
 		if video["url"].endswith(".m3u8"):
 			url = video["url"]
@@ -152,6 +187,10 @@ if not mode:
 	viewStart()
 elif mode == MODE_A_TO_O:
 	viewAtoO()
+elif mode == MODE_CATEGORIES:
+	viewCategories()
+elif mode == MODE_CATEGORY:
+	viewCategory(url)
 elif mode == MODE_PROGRAM:
 	viewProgram(url)
 elif mode == MODE_VIDEO:
