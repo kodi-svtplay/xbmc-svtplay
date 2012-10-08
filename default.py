@@ -62,6 +62,10 @@ def viewProgram(url):
 	for article in articles:
 		href = common.parseDOM(article, "a", ret = "href")[0]
 		text = common.parseDOM(article, "h5")[0]
+		thumbnail = common.parseDOM(article, "img", attrs = { "class": "playGridThumbnail" }, ret = "src")[0]
+		
+		# Get a larger image
+		thumbnail = thumbnail.replace("/small/", "/large/")
 
 		match = re.match(VIDEO_PATH_RE, href)
 	
@@ -69,7 +73,7 @@ def viewProgram(url):
 		
 			url = match.group() + VIDEO_PATH_SUFFIX
 					
-			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, None, False)
+			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
 
 def startVideo(url):
 	
