@@ -16,7 +16,6 @@ MODE_VIDEO = "video"
 BASE_URL = "http://www.svtplay.se"
 
 URL_A_TO_O = "/program"
-URL_SWFPLAYER = "/public/swf/video/svtplayer-2012.28.swf"
 
 VIDEO_PATH_RE = "/(klipp|video)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
