@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+import time
 import urllib
+import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcplugin
@@ -67,7 +69,7 @@ def viewProgram(url):
 		
 			url = match.group() + VIDEO_PATH_SUFFIX
 					
-			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, False)
+			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, None, False)
 
 def startVideo(url):
 	
@@ -91,9 +93,28 @@ def startVideo(url):
 			url = video["url"]
 		else:
 			common.log("Skipping unknown filetype: " + video["url"])
+		
+	for sub in jsonObj["video"]["subtitleReferences"]:
+		if sub["url"].endswith(".wsrt"):
+			subtitle = sub["url"]
+		else:
+			common.log("Skipping unknown subtitle: " + sub["url"])
 
 	if url:	
 		xbmcplugin.setResolvedUrl(pluginHandle, True, xbmcgui.ListItem(path=url))
+		
+		if subtitle:
+    	
+			startTime = time.time()
+			player = xbmc.Player()
+
+    		while not player.isPlaying() and time.time() - startTime < 10:
+      			time.sleep(1.)
+    		
+    		player.setSubtitles(subtitle)
+    		
+    		if settings.getSetting("showsubtitles") == "false":
+    			player.showSubtitles(False)
 
 def getPage(url):
 
@@ -107,9 +128,12 @@ def getPage(url):
 		common.log("header: %s" %result["header"])
 		common.log("content: %s" %result["content"])
 
-def addDirectoryItem(title, params, folder = True):
+def addDirectoryItem(title, params, thumbnail = None, folder = True):
 
 	li = xbmcgui.ListItem(title)
+
+	if thumbnail:
+		li.setThumbnailImage(thumbnail)
 
 	if not folder:
 		li.setProperty("IsPlayable", "true")
