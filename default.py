@@ -12,6 +12,8 @@ import CommonFunctions
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "program"
 MODE_LIVE = "live"
+MODE_LATEST = "latest"
+MODE_LATEST_NEWS = "latest_news"
 MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "category"
@@ -20,6 +22,8 @@ BASE_URL = "http://www.svtplay.se"
 
 URL_A_TO_O = "/program"
 URL_CATEGORIES = "/kategorier"
+URL_TO_LATEST = "?ep=1"
+URL_TO_LATEST_NEWS = "?en=1"
 
 VIDEO_PATH_RE = "/(klipp|video|live)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
@@ -38,10 +42,12 @@ else:
 	common.dbg = False
 
 def viewStart():
-	
+
 	addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
 	addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
 	addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
+	addDirectoryItem(localize(30003), { "mode": MODE_LATEST })
+	addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS })
 
 def viewAtoO():
 	html = getPage(BASE_URL + URL_A_TO_O)
@@ -90,14 +96,14 @@ def viewCategories():
 	lis = common.parseDOM(container, "li" , attrs = { "class": "[^\"']*svtMediaBlock[^\"']*" })
 
 	for li in lis:
-	
+
 		href = common.parseDOM(li, "a", ret = "href")[0]
 		text = common.parseDOM(li, "h2")[0]
 
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_CATEGORY, "url": href })
 
 def viewCategory(url):
-	
+
 	if not url.startswith("/"):
 		url = "/" + url
 
@@ -109,17 +115,41 @@ def viewCategory(url):
 
 	# TODO: Add paging
 	for article in articles:
-	
+
 		href = common.parseDOM(article, "a", ret = "href")[0]
 		text = common.parseDOM(article, "h5")[0]
 
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": href })
 
+def viewLatest(cat):
+	if cat == "news":
+		url = URL_TO_LATEST_NEWS
+	else:
+		url = URL_TO_LATEST
+
+	html = getPage(BASE_URL + "/" + url)
+
+	container = common.parseDOM(html, "div", attrs = { "id": "browser" })[0]
+
+	container = common.parseDOM(container, "div", attrs = { "class": "[^\"']*playPagerSections[^\"']*" })[0]
+
+	articles = common.parseDOM(container, "article")
+
+	for article in articles:
+
+		href = common.parseDOM(article, "a", ret = "href")[0]
+		text = common.parseDOM(article, "h5")[0]
+		thumbnail = common.parseDOM(article, "img", attrs = { "class": "playGridThumbnail" }, ret = "src")[0]
+		thumbnail = thumbnail.replace("/small/", "/large/")
+		
+		url = href + VIDEO_PATH_SUFFIX
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
+
 def viewProgram(url):
-	
+
 	if not url.startswith("/"):
 		url = "/" + url
-	
+
 	html = getPage(BASE_URL + url)
 
 	container = common.parseDOM(html, "div", attrs = { "class": "[^\"']*playPagerSections[^\"']*" })[0]
@@ -131,32 +161,32 @@ def viewProgram(url):
 		href = common.parseDOM(article, "a", ret = "href")[0]
 		text = common.parseDOM(article, "h5")[0]
 		thumbnail = common.parseDOM(article, "img", attrs = { "class": "playGridThumbnail" }, ret = "src")[0]
-		
+
 		# Get a larger image
 		thumbnail = thumbnail.replace("/small/", "/large/")
 
 		match = re.match(VIDEO_PATH_RE, href)
-	
+
 		if match:
-		
+
 			url = match.group() + VIDEO_PATH_SUFFIX
-					
+
 			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
 
 def startVideo(url):
-	
+
 	if not url.startswith("/"):
 		url = "/" + url
-	
+
 	html = getPage(BASE_URL + url)
 
 	jsonString = common.parseDOM(html, "param" , attrs = { "name": "flashvars" }, ret = "value")[0]
-	
+
 	jsonString = jsonString.lstrip("json=")
 	jsonString = common.replaceHTMLCodes(jsonString)
-	
+
 	jsonObj = json.loads(jsonString)
-	
+
 	common.log(jsonString)
 
 	subtitle = None
@@ -197,11 +227,14 @@ def startVideo(url):
     		
 			if settings.getSetting("showsubtitles") == "false":
 				player.showSubtitles(False)
-
+	else:
+		dialog = xbmcgui.Dialog()
+		dialog.ok("SVT PLAY", localize(30100))
+		
 def getPage(url):
 
 	result = common.fetchPage({ "link": url })
-	
+
 	if result["status"] == 200:
    		return result["content"]
 
@@ -244,5 +277,9 @@ elif mode == MODE_PROGRAM:
 	viewProgram(url)
 elif mode == MODE_VIDEO:
 	startVideo(url)
+elif mode == MODE_LATEST:
+    viewLatest("program")
+elif mode == MODE_LATEST_NEWS:
+    viewLatest("news")
 
-xbmcplugin.endOfDirectory(pluginHandle)	
+xbmcplugin.endOfDirectory(pluginHandle)
