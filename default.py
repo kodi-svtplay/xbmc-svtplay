@@ -129,8 +129,12 @@ def startVideo(url):
 	for video in jsonObj["video"]["videoReferences"]:
 		if video["url"].endswith(".m3u8"):
 			url = video["url"]
+			break
 		else:
-			common.log("Skipping unknown filetype: " + video["url"])
+			if video["url"].endswith("/manifest.f4m"):
+				url = video["url"].replace("/z/", "/i/").replace("/manifest.f4m", "/master.m3u8")
+			else:
+				common.log("Skipping unknown filetype: " + video["url"])
 		
 	for sub in jsonObj["video"]["subtitleReferences"]:
 		if sub["url"].endswith(".wsrt"):
