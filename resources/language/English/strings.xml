@@ -3,6 +3,9 @@
 	<string id="30000">Programs A-Ö</string>
 	<string id="30001">Categories</string>
 	<string id="30002">Live</string>
+	<string id="30003">Latest programs</string>	
+	<string id="30004">Latest news broadcast</string>
+	<string id="30100">This program is only available at www.svtplay.se</string>
 	<string id="30500">Debug</string>
 	<string id="30501">Show subtitles</string>
 </strings>
