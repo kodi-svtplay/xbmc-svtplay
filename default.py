@@ -135,7 +135,7 @@ def viewProgramsByLetter(letter):
 
 	for li in lis:
 
-		href = common.parseDOM(li, "a", ret = "href")
+		href = common.parseDOM(li, "a", ret = "href")[0]
 		text = common.parseDOM(li, "a")[0]
 
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode" : MODE_PROGRAM, "url" : href })
