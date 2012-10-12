@@ -29,6 +29,8 @@ URL_TO_LATEST_NEWS = "?en=1"
 VIDEO_PATH_RE = "/(klipp|video|live)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
 
+MAX_NUM_GRID_ITEMS = 12
+
 pluginHandle = int(sys.argv[1])
 
 settings = xbmcaddon.Addon()
@@ -57,7 +59,7 @@ def viewAtoO():
 	hrefs = common.parseDOM(html, "a" , attrs = { "class": "playLetterLink" }, ret = "href")
 
 	for index, text in enumerate(texts):
-		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": hrefs[index] })
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": hrefs[index], "page": 1 })
 
 def viewLive():
 	html = getPage(BASE_URL)
@@ -101,7 +103,7 @@ def viewCategories():
 		href = common.parseDOM(li, "a", ret = "href")[0]
 		text = common.parseDOM(li, "h2")[0]
 
-		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_CATEGORY, "url": href })
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_CATEGORY, "url": href, "page": 1})
 
 def viewAlphaDirectories():
 	html = getPage(BASE_URL + URL_A_TO_O)
@@ -120,9 +122,9 @@ def viewProgramsByLetter(letter):
 
 	html = getPage(BASE_URL + URL_A_TO_O)
 
-	container = common.parseDOM(html, "ul", attrs = { "id" : "playLetterList" })
+	container = common.parseDOM(html, "ul", attrs = { "id": "playLetterList" })
 
-	letterboxes = common.parseDOM(container, "div", attrs = { "class" : "playLetter" })
+	letterboxes = common.parseDOM(container, "div", attrs = { "class": "playLetter" })
 
 	for letterbox in letterboxes:
 
@@ -131,19 +133,22 @@ def viewProgramsByLetter(letter):
 		if heading == letter:
 			break
 
-	lis = common.parseDOM(letterbox, "li", attrs = { "class" : "playListItem" })
+	lis = common.parseDOM(letterbox, "li", attrs = { "class": "playListItem" })
 
 	for li in lis:
 
 		href = common.parseDOM(li, "a", ret = "href")[0]
 		text = common.parseDOM(li, "a")[0]
 
-		addDirectoryItem(common.replaceHTMLCodes(text), { "mode" : MODE_PROGRAM, "url" : href })
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": href, "page": 1 })
 
-def viewCategory(url):
+def viewCategory(url,page):
+
+	purl = url
 
 	if not url.startswith("/"):
 		url = "/" + url
+	url = url + "?ti=" + page
 
 	html = getPage(BASE_URL + url)
 
@@ -151,13 +156,19 @@ def viewCategory(url):
 
 	articles = common.parseDOM(container, "article")
 
-	# TODO: Add paging
+	categories = 0
+
 	for article in articles:
 
+		categories += 1
 		href = common.parseDOM(article, "a", ret = "href")[0]
 		text = common.parseDOM(article, "h5")[0]
 
-		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": href })
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": href, "page": 1 })
+
+	if categories == MAX_NUM_GRID_ITEMS:
+		nextpage = int(page) + 1
+		addDirectoryItem(localize(30101), { "mode": MODE_CATEGORY, "url": purl, "page": nextpage },)
 
 def viewLatest(cat):
 	if cat == "news":
@@ -183,10 +194,13 @@ def viewLatest(cat):
 		url = href + VIDEO_PATH_SUFFIX
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
 
-def viewProgram(url):
+def viewProgram(url,page):
+
+	purl = url
 
 	if not url.startswith("/"):
 		url = "/" + url
+	url = url + "?pr=" + page
 
 	html = getPage(BASE_URL + url)
 
@@ -194,7 +208,8 @@ def viewProgram(url):
 
 	articles = common.parseDOM(container, "article")
 
-	# TODO: Add paging
+	videos = 0
+
 	for article in articles:
 		href = common.parseDOM(article, "a", ret = "href")[0]
 		text = common.parseDOM(article, "h5")[0]
@@ -207,9 +222,15 @@ def viewProgram(url):
 
 		if match:
 
+			videos += 1
+
 			url = match.group() + VIDEO_PATH_SUFFIX
 
 			addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
+
+	if videos == MAX_NUM_GRID_ITEMS:
+		nextpage = int(page) + 1
+		addDirectoryItem(localize(30101), { "mode": MODE_PROGRAM, "url": purl, "page": nextpage },)
 
 def startVideo(url):
 
@@ -310,9 +331,8 @@ params = common.getParameters(sys.argv[2])
 
 mode = params.get("mode")
 url = urllib.unquote_plus(params.get("url", ""))
-letter = None
-if params.get("letter"):
-	letter = params.get("letter")
+page = params.get("page")
+letter = params.get("letter")
 
 if not mode:
 	viewStart()
@@ -326,9 +346,9 @@ elif mode == MODE_LIVE:
 elif mode == MODE_CATEGORIES:
 	viewCategories()
 elif mode == MODE_CATEGORY:
-	viewCategory(url)
+	viewCategory(url,page)
 elif mode == MODE_PROGRAM:
-	viewProgram(url)
+	viewProgram(url,page)
 elif mode == MODE_VIDEO:
 	startVideo(url)
 elif mode == MODE_LATEST:
