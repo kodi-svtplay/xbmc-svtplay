@@ -17,6 +17,7 @@ MODE_LATEST_NEWS = "latest_news"
 MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "category"
+MODE_LETTER = "letter"
 
 BASE_URL = "http://www.svtplay.se"
 
@@ -62,9 +63,9 @@ def viewLive():
 	html = getPage(BASE_URL)
 
 	tabId = common.parseDOM(html, "a", attrs = { "class": "[^\"']*playButton-TabLive[^\"']*" }, ret = "data-tab")
-	
+
 	if len(tabId) > 0:
-	
+
 		tabId = tabId[0]
 
 		container = common.parseDOM(html, "div", attrs = { "class": "[^\"']*svtTab-" + tabId + "[^\"']*" })
@@ -74,7 +75,7 @@ def viewLive():
 		for li in lis:
 
 			liveIcon = common.parseDOM(li, "img", attrs = { "class": "[^\"']*playBroadcastLiveIcon[^\"']*"})
-	
+
 			if len(liveIcon) > 0:
 
 				text = common.parseDOM(li, "h5")[0]
@@ -83,7 +84,7 @@ def viewLive():
 				match = re.match(VIDEO_PATH_RE, href)
 
 				if match:
-	
+
 					url = match.group() + VIDEO_PATH_SUFFIX
 
 					addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, None, False, True)
@@ -101,6 +102,43 @@ def viewCategories():
 		text = common.parseDOM(li, "h2")[0]
 
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_CATEGORY, "url": href })
+
+def viewAlphaDirectories():
+	html = getPage(BASE_URL + URL_A_TO_O)
+
+	container = common.parseDOM(html, "ul", attrs = { "id" : "playLetterList" })
+
+	letters = common.parseDOM(container, "h2", attrs = { "class" : "playLetterHeading " })
+
+	for letter in letters:
+		url = letter
+		addDirectoryItem(convertChar(letter), { "mode": MODE_LETTER, "letter": url })
+
+def viewProgramsByLetter(letter):
+
+	letter = urllib.unquote(letter)
+
+	html = getPage(BASE_URL + URL_A_TO_O)
+
+	container = common.parseDOM(html, "ul", attrs = { "id" : "playLetterList" })
+
+	letterboxes = common.parseDOM(container, "div", attrs = { "class" : "playLetter" })
+
+	for letterbox in letterboxes:
+
+		heading = common.parseDOM(letterbox, "h2")[0]
+
+		if heading == letter:
+			break
+
+	lis = common.parseDOM(letterbox, "li", attrs = { "class" : "playListItem" })
+
+	for li in lis:
+
+		href = common.parseDOM(li, "a", ret = "href")[0]
+		text = common.parseDOM(li, "a")[0]
+
+		addDirectoryItem(common.replaceHTMLCodes(text), { "mode" : MODE_PROGRAM, "url" : href })
 
 def viewCategory(url):
 
@@ -141,7 +179,7 @@ def viewLatest(cat):
 		text = common.parseDOM(article, "h5")[0]
 		thumbnail = common.parseDOM(article, "img", attrs = { "class": "playGridThumbnail" }, ret = "src")[0]
 		thumbnail = thumbnail.replace("/small/", "/large/")
-		
+
 		url = href + VIDEO_PATH_SUFFIX
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
 
@@ -193,7 +231,7 @@ def startVideo(url):
 	player = xbmc.Player()
 	startTime = time.time()
 	videoUrl = None
-	
+
 	for video in jsonObj["video"]["videoReferences"]:
 		if video["url"].find(".m3u8") > 0:
 			videoUrl = video["url"]
@@ -206,7 +244,7 @@ def startVideo(url):
 				videoUrl = video["url"].replace("/z/", "/i/").replace("/manifest.f4m", "/master.m3u8")
 			else:
 				common.log("Skipping unknown filetype: " + video["url"])
-		
+
 	for sub in jsonObj["video"]["subtitleReferences"]:
 		if sub["url"].endswith(".wsrt"):
 			subtitle = sub["url"]
@@ -217,20 +255,20 @@ def startVideo(url):
 	if videoUrl:
 
 		xbmcplugin.setResolvedUrl(pluginHandle, True, xbmcgui.ListItem(path=videoUrl))
-		
+
 		if subtitle:
 
 			while not player.isPlaying() and time.time() - startTime < 10:
 				time.sleep(1.)
-    		
+
 			player.setSubtitles(subtitle)
-    		
+
 			if settings.getSetting("showsubtitles") == "false":
 				player.showSubtitles(False)
 	else:
 		dialog = xbmcgui.Dialog()
 		dialog.ok("SVT PLAY", localize(30100))
-		
+
 def getPage(url):
 
 	result = common.fetchPage({ "link": url })
@@ -249,7 +287,7 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
 
 	if thumbnail:
 		li.setThumbnailImage(thumbnail)
-	
+
 	if live:
 		li.setProperty("IsLive", "true")
 
@@ -258,15 +296,31 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
 
 	xbmcplugin.addDirectoryItem(pluginHandle, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
 
+def convertChar(char):
+	if char == "&Aring;":
+		return "Å"
+	elif char == "&Auml;":
+		return "Ä"
+	elif char == "&Ouml;":
+		return "Ö"
+	else:
+		return char
+
 params = common.getParameters(sys.argv[2])
 
 mode = params.get("mode")
 url = urllib.unquote_plus(params.get("url", ""))
+letter = None
+if params.get("letter"):
+	letter = params.get("letter")
 
 if not mode:
 	viewStart()
 elif mode == MODE_A_TO_O:
-	viewAtoO()
+	if settings.getSetting("alpha") == "true":
+		viewAlphaDirectories()
+	else:
+		viewAtoO()
 elif mode == MODE_LIVE:
 	viewLive()
 elif mode == MODE_CATEGORIES:
@@ -281,5 +335,7 @@ elif mode == MODE_LATEST:
     viewLatest("program")
 elif mode == MODE_LATEST_NEWS:
     viewLatest("news")
+elif mode == MODE_LETTER:
+    viewProgramsByLetter(letter)
 
 xbmcplugin.endOfDirectory(pluginHandle)
