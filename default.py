@@ -18,13 +18,15 @@ MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "category"
 MODE_LETTER = "letter"
+MODE_RECOMMENDED = "recommended"
 
 BASE_URL = "http://www.svtplay.se"
 
 URL_A_TO_O = "/program"
 URL_CATEGORIES = "/kategorier"
-URL_TO_LATEST = "?ep=1"
-URL_TO_LATEST_NEWS = "?en=1"
+URL_TO_LATEST = "?ep="
+URL_TO_LATEST_NEWS = "?en="
+URL_TO_RECOMMENDED = "?rp="
 
 VIDEO_PATH_RE = "/(klipp|video|live)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
@@ -48,9 +50,10 @@ def viewStart():
 
 	addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
 	addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
+	addDirectoryItem(localize(30005), { "mode": MODE_RECOMMENDED, "page": 1 })
 	addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
-	addDirectoryItem(localize(30003), { "mode": MODE_LATEST })
-	addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS })
+	addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
+	addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
 
 def viewAtoO():
 	html = getPage(BASE_URL + URL_A_TO_O)
@@ -170,19 +173,23 @@ def viewCategory(url,page):
 		nextpage = int(page) + 1
 		addDirectoryItem(localize(30101), { "mode": MODE_CATEGORY, "url": purl, "page": nextpage },)
 
-def viewLatest(cat):
-	if cat == "news":
+def viewLatest(mode,page):
+	if mode == MODE_LATEST_NEWS:
 		url = URL_TO_LATEST_NEWS
-	else:
+	elif mode == MODE_RECOMMENDED:
+		url = URL_TO_RECOMMENDED
+	elif mode == MODE_LATEST:
 		url = URL_TO_LATEST
 
-	html = getPage(BASE_URL + "/" + url)
+	html = getPage(BASE_URL + "/" + url + page)
 
 	container = common.parseDOM(html, "div", attrs = { "id": "browser" })[0]
 
 	container = common.parseDOM(container, "div", attrs = { "class": "[^\"']*playPagerSections[^\"']*" })[0]
 
 	articles = common.parseDOM(container, "article")
+
+	programs = 0
 
 	for article in articles:
 
@@ -192,8 +199,13 @@ def viewLatest(cat):
 		thumbnail = thumbnail.replace("/small/", "/large/")
 
 		url = href + VIDEO_PATH_SUFFIX
+		programs += 1
 		addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, thumbnail, False)
 
+	if programs == MAX_NUM_GRID_ITEMS:
+		nextpage = int(page) + 1
+		addDirectoryItem(localize(30101), { "mode": mode, "page": nextpage },)
+                
 def viewProgram(url,page):
 
 	purl = url
@@ -352,10 +364,12 @@ elif mode == MODE_PROGRAM:
 elif mode == MODE_VIDEO:
 	startVideo(url)
 elif mode == MODE_LATEST:
-    viewLatest("program")
+    viewLatest(mode,page)
 elif mode == MODE_LATEST_NEWS:
-    viewLatest("news")
+    viewLatest(mode,page)
 elif mode == MODE_LETTER:
     viewProgramsByLetter(letter)
+elif mode == MODE_RECOMMENDED:
+    viewLatest(mode,page)
 
 xbmcplugin.endOfDirectory(pluginHandle)
