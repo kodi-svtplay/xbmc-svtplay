@@ -256,15 +256,18 @@ def populateDir(ajaxurl,mode,page,index):
                   ret = "src")[0]
     thumbnail = thumbnail.replace("/small/", "/large/")
 
-    if mode == MODE_VIDEO:
-      href = href + VIDEO_PATH_SUFFIX
-      addDirectoryItem(common.replaceHTMLCodes(text),
-               { "mode": mode, "url": href }, thumbnail, False)
-    elif mode == MODE_PROGRAM:
-      addDirectoryItem(common.replaceHTMLCodes(text),
-               { "mode": mode, "url": href, "page": 1 }, thumbnail)
+    if settings.getSetting("hidesignlanguage") == "false" or text.lower().endswith("teckentolkad") == False:
 
-    CURR_DIR_ITEMS += 1
+      if mode == MODE_VIDEO:
+        href = href + VIDEO_PATH_SUFFIX
+        addDirectoryItem(common.replaceHTMLCodes(text),
+                 { "mode": mode, "url": href }, thumbnail, False)
+      elif mode == MODE_PROGRAM:
+        addDirectoryItem(common.replaceHTMLCodes(text),
+                 { "mode": mode, "url": href, "page": 1 }, thumbnail)
+
+      CURR_DIR_ITEMS += 1
+
     index += 1
 
   return (True,0)
