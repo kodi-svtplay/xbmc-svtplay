@@ -13,4 +13,7 @@
   <string id="30502">Group programs in A-Ö by first character</string>
   <string id="30503">Number of programs per page</string>
   <string id="30504">Hide sign language interpreted programs</string>
+  <string id="30505">Don't use avc1.77.30 streams</string>
+  <string id="40001">General</string>
+  <string id="40002">Advanced</string>
 </strings>
