@@ -8,6 +8,7 @@ import xbmcgui
 import xbmcaddon
 import xbmcplugin
 import CommonFunctions
+import os
 
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "pr"
@@ -46,6 +47,11 @@ if settings.getSetting('debug') == "true":
   common.dbg = True
 else:
   common.dbg = False
+
+if settings.getSetting("hlsstrip") == "true":
+    HLS_STRIP = True
+else:
+    HLS_STRIP = False
 
 MAX_DIR_ITEMS = int(float(settings.getSetting("diritems")))
 
@@ -335,10 +341,12 @@ def startVideo(url):
   player = xbmc.Player()
   startTime = time.time()
   videoUrl = None
+  hlsvideo = False
 
   for video in jsonObj["video"]["videoReferences"]:
     if video["url"].find(".m3u8") > 0:
       videoUrl = video["url"]
+      hlsvideo = True
       break
     if video["url"].endswith(".flv"):
       videoUrl = video["url"]
@@ -346,6 +354,7 @@ def startVideo(url):
     else:
       if video["url"].endswith("/manifest.f4m"):
         videoUrl = video["url"].replace("/z/", "/i/").replace("/manifest.f4m", "/master.m3u8")
+        hlsvideo = True
       else:
         common.log("Skipping unknown filetype: " + video["url"])
 
@@ -355,6 +364,9 @@ def startVideo(url):
     else:
       if len(sub["url"]) > 0:
         common.log("Skipping unknown subtitle: " + sub["url"])
+
+  if hlsvideo and HLS_STRIP:
+      videoUrl = hlsStrip(videoUrl)
 
   if videoUrl:
 
@@ -372,6 +384,41 @@ def startVideo(url):
   else:
     dialog = xbmcgui.Dialog()
     dialog.ok("SVT PLAY", localize(30100))
+
+def hlsStrip(videoUrl):
+    """
+    This function removes all streams except
+    the 1024x576 or 704x396 stream from an .m3u8 HLS
+    playlist file. This is to ensure highest available
+    quality on devices like ATV2 that do not handle
+    avc1.77.30 well yet.
+    Note! The for-loop only works because of the ordering
+    in the .m3u8 file, so it is fragile.
+    """
+    ufile = urllib.urlopen(videoUrl)
+    newplaylist = "#EXTM3U\n"
+    header = ""
+    hlsurl = ""
+    foundheader = False
+    for line in ufile.readlines():
+        if ("1024x576" in line) or ("704x396" in line):
+            header = line
+            foundheader = True
+            continue
+        if foundheader:
+            foundheader = False
+            hlsurl = line
+            continue
+
+    newpath = os.path.join(xbmc.translatePath("special://temp"),"svt.m3u8")
+    newfile = open(newpath, 'w')
+    newplaylist += header + hlsurl
+    try:
+        newfile.write(newplaylist)
+    finally:
+        newfile.close()
+    return newpath
+
 
 def getPage(url):
 
