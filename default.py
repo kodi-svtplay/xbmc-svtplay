@@ -24,9 +24,9 @@ BASE_URL = "http://www.svtplay.se"
 
 URL_A_TO_O = "/program"
 URL_CATEGORIES = "/kategorier"
-URL_TO_LATEST = "?ep=1"
-URL_TO_LATEST_NEWS = "?en=1"
-URL_TO_RECOMMENDED = "?rp=1"
+URL_TO_LATEST = "?tab=episodes&sida=1"
+URL_TO_LATEST_NEWS = "?tab=news&sida=1"
+URL_TO_RECOMMENDED = "?tab=recommended&sida=1"
 
 VIDEO_PATH_RE = "/(klipp|video|live)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
@@ -187,14 +187,30 @@ def createDirectory(url,page,index,callertype,dirtype):
   if not url.startswith("/"):
     url = "/" + url
 
+  classexp = "[^\"']*playShowMoreButton[^\"']*"
+  dataname = "sida"
+  tabname = "episodes"
+  if callertype == MODE_RECOMMENDED:
+    tabname = "recommended"
+  elif callertype == MODE_LATEST_NEWS:
+    tabname = "news"
+
   html = getPage(BASE_URL + url)
-  ajaxurl = common.parseDOM(html,
-                "ul",
-                attrs = { "class": "playLargePager", "data-name": callertype },
-                ret = "data-baseurl")[0]
-  lastpage = common.parseDOM(html,
-                 "ul",
-                 attrs = { "class": "playLargePager", "data-name": callertype },
+  container = common.parseDOM(html,
+                              "div",
+                              attrs = { "class": "[^\"']*playBoxBody[^\"']*", "data-tabname": tabname })[0]
+  try:
+      ajaxurl = common.parseDOM(container,
+                                "a",
+                                attrs = { "class": classexp, "data-name": dataname },
+                                ret = "data-baseurl")[0]
+  except:
+    populateDirNoPaging(container,dirtype)
+    return
+
+  lastpage = common.parseDOM(container,
+                 "a",
+                 attrs = { "class": classexp, "data-name": dataname },
                  ret = "data-lastpage")[0]
 
   fetchitems = True
@@ -233,7 +249,7 @@ def populateDir(ajaxurl,mode,page,index):
   """
   global CURR_DIR_ITEMS
 
-  html = getPage(BASE_URL + ajaxurl + "page=" + page)
+  html = getPage(BASE_URL + ajaxurl + "sida=" + page)
   container = common.parseDOM(html,
                 "div",
                 attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })[0]
@@ -249,12 +265,14 @@ def populateDir(ajaxurl,mode,page,index):
       return (False,index)
 
     text = common.parseDOM(article, "h5")[0]
-    href = common.parseDOM(article, "a", ret = "href")[0]
+    href = common.parseDOM(article, "a",
+                           attrs = { "class": "[^\"']*playLink[^\"']*" },
+                           ret = "href")[0]
     thumbnail = common.parseDOM(article,
                   "img",
                   attrs = { "class": "playGridThumbnail" },
                   ret = "src")[0]
-    thumbnail = thumbnail.replace("/small/", "/large/")
+    thumbnail = thumbnail.replace("/medium/", "/large/")
 
     if settings.getSetting("hidesignlanguage") == "false" or text.lower().endswith("teckentolkad") == False:
 
@@ -271,6 +289,31 @@ def populateDir(ajaxurl,mode,page,index):
     index += 1
 
   return (True,0)
+
+def populateDirNoPaging(container,mode):
+  """
+  Program pages that have less than 8 videos
+  does not have a way to fetch the Ajax URL.
+  Therefore we need a separate parse function
+  for these programs.
+  """
+  
+  articles = common.parseDOM(container, "article")
+
+  for article in articles:
+    text = common.parseDOM(article, "h5")[0]
+    href = common.parseDOM(article, "a",
+                            attrs = { "class": "[^\"']*playLink[^\"']*" },
+                            ret = "href")[0]
+    thumbnail = common.parseDOM(article,
+                                "img",
+                                attrs = { "class": "playGridThumbnail" },
+                                ret = "src")[0]
+    thumbnail = thumbnail.replace("/medium/", "/large/")
+
+    if(mode == MODE_VIDEO):
+      addDirectoryItem(common.replaceHTMLCodes(text),
+                       { "mode": mode, "url": href, "page": 1 }, thumbnail, False)
 
 def startVideo(url):
 
