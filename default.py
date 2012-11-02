@@ -303,7 +303,7 @@ def populateDirNoPaging(container,mode):
   Therefore we need a separate parse function
   for these programs.
   """
-  
+
   articles = common.parseDOM(container, "article")
 
   for article in articles:
@@ -318,6 +318,7 @@ def populateDirNoPaging(container,mode):
     thumbnail = thumbnail.replace("/medium/", "/large/")
 
     if(mode == MODE_VIDEO):
+      href = href + VIDEO_PATH_SUFFIX
       addDirectoryItem(common.replaceHTMLCodes(text),
                        { "mode": mode, "url": href, "page": 1 }, thumbnail, False)
 
