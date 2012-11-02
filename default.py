@@ -20,6 +20,7 @@ MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "ti"
 MODE_LETTER = "letter"
 MODE_RECOMMENDED = "rp"
+MODE_PSL = "psl"
 
 BASE_URL = "http://www.svtplay.se"
 
@@ -28,6 +29,7 @@ URL_CATEGORIES = "/kategorier"
 URL_TO_LATEST = "?tab=episodes&sida=1"
 URL_TO_LATEST_NEWS = "?tab=news&sida=1"
 URL_TO_RECOMMENDED = "?tab=recommended&sida=1"
+URL_TO_PSL = "/psl"
 
 VIDEO_PATH_RE = "/(klipp|video|live)/\d+"
 VIDEO_PATH_SUFFIX = "?type=embed"
@@ -63,6 +65,7 @@ def viewStart():
   addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
   addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
   addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
+  addDirectoryItem(localize(30006), { "mode": MODE_PSL, "page": 1 })
 
 def viewAtoO():
   html = getPage(BASE_URL + URL_A_TO_O)
@@ -175,14 +178,13 @@ def viewLatest(mode,page,index):
 
 
 def viewCategory(url,page,index):
-
   createDirectory(url,page,index,MODE_CATEGORY,MODE_PROGRAM)
 
-
 def viewProgram(url,page,index):
-
   createDirectory(url,page,index,MODE_PROGRAM,MODE_VIDEO)
 
+def viewPSL(page,index):
+  createDirectory(URL_TO_PSL,page,index,MODE_PSL,MODE_VIDEO)
 
 def createDirectory(url,page,index,callertype,dirtype):
   """
@@ -190,39 +192,27 @@ def createDirectory(url,page,index,callertype,dirtype):
   then calls populateDir to populate a directory with
   video/program items.
   """
+
   if not url.startswith("/"):
     url = "/" + url
 
-  classexp = "[^\"']*playShowMoreButton[^\"']*"
-  dataname = "sida"
   tabname = "episodes"
   if callertype == MODE_RECOMMENDED:
     tabname = "recommended"
   elif callertype == MODE_LATEST_NEWS:
     tabname = "news"
+  elif callertype == MODE_PSL:
+    tabname = "clips"
 
-  html = getPage(BASE_URL + url)
-  container = common.parseDOM(html,
-                              "div",
-                              attrs = { "class": "[^\"']*playBoxBody[^\"']*", "data-tabname": tabname })[0]
-  try:
-      ajaxurl = common.parseDOM(container,
-                                "a",
-                                attrs = { "class": classexp, "data-name": dataname },
-                                ret = "data-baseurl")[0]
-  except:
-    populateDirNoPaging(container,dirtype)
+  (foundUrl,ajaxurl,lastpage) = parseAjaxUrlAndLastPage(url,tabname)
+
+  if not foundUrl:
+    populateDirNoPaging(url,MODE_VIDEO)
     return
-
-  lastpage = common.parseDOM(container,
-                 "a",
-                 attrs = { "class": classexp, "data-name": dataname },
-                 ret = "data-lastpage")[0]
 
   fetchitems = True
   pastlastpage = False
 
-  ajaxurl = common.replaceHTMLCodes(ajaxurl)
   page = int(page)
   index = int(index)
   lastpage = int(lastpage)
@@ -245,6 +235,33 @@ def createDirectory(url,page,index,callertype,dirtype):
                "index": lastindex})
 
 
+def parseAjaxUrlAndLastPage(url,tabname):
+  """
+  Fetches the Ajax URL and the the last page number
+  from a program page.
+  """
+  classexp = "[^\"']*playShowMoreButton[^\"']*"
+  dataname = "sida"
+  html = getPage(BASE_URL + url)
+  container = common.parseDOM(html,
+                              "div",
+                              attrs = { "class": "[^\"']*playBoxBody[^\"']*", "data-tabname": tabname })[0]
+  try:
+      ajaxurl = common.parseDOM(container,
+                                "a",
+                                attrs = { "class": classexp, "data-name": dataname },
+                                ret = "data-baseurl")[0]
+  except:
+    return (False,"","")
+
+  lastpage = common.parseDOM(container,
+                 "a",
+                 attrs = { "class": classexp, "data-name": dataname },
+                 ret = "data-lastpage")[0]
+
+  ajaxurl = common.replaceHTMLCodes(ajaxurl)
+  return (True,ajaxurl,lastpage)
+
 def populateDir(ajaxurl,mode,page,index):
   """
   Populates a directory with items from a "Ajax" page.
@@ -255,12 +272,7 @@ def populateDir(ajaxurl,mode,page,index):
   """
   global CURR_DIR_ITEMS
 
-  html = getPage(BASE_URL + ajaxurl + "sida=" + page)
-  container = common.parseDOM(html,
-                "div",
-                attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })[0]
-  articles = common.parseDOM(container, "article")
-
+  articles = getArticles(ajaxurl,page)
   articles = articles[index:]
   index = 0
 
@@ -296,7 +308,7 @@ def populateDir(ajaxurl,mode,page,index):
 
   return (True,0)
 
-def populateDirNoPaging(container,mode):
+def populateDirNoPaging(url,mode):
   """
   Program pages that have less than 8 videos
   does not have a way to fetch the Ajax URL.
@@ -304,7 +316,7 @@ def populateDirNoPaging(container,mode):
   for these programs.
   """
 
-  articles = common.parseDOM(container, "article")
+  articles = getArticles(url,None)
 
   for article in articles:
     text = common.parseDOM(article, "h5")[0]
@@ -321,6 +333,21 @@ def populateDirNoPaging(container,mode):
       href = href + VIDEO_PATH_SUFFIX
       addDirectoryItem(common.replaceHTMLCodes(text),
                        { "mode": mode, "url": href, "page": 1 }, thumbnail, False)
+
+def getArticles(ajaxurl,page):
+  """
+  Fetches all "articles" DOM elements in a "svtGridBlock".
+  """
+  if page:
+    html = getPage(BASE_URL + ajaxurl + "sida=" + page)
+  else:
+    html = getPage(BASE_URL + ajaxurl)
+  container = common.parseDOM(html,
+                "div",
+                attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })[0]
+
+  articles = common.parseDOM(container, "article")
+  return articles
 
 def startVideo(url):
 
@@ -350,6 +377,9 @@ def startVideo(url):
       hlsvideo = True
       break
     if video["url"].endswith(".flv"):
+      videoUrl = video["url"]
+      break
+    if video["url"].endswith(".mp4"):
       videoUrl = video["url"]
       break
     else:
@@ -496,5 +526,7 @@ elif mode == MODE_LETTER:
   viewProgramsByLetter(letter)
 elif mode == MODE_RECOMMENDED:
   viewLatest(mode,page,index)
+elif mode == MODE_PSL:
+  viewPSL(page,index)
 
 xbmcplugin.endOfDirectory(pluginHandle)
