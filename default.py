@@ -203,6 +203,8 @@ def createDirectory(url,page,index,callertype,dirtype):
     tabname = "news"
   elif callertype == MODE_PSL:
     tabname = "clips"
+  elif callertype == MODE_CATEGORY:
+    tabname = "titles"
 
   (foundUrl,ajaxurl,lastpage) = parseAjaxUrlAndLastPage(url,tabname)
 
