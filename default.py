@@ -404,36 +404,40 @@ def createDirItem(article,mode):
   """
   global CURR_DIR_ITEMS
 
-  text = common.parseDOM(article, "h5")[0]
-  href = common.parseDOM(article, "a",
-                          attrs = { "class": "[^\"']*[playLink|playAltLink][^\"']*" },
-                          ret = "href")[0]
-  thumbnail = common.parseDOM(article,
-                              "img",
-                              attrs = { "class": "playGridThumbnail" },
-                              ret = "src")[0]
-  thumbnail = thumbnail.replace("/medium/", "/large/")
+  (title,url,thumbnail,info) = article
 
   if settings.getSetting("hidesignlanguage") == "false" or \
-     text.lower().endswith("teckentolkad") == False:
+     title.lower().endswith("teckentolkad") == False:
+
+    params = {}
+    params["mode"] = mode
+    params["url"] = url
+    folder = False
 
     if(mode == MODE_VIDEO):
-      href = urllib.quote(href + VIDEO_PATH_SUFFIX)
-      addDirectoryItem(common.replaceHTMLCodes(text),
-                      { "mode": mode, "url": href }, thumbnail, False)
+      params["url"] = urllib.quote(url + VIDEO_PATH_SUFFIX)
     elif mode == MODE_PROGRAM:
-      addDirectoryItem(common.replaceHTMLCodes(text),
-                      { "mode": mode, "url": href, "page": 1 }, thumbnail, True)
+      folder = True
+      params["page"] = 1
+
+    addDirectoryItem(title, params, thumbnail, folder, False, info)
     CURR_DIR_ITEMS += 1
 
 def getArticles(ajaxurl,page,tabname=None):
   """
-  Fetches all "article" DOM elements in a "svtGridBlock".
+  Fetches all "article" DOM elements in a "svtGridBlock" and
+  returns a list of quadruples containing:  
+  title - the title of the article
+  href - the URL of the article
+  thumbnail - the thumbnail of the article
+  info - metadata of the article
   """
   if page:
-    html = getPage(BASE_URL + ajaxurl + "sida=" + page)
+    pageurl = BASE_URL + ajaxurl + "sida=" + page
   else:
-    html = getPage(BASE_URL + ajaxurl)
+    pageurl = BASE_URL + ajaxurl 
+  
+  html = getPage(pageurl)
 
   if not tabname:
     container = common.parseDOM(html,
@@ -445,7 +449,65 @@ def getArticles(ajaxurl,page,tabname=None):
                   attrs = { "data-tabname": tabname })[0]
 
   articles = common.parseDOM(container, "article")
-  return articles
+  plots = common.parseDOM(container, "article", ret = "data-description")
+  airtimes = common.parseDOM(container, "article", ret = "data-broadcasted")
+  durations = common.parseDOM(container, "article", ret = "data-length")
+  newarticles = []
+  i = 0
+ 
+  for article in articles:
+    info = {}
+    plot = plots[i]
+    aired = airtimes[i]
+    duration = durations[i]
+    title = common.parseDOM(article,"h5")[0]
+    href = common.parseDOM(article, "a",
+                            attrs = { "class": "[^\"']*[playLink|playAltLink][^\"']*" },
+                            ret = "href")[0]
+    thumbnail = common.parseDOM(article,
+                                "img",
+                                attrs = { "class": "playGridThumbnail" },
+                                ret = "src")[0]
+    thumbnail = thumbnail.replace("/medium/", "/large/")
+    
+    title = common.replaceHTMLCodes(title)
+    plot = common.replaceHTMLCodes(plot)
+    aired = common.replaceHTMLCodes(aired) 
+    info["title"] = title
+    info["plot"] = plot
+    info["aired"] = aired
+    info["duration"] = convertDuration(duration)
+    newarticles.append((title,href,thumbnail,info))
+    i += 1
+ 
+  return newarticles
+
+def convertDuration(duration):
+  """
+  Converts SVT's duration format to XBMC friendly format (minutes).
+
+  SVT has the following format on their duration strings:
+  1 h 30 min
+  1 min 30 sek
+  1 min
+  """
+
+  match = re.match(r'(^(\d+)\sh)*(\s*(\d+)\smin)*(\s*(\d+)\ssek)*',duration)
+
+  dhours = 0
+  dminutes = 0
+  dseconds = 0
+
+  if match.group(1):
+    dhours = int(match.group(2)) * 60
+
+  if match.group(3):
+    dminutes = int(match.group(4))
+ 
+  if match.group(5):
+    dseconds = int(match.group(6)) / 60
+
+  return str(dhours + dminutes + dseconds) 
 
 def startVideo(url):
 
@@ -562,7 +624,7 @@ def getPage(url):
     common.log("content: %s" %result["content"])
 
 
-def addDirectoryItem(title, params, thumbnail = None, folder = True, live = False):
+def addDirectoryItem(title, params, thumbnail = None, folder = True, live = False, info = None):
 
   li = xbmcgui.ListItem(title)
 
@@ -574,6 +636,9 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
 
   if not folder:
     li.setProperty("IsPlayable", "true")
+
+  if info:
+    li.setInfo("Video", info)
 
   xbmcplugin.addDirectoryItem(pluginHandle, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
 
