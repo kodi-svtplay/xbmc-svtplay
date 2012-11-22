@@ -297,7 +297,7 @@ def populateDir(ajaxurl,mode,page,index):
     if settings.getSetting("hidesignlanguage") == "false" or text.lower().endswith("teckentolkad") == False:
 
       if mode == MODE_VIDEO:
-        href = href + VIDEO_PATH_SUFFIX
+        href = urllib.quote(href + VIDEO_PATH_SUFFIX)
         addDirectoryItem(common.replaceHTMLCodes(text),
                  { "mode": mode, "url": href }, thumbnail, False)
       elif mode == MODE_PROGRAM:
@@ -332,7 +332,7 @@ def populateDirNoPaging(url,mode):
     thumbnail = thumbnail.replace("/medium/", "/large/")
 
     if(mode == MODE_VIDEO):
-      href = href + VIDEO_PATH_SUFFIX
+      href = urllib.quote(href + VIDEO_PATH_SUFFIX)
       addDirectoryItem(common.replaceHTMLCodes(text),
                        { "mode": mode, "url": href, "page": 1 }, thumbnail, False)
 
