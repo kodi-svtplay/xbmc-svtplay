@@ -106,7 +106,7 @@ def viewLive():
 
         if match:
 
-          url = urllib.quote(match.group() + VIDEO_PATH_SUFFIX)
+          url = match.group() + VIDEO_PATH_SUFFIX
 
           addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_VIDEO, "url": url }, None, False, True)
 
@@ -174,7 +174,6 @@ def viewLatest(mode,page,index):
     url = URL_TO_LATEST_NEWS
   elif mode == MODE_RECOMMENDED:
     url = URL_TO_RECOMMENDED
-    dirtype = MODE_PROGRAM
   elif mode == MODE_LATEST:
     url = URL_TO_LATEST
 
@@ -202,7 +201,6 @@ def viewSearch():
   url = URL_TO_SEARCH + keyword
   html = getPage(BASE_URL + url)
   foundTab = False
-  url = urllib.quote(url)
  
   # Try fetching the "titles" tab. If it exists; create link to result directory   
   try:
@@ -415,7 +413,7 @@ def createDirItem(article,mode):
     folder = False
 
     if(mode == MODE_VIDEO):
-      params["url"] = urllib.quote(url + VIDEO_PATH_SUFFIX)
+      params["url"] = url + VIDEO_PATH_SUFFIX
     elif mode == MODE_PROGRAM:
       folder = True
       params["page"] = 1
@@ -653,7 +651,25 @@ def convertChar(char):
   else:
     return char
 
-params = common.getParameters(sys.argv[2])
+def getUrlParameters(arguments):
+
+  params = {}
+
+  if arguments:
+    
+      start = arguments.find("?") + 1
+      pairs = arguments[start:].split("&")
+
+      for pair in pairs:
+
+        split = pair.split("=")
+
+        if len(split) == 2:
+          params[split[0]] = split[1]
+  
+  return params
+
+params = getUrlParameters(sys.argv[2])
 
 mode = params.get("mode")
 url = urllib.unquote_plus(params.get("url", ""))
