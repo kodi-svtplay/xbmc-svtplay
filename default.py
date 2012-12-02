@@ -184,7 +184,8 @@ def viewCategory(url,page,index):
   createDirectory(url,page,index,MODE_CATEGORY,MODE_PROGRAM)
 
 def viewProgram(url,page,index):
-  createTabIndex(url)
+  createDirectory(url,page,index,MODE_PROGRAM,MODE_VIDEO)
+  #createTabIndex(url)
 
 def viewSearch():
 
@@ -353,6 +354,9 @@ def parseAjaxUrlAndLastPage(url,tabname):
   classexp = "[^\"']*playShowMoreButton[^\"']*"
   dataname = "sida"
   html = getPage(BASE_URL + url)
+
+  if not tabExists(html,tabname) and tabname == "episodes":
+    tabname = "clips"
 
   container = common.parseDOM(html,
                               "div",
