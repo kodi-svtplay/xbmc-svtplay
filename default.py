@@ -74,8 +74,8 @@ def viewStart():
 def viewAtoO():
   html = getPage(BASE_URL + URL_A_TO_O)
 
-  texts = common.parseDOM(html, "a" , attrs = { "class": "playLetterLink" })
-  hrefs = common.parseDOM(html, "a" , attrs = { "class": "playLetterLink" }, ret = "href")
+  texts = common.parseDOM(html, "a" , attrs = { "class": "playAlphabeticLetterLink" })
+  hrefs = common.parseDOM(html, "a" , attrs = { "class": "playAlphabeticLetterLink" }, ret = "href")
 
   for index, text in enumerate(texts):
     addDirectoryItem(common.replaceHTMLCodes(text), { "mode": MODE_PROGRAM, "url": hrefs[index], "page": 1 })
@@ -131,9 +131,9 @@ def viewAlphaDirectories():
   """
   html = getPage(BASE_URL + URL_A_TO_O)
 
-  container = common.parseDOM(html, "ul", attrs = { "id" : "playLetterList" })
+  container = common.parseDOM(html, "div", attrs = { "id" : "playAlphabeticLetterList" })
 
-  letters = common.parseDOM(container, "h2", attrs = { "class" : "playLetterHeading " })
+  letters = common.parseDOM(container, "h2", attrs = { "class" : "playAlphabeticLetterHeading " })
 
   for letter in letters:
     url = letter
@@ -145,9 +145,9 @@ def viewProgramsByLetter(letter):
 
   html = getPage(BASE_URL + URL_A_TO_O)
 
-  container = common.parseDOM(html, "ul", attrs = { "id": "playLetterList" })
+  container = common.parseDOM(html, "div", attrs = { "id": "playAlphabeticLetterList" })
 
-  letterboxes = common.parseDOM(container, "div", attrs = { "class": "playLetter" })
+  letterboxes = common.parseDOM(container, "div", attrs = { "class": "playAlphabeticLetter" })
 
   for letterbox in letterboxes:
 
@@ -156,7 +156,7 @@ def viewProgramsByLetter(letter):
     if heading == letter:
       break
 
-  lis = common.parseDOM(letterbox, "li", attrs = { "class": "playListItem" })
+  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*playListItem[^\"']*" })
 
   for li in lis:
 
