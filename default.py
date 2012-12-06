@@ -21,9 +21,9 @@ MODE_CATEGORY = "ti"
 MODE_LETTER = "letter"
 MODE_RECOMMENDED = "rp"
 MODE_SEARCH = "search"
-MODE_SEARCH_TITLES = "search_titles"
-MODE_SEARCH_EPISODES = "search_episodes"
-MODE_SEARCH_CLIPS = "search_clips"
+MODE_VIEW_TITLES = "view_titles"
+MODE_VIEW_EPISODES = "view_episodes"
+MODE_VIEW_CLIPS = "view_clips"
 
 BASE_URL = "http://www.svtplay.se"
 
@@ -185,6 +185,7 @@ def viewCategory(url,page,index):
 
 def viewProgram(url,page,index):
   createDirectory(url,page,index,MODE_PROGRAM,MODE_VIDEO)
+  #createTabIndex(url)
 
 def viewSearch():
 
@@ -199,51 +200,52 @@ def viewSearch():
   keyword = re.sub(r" ","+",keyword) 
 
   url = URL_TO_SEARCH + keyword
+  
+  createTabIndex(url)
+
+def createTabIndex(url):
+
   html = getPage(BASE_URL + url)
   foundTab = False
  
-  # Try fetching the "titles" tab. If it exists; create link to result directory   
-  try:
-    common.parseDOM(html, "div", attrs = { "data-tabname": "titles" })[0]
-    foundTab = True
-  except:
+  # Search for the "titles" tab. If it exists; create link to result directory   
+  foundTab = tabExists(html,"titles")
+  if foundTab:
+    addDirectoryItem(localize(30104), { 
+                    "mode": MODE_VIEW_TITLES,
+                    "url": url,
+                    "page": 1,
+                    "index": 0 })
+  else:
     # Do nothing
     common.log("No titles found")
-  else:
-    addDirectoryItem(localize(30104), { 
-                    "mode": MODE_SEARCH_TITLES,
+
+
+  # Search for the "episodes" tab. If it exists; create link to result directory   
+  foundTab = tabExists(html,"episodes")
+  if foundTab:
+    addDirectoryItem(localize(30105), { 
+                    "mode": MODE_VIEW_EPISODES,
                     "url": url,
                     "page": 1,
                     "index": 0 })
-
-  # Try fetching the "episodes" tab. If it exists; create link to result directory   
-  try:
-    common.parseDOM(html, "div", attrs = { "data-tabname": "episodes" })[0]
-    foundTab = True
-  except:
+  else:
     # Do nothing
     common.log("No episodes found")
-  else:
-    addDirectoryItem(localize(30105), { 
-                    "mode": MODE_SEARCH_EPISODES,
+
+
+  # Search for the "clips" tab. If it exists; create link to result directory   
+  foundTab = tabExists(html,"clips")
+  if foundTab:
+    addDirectoryItem(localize(30106), { 
+                    "mode": MODE_VIEW_CLIPS,
                     "url": url,
                     "page": 1,
                     "index": 0 })
-
-  # Try fetching the "clips" tab. If it exists; create link to result directory   
-  try:
-    common.parseDOM(html, "div", attrs = { "data-tabname": "clips" })[0]
-    foundTab = True
-  except:
+  else:
     # Do nothing 
     common.log("No clips found")
-  else:
-    addDirectoryItem(localize(30106), { 
-                    "mode": MODE_SEARCH_CLIPS,
-                    "url": url,
-                    "page": 1,
-                    "index": 0 })
- 
+
   if not foundTab:
     # Raise dialog with a "No results found" message
     common.log("No search result") 
@@ -252,7 +254,26 @@ def viewSearch():
     viewSearch()
     return
 
-def viewSearchResults(url,mode,page,index):
+def tabExists(html,tabname):
+  """
+  Check if a specific tab exists in the DOM.
+  """
+
+  return elementExists(html,"div",{ "data-tabname": tabname})
+
+def elementExists(html,etype,attrs):
+  """
+  Check if a specific element exists in the DOM.
+
+  Returns True if the element exists and False if not.
+  """
+
+  htmlelement = common.parseDOM(html,etype, attrs = attrs)
+
+  return len(htmlelement) > 0
+
+
+def viewPageResults(url,mode,page,index):
   """
   Creates a directory for the search results from
   the tab specified by the mode parameter.
@@ -260,11 +281,11 @@ def viewSearchResults(url,mode,page,index):
   common.log("url: " + url + " mode: " + mode)
   dirtype = None
 
-  if MODE_SEARCH_TITLES == mode:
+  if MODE_VIEW_TITLES == mode:
     dirtype = MODE_PROGRAM
-  elif MODE_SEARCH_EPISODES == mode:
+  elif MODE_VIEW_EPISODES == mode:
     dirtype = MODE_VIDEO
-  elif MODE_SEARCH_CLIPS == mode:
+  elif MODE_VIEW_CLIPS == mode:
     dirtype = MODE_VIDEO
   else:
     common.log("Undefined mode")
@@ -288,9 +309,9 @@ def createDirectory(url,page,index,callertype,dirtype):
     tabname = "recommended"
   elif MODE_LATEST_NEWS == callertype:
     tabname = "news"
-  elif MODE_SEARCH_CLIPS == callertype:
+  elif MODE_VIEW_CLIPS == callertype:
     tabname = "clips"
-  elif MODE_CATEGORY == callertype or MODE_SEARCH_TITLES == callertype:
+  elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
     tabname = "titles"
 
   (foundUrl,ajaxurl,lastpage) = parseAjaxUrlAndLastPage(url,tabname)
@@ -333,6 +354,9 @@ def parseAjaxUrlAndLastPage(url,tabname):
   classexp = "[^\"']*playShowMoreButton[^\"']*"
   dataname = "sida"
   html = getPage(BASE_URL + url)
+
+  if not tabExists(html,tabname) and tabname == "episodes":
+    tabname = "clips"
 
   container = common.parseDOM(html,
                               "div",
@@ -707,9 +731,9 @@ elif mode == MODE_RECOMMENDED:
   viewLatest(mode,page,index)
 elif mode == MODE_SEARCH:
   viewSearch()
-elif mode == MODE_SEARCH_TITLES or \
-     mode == MODE_SEARCH_EPISODES or \
-     mode == MODE_SEARCH_CLIPS:
-  viewSearchResults(url,mode,page,index)
+elif mode == MODE_VIEW_TITLES or \
+     mode == MODE_VIEW_EPISODES or \
+     mode == MODE_VIEW_CLIPS:
+  viewPageResults(url,mode,page,index)
 
 xbmcplugin.endOfDirectory(pluginHandle)
