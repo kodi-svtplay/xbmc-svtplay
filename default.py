@@ -9,6 +9,7 @@ import xbmcaddon
 import xbmcplugin
 import CommonFunctions
 import os
+import resources.lib.bestofsvt as bestof
 
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "pr"
@@ -24,6 +25,8 @@ MODE_SEARCH = "search"
 MODE_SEARCH_TITLES = "search_titles"
 MODE_SEARCH_EPISODES = "search_episodes"
 MODE_SEARCH_CLIPS = "search_clips"
+MODE_BESTOF_CATEGORIES = "bestofcategories"
+MODE_BESTOF_CATEGORY = "bestofcategory"
 
 BASE_URL = "http://www.svtplay.se"
 SWF_URL = "http://www.svtplay.se/public/swf/video/svtplayer-2012.51.swf" 
@@ -70,6 +73,8 @@ def viewStart():
   addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
   addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
   addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
+  addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
+
 
 
 def viewAtoO():
@@ -273,6 +278,32 @@ def viewSearchResults(url,mode,page,index):
     return
 
   createDirectory(url,page,index,mode,dirtype)
+
+def viewBestOfCategories():
+  """
+  Creates a directory displaying each of the
+  categories from the bestofsvt page
+  """
+  categories = bestof.getCategories()
+  params = {}
+  params["mode"] = MODE_BESTOF_CATEGORY
+
+  for category in categories:
+    params["url"] = category["url"]
+    addDirectoryItem(category["title"], params)
+
+def viewBestOfCategory(url):
+  """
+  Creates a directory containing all shows displayed
+  for a category
+  """
+  shows = bestof.getShows(url)
+  params = {}
+  params["mode"] = MODE_VIDEO
+
+  for show in shows:
+    params["url"] = show["url"] + VIDEO_PATH_SUFFIX
+    addDirectoryItem(show["title"], params, show["thumbnail"], False)
 
 def createDirectory(url,page,index,callertype,dirtype):
   """
@@ -513,6 +544,7 @@ def startVideo(url):
   if not url.startswith("/"):
     url = "/" + url
 
+  common.log("url: " + url)
   html = getPage(BASE_URL + url)
 
   jsonString = common.parseDOM(html, "param", attrs = { "name": "flashvars" }, ret = "value")[0]
@@ -779,5 +811,9 @@ elif mode == MODE_SEARCH_TITLES or \
      mode == MODE_SEARCH_EPISODES or \
      mode == MODE_SEARCH_CLIPS:
   viewSearchResults(url,mode,page,index)
+elif mode == MODE_BESTOF_CATEGORIES:
+  viewBestOfCategories()
+elif mode == MODE_BESTOF_CATEGORY:
+  viewBestOfCategory(url)
 
 xbmcplugin.endOfDirectory(pluginHandle)
