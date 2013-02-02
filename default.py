@@ -190,6 +190,9 @@ def viewProgram(url,page,index):
 def viewSearch():
 
   keyword = common.getUserInput(localize(30102))
+  if not keyword:
+    viewStart()
+    return
   keyword = urllib.quote(keyword)
   common.log("Search string: " + keyword)
 
@@ -529,6 +532,7 @@ def startVideo(url):
   startTime = time.time()
   videoUrl = None
   extension = "None"
+  args = ""
 
   for video in jsonObj["video"]["videoReferences"]:
     """
@@ -536,23 +540,29 @@ def startVideo(url):
     m3u8 is preferred, hence the break.
     Order: m3u8, f4m, mp4, flv
     """
-    if video["url"].endswith(".m3u8"):
+    tmpurl = video["url"]
+    argpos = tmpurl.rfind("?")
+    if argpos > 0:
+      args = tmpurl[argpos:]
+      tmpurl = tmpurl[:argpos]
+
+    if tmpurl.endswith(".m3u8"):
       extension = "HLS"
-      videoUrl = video["url"]
+      videoUrl = tmpurl
       break
-    if video["url"].endswith(".f4m"):
+    if tmpurl.endswith(".f4m"):
       extension = "F4M"
-      videoUrl = video["url"]
+      videoUrl = tmpurl
       continue
-    if video["url"].endswith(".mp4"):
+    if tmpurl.endswith(".mp4"):
       extension = "MP4"
-      videoUrl = video["url"]
+      videoUrl = tmpurl
       continue
-    if video["url"].endswith(".flv"):
+    if tmpurl.endswith(".flv"):
       extension = "FLV"
-      videoUrl = video["url"]
+      videoUrl = tmpurl
       continue
-    videoUrl = video["url"]
+    videoUrl = tmpurl
 
   for sub in jsonObj["video"]["subtitleReferences"]:
     if sub["url"].endswith(".wsrt"):
@@ -570,12 +580,16 @@ def startVideo(url):
   if extension == "MP4":
     videoUrl = mp4Handler(jsonObj)
 
-  if extension == "None":
+  if extension == "None" and videoUrl:
     # No supported video was found
     common.log("No supported video extension found for URL: " + videoUrl)
     videoUrl = None
 
   if videoUrl:
+    
+    if args:
+      common.log("Appending arguments: "+args)
+      videoUrl = videoUrl + args
 
     if extension == "MP4" and videoUrl.startswith("rtmp://"):
       videoUrl = videoUrl + " swfUrl="+SWF_URL+" swfVfy=1"
