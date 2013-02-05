@@ -161,7 +161,7 @@ def viewAlphaDirectories():
 
   container = common.parseDOM(html, "div", attrs = { "id" : "playAlphabeticLetterList" })
 
-  letters = common.parseDOM(container, "h2", attrs = { "class" : "playAlphabeticLetterHeading " })
+  letters = common.parseDOM(container, "h3", attrs = { "class" : "playAlphabeticLetterHeading " })
 
   for letter in letters:
     url = letter
@@ -179,7 +179,7 @@ def viewProgramsByLetter(letter):
 
   for letterbox in letterboxes:
 
-    heading = common.parseDOM(letterbox, "h2")[0]
+    heading = common.parseDOM(letterbox, "h3")[0]
 
     if heading == letter:
       break
