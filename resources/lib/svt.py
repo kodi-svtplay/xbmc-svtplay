@@ -139,7 +139,7 @@ def getAlphas():
 
   container = common.parseDOM(html, "div", attrs = { "id" : "playAlphabeticLetterList" })
 
-  letters = common.parseDOM(container, "h3", attrs = { "class" : "playAlphabeticLetterHeading " })
+  letters = common.parseDOM(container, "h3", attrs = { "class" : "[^\"']*playAlphabeticLetterHeading[^\"']*" })
 
   alphas = []
 
@@ -160,7 +160,7 @@ def getProgramsByLetter(letter):
 
   html = getPage(URL_A_TO_O)
 
-  letterboxes = common.parseDOM(html, "div", attrs = { "class": "playAlphabeticLetter" })
+  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*playAlphabeticLetter[^\"']*" })
 
   for letterbox in letterboxes:
 
