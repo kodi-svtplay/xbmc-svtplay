@@ -548,7 +548,6 @@ def hlsStrip(videoUrl):
     lines = ufile.readlines()
 
     newplaylist = "#EXTM3U\n"
-    header = ""
     hlsurl = ""
     bandwidth = 0
     foundhigherquality = False
@@ -560,11 +559,10 @@ def hlsStrip(videoUrl):
         hlsurl = line
       if "EXT-X-STREAM-INF" in line: # The header
         if not "avc1.77.30" in line:
-          match = re.match(r'.*BANDWIDTH=(\d+),.*CODECS=\"(.+?),.+',line)
+          match = re.match(r'.*BANDWIDTH=(\d+).+',line)
           if match:
             if bandwidth < int(match.group(1)):
               foundhigherquality = True
-              header = line
               bandwidth = int(match.group(1))
           continue
 
@@ -572,16 +570,9 @@ def hlsStrip(videoUrl):
       return None
 
     ufile.close()
-    newpath = os.path.join(xbmc.translatePath("special://temp"),"svt.m3u8")
-    newfile = open(newpath, 'w')
-    newplaylist += header + hlsurl
-
-    try:
-        newfile.write(newplaylist)
-    finally:
-        newfile.close()
-
-    return newpath
+    hlsurl = hlsurl.rstrip()
+    common.log("Returned stream url : " + hlsurl)
+    return hlsurl
 
 
 def getStream(url):
@@ -609,7 +600,7 @@ def getStream(url):
   
   f.close()
   hlsurl = hlsurl.rstrip()
-  common.log("Stream url: " + hlsurl)
+  common.log("Returned stream url: " + hlsurl)
   return hlsurl
 
 
