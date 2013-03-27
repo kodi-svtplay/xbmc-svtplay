@@ -589,8 +589,8 @@ def getStream(url):
   Returns a stream matching the set bandwidth
   """
   
-  file = urllib.urlopen(url)
-  lines = file.readlines()
+  f = urllib.urlopen(url)
+  lines = f.readlines()
   
   marker = "#EXT-X-STREAM-INF"
   found = False
@@ -606,6 +606,8 @@ def getStream(url):
         if LOW_BANDWIDTH < int(match.group(1)) < HIGH_BANDWIDTH:
           common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(LOW_BANDWIDTH))
           found = True
+  
+  f.close()
   hlsurl = hlsurl.rstrip()
   common.log("Stream url: " + hlsurl)
   return hlsurl
