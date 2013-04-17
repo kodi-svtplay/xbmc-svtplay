@@ -18,5 +18,8 @@
     <description lang="sv">Med denna addon kan du strömma innehåll från SVT Play (svtplay.se).</description>
     <disclaimer>This is an unofficial addon and it is not supported or maintained by SVT. Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing.</disclaimer>
     <platform>all</platform>
+    <website>https://github.com/nilzen/xbmc-svtplay</website>
+    <source>https://github.com/nilzen/xbmc-svtplay</source>
+    <forum>http://forum.xbmc.org/showthread.php?tid=67110</forum>
   </extension>
 </addon>
