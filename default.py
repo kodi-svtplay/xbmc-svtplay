@@ -303,6 +303,8 @@ def createDirectory(url,page,index,callertype,dirtype):
     tabname = svt.TAB_RECOMMENDED
   elif MODE_LATEST_NEWS == callertype:
     tabname = svt.TAB_NEWS
+  elif MODE_LATEST == callertype:
+    tabname = svt.TAB_LATEST
   elif MODE_VIEW_CLIPS == callertype:
     tabname = svt.TAB_CLIPS
   elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
