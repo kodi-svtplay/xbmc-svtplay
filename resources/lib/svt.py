@@ -32,6 +32,9 @@ TAB_CLIPS       = "klipp"
 TAB_NEWS        = "senastenyhetsprogram"
 TAB_RECOMMENDED = "rekommenderat"
 
+TAB_S_TITLES    = "titles"
+TAB_S_CLIPS     = "clips"
+TAB_S_EPISODES  = "episodes"
 
 def getChannels():
   """

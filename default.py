@@ -190,7 +190,7 @@ def createTabIndex(url):
   cTab = False
  
   # Search for the "titles" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_TITLES):
+  if helper.tabExists(html,svt.TAB_S_TITLES):
     tTab = True
     addDirectoryItem(localize(30104), { 
                     "mode": MODE_VIEW_TITLES,
@@ -203,7 +203,7 @@ def createTabIndex(url):
 
 
   # Search for the "episodes" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_EPISODES):
+  if helper.tabExists(html,svt.TAB_S_EPISODES):
     eTab = True
     addDirectoryItem(localize(30105), { 
                     "mode": MODE_VIEW_EPISODES,
@@ -216,7 +216,7 @@ def createTabIndex(url):
 
 
   # Search for the "clips" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_CLIPS):
+  if helper.tabExists(html,svt.TAB_S_CLIPS):
     cTab = True
     addDirectoryItem(localize(30106), { 
                     "mode": MODE_VIEW_CLIPS,
@@ -258,7 +258,7 @@ def viewPageResults(url,mode,page,index):
     viewStart()
     return
 
-  createDirectory(url,page,index,mode,dirtype)
+  createSearchDirectory(url,page,index,mode,dirtype)
 
 
 def viewBestOfCategories():
@@ -294,7 +294,7 @@ def createDirectory(url,page,index,callertype,dirtype):
   Creates a directory with list items from the supplied program
   page (url).
   """
-
+  common.log("callertype:" +callertype)
   if not url.startswith("/"):
     url = "/" + url
 
@@ -314,6 +314,78 @@ def createDirectory(url,page,index,callertype,dirtype):
 
   if not helper.tabExists(html,tabname) and tabname == svt.TAB_EPISODES:
     tabname = svt.TAB_CLIPS # In case there are no episodes for a show, get the clips instead
+  
+  if not helper.tabExists(html,tabname):
+    common.log("Could not find tab "+tabname+" on page with url "+url+". Aborting!")
+    return 
+
+  ajaxurl = svt.getAjaxUrl(html,tabname)
+
+  if not ajaxurl:
+    populateDirNoPaging(url,dirtype,tabname)
+    return
+  
+  lastpage = svt.getLastPage(html,tabname)
+
+  fetchitems = True
+  pastlastpage = False
+
+  page = int(page)
+  index = int(index)
+  lastpage = int(lastpage)
+
+  while fetchitems:
+
+    if page > lastpage:
+      pastlastpage = True
+      break
+
+    global CURR_DIR_ITEMS
+
+    articles = svt.getArticles(ajaxurl,str(page))
+    articles = articles[index:]
+    lastindex = 0
+
+    for article in articles:
+
+      if CURR_DIR_ITEMS >= MAX_DIR_ITEMS:
+        CURR_DIR_ITEMS = 0
+        fetchitems = False
+        break
+        
+      createDirItem(article,dirtype)      
+
+      lastindex += 1
+
+    page += 1
+
+  if not pastlastpage:
+    page = page - 1
+    addDirectoryItem(localize(30101),
+             { "mode": callertype,
+               "url": url,
+               "page": str(page),
+               "index": lastindex})
+
+def createSearchDirectory(url,page,index,callertype,dirtype):
+  """
+  Creates a directory with list items from the supplied program
+  page (url).
+  """
+  if not url.startswith("/"):
+    url = "/" + url
+
+  tabname = svt.TAB_S_EPISODES
+  if MODE_VIEW_CLIPS == callertype:
+    tabname = svt.TAB_S_CLIPS
+  elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
+    tabname = svt.TAB_S_TITLES
+
+
+  html = svt.getPage(url)
+
+  if not helper.tabExists(html,tabname) and tabname == svt.TAB_S_EPISODES:
+    tabname = svt.TAB_S_CLIPS # In case there are no episodes for a show, get the clips instead
   
   if not helper.tabExists(html,tabname):
     common.log("Could not find tab "+tabname+" on page with url "+url+". Aborting!")
