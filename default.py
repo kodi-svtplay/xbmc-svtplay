@@ -190,7 +190,7 @@ def createTabIndex(url):
   cTab = False
  
   # Search for the "titles" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_TITLES):
+  if helper.tabExists(html,svt.TAB_S_TITLES):
     tTab = True
     addDirectoryItem(localize(30104), { 
                     "mode": MODE_VIEW_TITLES,
@@ -203,7 +203,7 @@ def createTabIndex(url):
 
 
   # Search for the "episodes" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_EPISODES):
+  if helper.tabExists(html,svt.TAB_S_EPISODES):
     eTab = True
     addDirectoryItem(localize(30105), { 
                     "mode": MODE_VIEW_EPISODES,
@@ -216,7 +216,7 @@ def createTabIndex(url):
 
 
   # Search for the "clips" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,svt.TAB_CLIPS):
+  if helper.tabExists(html,svt.TAB_S_CLIPS):
     cTab = True
     addDirectoryItem(localize(30106), { 
                     "mode": MODE_VIEW_CLIPS,
@@ -294,19 +294,30 @@ def createDirectory(url,page,index,callertype,dirtype):
   Creates a directory with list items from the supplied program
   page (url).
   """
-
+  common.log("callertype:" +callertype)
   if not url.startswith("/"):
     url = "/" + url
 
-  tabname = svt.TAB_EPISODES
-  if MODE_RECOMMENDED == callertype:
-    tabname = svt.TAB_RECOMMENDED
-  elif MODE_LATEST_NEWS == callertype:
-    tabname = svt.TAB_NEWS
-  elif MODE_VIEW_CLIPS == callertype:
-    tabname = svt.TAB_CLIPS
-  elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
-    tabname = svt.TAB_TITLES
+  if "sok?q=" in url:
+    tabname = svt.TAB_S_EPISODES
+    if MODE_VIEW_CLIPS == callertype:
+      tabname = svt.TAB_S_CLIPS
+    elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
+      tabname = svt.TAB_S_TITLES
+  else:
+    tabname = svt.TAB_EPISODES
+    if MODE_RECOMMENDED == callertype:
+      tabname = svt.TAB_RECOMMENDED
+    elif MODE_LATEST_NEWS == callertype:
+      tabname = svt.TAB_NEWS
+    elif MODE_LATEST == callertype:
+      tabname = svt.TAB_LATEST
+    elif MODE_VIEW_CLIPS == callertype:
+      tabname = svt.TAB_CLIPS
+    elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
+      tabname = svt.TAB_TITLES
+
+  common.log(tabname)
 
   html = svt.getPage(url)
 
