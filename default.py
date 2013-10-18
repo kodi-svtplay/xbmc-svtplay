@@ -605,6 +605,7 @@ def getStream(url):
   f = urllib.urlopen(url)
   lines = f.readlines()
   
+  hlsurl = ''
   marker = "#EXT-X-STREAM-INF"
   found = False
 
