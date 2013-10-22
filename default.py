@@ -76,11 +76,11 @@ LOW_BANDWIDH   = LOW_BANDWIDTH
 
 def viewStart():
 
-  addDirectoryItem(localize(30008), { "mode": MODE_CHANNELS })
+  #addDirectoryItem(localize(30008), { "mode": MODE_CHANNELS })
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
   addDirectoryItem(localize(30005), { "mode": MODE_RECOMMENDED, "page": 1 })
-  addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
+  #addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
   addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
   addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
   addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
