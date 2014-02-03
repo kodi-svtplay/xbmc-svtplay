@@ -155,9 +155,9 @@ def getAlphas():
   """
   html = getPage(URL_A_TO_O)
 
-  container = common.parseDOM(html, "div", attrs = { "id" : "playAlphabeticLetterList" })
+  container = common.parseDOM(html, "div", attrs = { "id" : "[^\"]*play-alphabetic-letter[^\"]*" })
 
-  letters = common.parseDOM(container, "h3", attrs = { "class" : "[^\"']*playAlphabeticLetterHeading[^\"']*" })
+  letters = common.parseDOM(container, "h3", attrs = { "class" : "[^\"']*play-alphabetic-heading[^\"']*" })
 
   alphas = []
 
