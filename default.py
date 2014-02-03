@@ -19,6 +19,9 @@ MODE_PROGRAM = "pr"
 MODE_LIVE = "live"
 MODE_LATEST = "ep"
 MODE_LATEST_NEWS = "en"
+MODE_POPULAR = "popular"
+MODE_LAST_CHANCE = "last-chance"
+MODE_LATEST_CLIPS = "latest-clips"
 MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "ti"
@@ -76,15 +79,11 @@ LOW_BANDWIDH   = LOW_BANDWIDTH
 
 def viewStart():
 
-  #addDirectoryItem(localize(30008), { "mode": MODE_CHANNELS })
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
-  addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
-  addDirectoryItem(localize(30005), { "mode": MODE_RECOMMENDED, "page": 1 })
-  #addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
+  addDirectoryItem(localize(30009), { "mode": MODE_POPULAR })
   addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
-  addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
-  addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
-  addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
+  addDirectoryItem(localize(30010), { "mode": MODE_LAST_CHANCE })
+  addDirectoryItem(localize(30011), { "mode": MODE_LATEST_CLIPS })
 
 
 def viewChannels():
@@ -132,6 +131,33 @@ def viewProgramsByLetter(letter):
   for program in programs:
     addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
 
+def viewPopular():
+  articles = svt.getArticles(svt.SECTION_POPULAR)
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO) 
+
+def viewLatestVideos():
+  articles = svt.getArticles(svt.SECTION_LATEST_VIDEOS)
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
+
+def viewLastChance():
+  articles = svt.getArticles(svt.SECTION_LAST_CHANCE)
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
+
+def viewLatestClips():
+  articles = svt.getArticles(svt.SECTION_LATEST_CLIPS)
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
 
 def viewLatest(mode,page,index):
 
@@ -704,13 +730,19 @@ elif mode == MODE_PROGRAM:
 elif mode == MODE_VIDEO:
   startVideo(url)
 elif mode == MODE_LATEST:
-  viewLatest(mode,page,index)
+  viewLatestVideos()
+elif mode == MODE_POPULAR:
+  viewPopular()
+elif mode == MODE_LAST_CHANCE:
+  viewLastChance()
+elif mode == MODE_LATEST_CLIPS:
+  viewLatestClips()
 elif mode == MODE_LATEST_NEWS:
   viewLatest(mode,page,index)
 elif mode == MODE_LETTER:
   viewProgramsByLetter(letter)
 elif mode == MODE_RECOMMENDED:
-  viewLatest(mode,page,index)
+  viewPopular()
 elif mode == MODE_SEARCH:
   viewSearch()
 elif mode == MODE_VIEW_TITLES or \

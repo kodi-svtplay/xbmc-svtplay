@@ -6,7 +6,7 @@ import urllib
 
 common = CommonFunctions
 
-BASE_URL = "http://www.svtplay.se"
+BASE_URL = "http://beta.svtplay.se"
 SWF_URL = "http://www.svtplay.se/public/swf/video/svtplayer-2013.05.swf"
 
 BANDWIDTH = [300,500,900,1600,2500,5000]
@@ -21,6 +21,12 @@ URL_TO_SEARCH = "/sok?q="
 URL_TO_LIVE = "/ajax/live"
 URL_TO_OA = "/kategorier/oppetarkiv"
 JSON_SUFFIX = "?output=json"
+
+SECTION_POPULAR = "popular-videos"
+SECTION_LATEST_VIDEOS = "latest-videos"
+SECTION_LAST_CHANCE = "last-chance-videos"
+SECTION_BROADCAST = "live-channels"
+SECTION_LATEST_CLIPS = "latest-clips"
 
 CLASS_SHOW_MORE_BTN = "[^\"']*playShowMoreButton[^\"']*"
 DATA_NAME_SHOW_MORE_BTN = "sida"
@@ -100,8 +106,9 @@ def getAtoO():
   """
   html = getPage(URL_A_TO_O)
 
-  texts = common.parseDOM(html, "a" , attrs = { "class": "playAlphabeticLetterLink" })
-  hrefs = common.parseDOM(html, "a" , attrs = { "class": "playAlphabeticLetterLink" }, ret = "href")
+  linkClass = "play-alphabetic-link"
+  texts = common.parseDOM(html, "a" , attrs = { "class": linkClass })
+  hrefs = common.parseDOM(html, "a" , attrs = { "class": linkClass }, ret = "href")
   
   programs = []
 
@@ -238,32 +245,37 @@ def getPlayBox(html,tabname):
   return container
 
 
-def getArticles(url,page,tabname=None):
+def getArticles(sectionName):
   """
-  Fetches all "article" DOM elements in a "svtGridBlock" or
-  tab and returns a list of article 'objects'.  
+
   """
-  if page:
-    pageurl = url + "sida=" + page
-  else:
-    pageurl = url 
+  html = getPage("/")
+
+  videoListClass = "[^\"]*play-videolist\s+[^\"]*" 
+  containers = common.parseDOM(html, "div", attrs = { "class" : videoListClass })
+  ids = common.parseDOM(html, "div", attrs = { "class" : videoListClass }, ret = "id")
+  container = None
+  for index, section in enumerate(containers):
+    if ids[index] == sectionName:
+      #Found right section, use for articles
+      container = section
+      break
   
-  html = getPage(pageurl)
-
-  if not tabname:
-    container = common.parseDOM(html,
-                  "div",
-                  attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })[0]
-  else:
-    container = common.parseDOM(html,
-                  "div",
-                  attrs = { "data-tabname": tabname })[0]
-
-  articles = common.parseDOM(container, "article")
-  plots = common.parseDOM(container, "article", ret = "data-description")
-  airtimes = common.parseDOM(container, "article", ret = "data-broadcasted")
-  durations = common.parseDOM(container, "article", ret = "data-length")
+  if not container:
+    common.log("No section found matching '"+sectionName+"' !")
+    return None
+  
+  articleClass = "[^\"]*play-videolist-element[^\"]*"
+  articles = common.parseDOM(container, "article", attrs = { "class" : articleClass })
+  titles = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-title")
+  plots = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-description")
+  airtimes = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-broadcasted")
+  durations = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-length")
   newarticles = []
+  
+  if not articles:
+    common.log("No articles found for section '"+sectionName+"' !")
+    return None
  
   for index,article in enumerate(articles):
     info = {}
@@ -271,13 +283,13 @@ def getArticles(url,page,tabname=None):
     plot = plots[index]
     aired = airtimes[index]
     duration = durations[index]
-    title = common.parseDOM(article,"h1")[0]
+    title = titles[index]
     newarticle["url"] = common.parseDOM(article, "a",
-                            attrs = { "class": "[^\"']*[playLink|playAltLink][^\"']*" },
+                            attrs = { "class": "[^\"']*play-videolist-element-link[^\"']*" },
                             ret = "href")[0]
     thumbnail = common.parseDOM(article,
                                 "img",
-                                attrs = { "class": "playGridThumbnail" },
+                                attrs = { "class": "[^\"]*play-videolist-thumbnail[^\"]*" },
                                 ret = "src")[0]
     newarticle["thumbnail"] = helper.prepareThumb(thumbnail)
     
