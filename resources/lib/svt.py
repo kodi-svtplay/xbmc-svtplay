@@ -154,10 +154,17 @@ def getAlphas():
   matches the starting letter of some program.
   """
   html = getPage(URL_A_TO_O)
+  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
 
-  container = common.parseDOM(html, "div", attrs = { "id" : "[^\"]*play-alphabetic-letter[^\"]*" })
+  if not container:
+    common.log("No container found!")
+    return None
 
-  letters = common.parseDOM(container, "h3", attrs = { "class" : "[^\"']*play-alphabetic-heading[^\"']*" })
+  letters = common.parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play-alphabetic-heading[^\"']*" })
+
+  if not letters:
+    common.log("Could not find any letters!")
+    return None
 
   alphas = []
 
@@ -178,7 +185,7 @@ def getProgramsByLetter(letter):
 
   html = getPage(URL_A_TO_O)
 
-  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*playAlphabeticLetter[^\"']*" })
+  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*play-alphabetic-letter[^\"']*" })
 
   for letterbox in letterboxes:
 
@@ -187,7 +194,7 @@ def getProgramsByLetter(letter):
     if heading == letter:
       break
 
-  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*playListItem[^\"']*" })
+  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play-list-item[^\"']*" })
 
   programs = []
 
@@ -251,7 +258,7 @@ def getArticles(sectionName):
   """
   html = getPage("/")
 
-  videoListClass = "[^\"]*play-videolist\s+[^\"]*" 
+  videoListClass = "[^\"']*play-videolist\s+[^\"']*" 
   containers = common.parseDOM(html, "div", attrs = { "class" : videoListClass })
   ids = common.parseDOM(html, "div", attrs = { "class" : videoListClass }, ret = "id")
   container = None
@@ -265,7 +272,7 @@ def getArticles(sectionName):
     common.log("No section found matching '"+sectionName+"' !")
     return None
   
-  articleClass = "[^\"]*play-videolist-element[^\"]*"
+  articleClass = "[^\"']*play-videolist-element[^\"']*"
   articles = common.parseDOM(container, "article", attrs = { "class" : articleClass })
   titles = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-title")
   plots = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-description")
@@ -289,7 +296,7 @@ def getArticles(sectionName):
                             ret = "href")[0]
     thumbnail = common.parseDOM(article,
                                 "img",
-                                attrs = { "class": "[^\"]*play-videolist-thumbnail[^\"]*" },
+                                attrs = { "class": "[^\"']*play-videolist-thumbnail[^\"']*" },
                                 ret = "src")[0]
     newarticle["thumbnail"] = helper.prepareThumb(thumbnail)
     

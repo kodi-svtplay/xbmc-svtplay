@@ -120,7 +120,8 @@ def viewCategories():
 
 def viewAlphaDirectories():
   alphas = svt.getAlphas() 
-
+  if not alphas:
+    return
   for alpha in alphas:
     addDirectoryItem(alpha["title"], { "mode": MODE_LETTER, "letter": alpha["char"] })
 
