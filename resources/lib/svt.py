@@ -126,18 +126,18 @@ def getCategories():
   """
   Returns a list of all categories.
   """
-  html = getPage(URL_CATEGORIES)
+  html = getPage("/")
 
-  container = common.parseDOM(html, "ul", attrs = { "class": "[^\"']*svtGridBlock[^\"']*" })
+  container = common.parseDOM(html, "div", attrs = { "id": "[^\"']*playJs-categories[^\"']*" })
 
-  lis = common.parseDOM(container, "li" , attrs = { "class": "[^\"']*svtMediaBlock[^\"']*" })
+  articles = common.parseDOM(container, "article")
 
   categories = []
 
-  for li in lis:
+  for article in articles:
     category = {}
-    category["url"] = common.parseDOM(li, "a", ret = "href")[0]
-    title = common.parseDOM(li, "span")[0]
+    category["url"] = common.parseDOM(article, "a", ret = "href")[0]
+    title = common.parseDOM(article, "h2")[0]
 
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
@@ -147,6 +147,34 @@ def getCategories():
     categories.append(category)
 
   return categories
+
+
+def getProgramsForCategory(url):
+  html = getPage(url)
+
+  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
+
+  if not container:
+    common.log("Could not find container for URL "+url)
+    return None
+
+  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*play-list-item[^\"']*" })
+
+  if not lis:
+    common.log("Could not find program links for URL "+url)
+    return None
+  
+  programs = []
+
+  for li in lis:
+    href = common.parseDOM(li, "a", ret = "href")[0]
+    title = common.parseDOM(li, "a")[0]
+    program = {}
+    program["title"] = common.replaceHTMLCodes(title)
+    program["url"] = href
+    programs.append(program)
+
+  return programs
 
 
 def getAlphas():
@@ -205,7 +233,7 @@ def getProgramsByLetter(letter):
     title = common.parseDOM(li, "a")[0]
     program["title"] = common.replaceHTMLCodes(title)
     programs.append(program)
-
+    
   return programs
 
 

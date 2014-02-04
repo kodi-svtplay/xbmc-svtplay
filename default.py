@@ -85,6 +85,7 @@ def viewStart():
   addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
   addDirectoryItem(localize(30010), { "mode": MODE_LAST_CHANCE })
   addDirectoryItem(localize(30011), { "mode": MODE_LATEST_CLIPS })
+  addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
 
 
 def viewChannels():
@@ -116,7 +117,7 @@ def viewCategories():
   categories = svt.getCategories()
 
   for category in categories:
-    addDirectoryItem(category["title"], { "mode": MODE_CATEGORY, "url": category["url"], "page": 1})
+    addDirectoryItem(category["title"], { "mode": MODE_CATEGORY, "url": category["url"] })
 
 
 def viewAlphaDirectories():
@@ -162,14 +163,18 @@ def viewLatestClips():
     createDirItem(article, MODE_VIDEO)
 
 
-def viewCategory(url,page,index):
+def viewCategory(url):
   if url == svt.URL_TO_OA:
     dialog = xbmcgui.Dialog()
     dialog.ok("SVT Play", localize(30107))
     viewStart()
     return 
-  createDirectory(url,page,index,MODE_CATEGORY,MODE_PROGRAM)
 
+  programs = svt.getProgramsForCategory(url)
+  if not programs:
+    return
+  for program in programs:
+    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }) 
 
 def viewEpisodes(url):
   """
@@ -739,7 +744,7 @@ elif mode == MODE_LIVE:
 elif mode == MODE_CATEGORIES:
   viewCategories()
 elif mode == MODE_CATEGORY:
-  viewCategory(url,page,index)
+  viewCategory(url)
 elif mode == MODE_PROGRAM:
   viewEpisodes(url)
   addClipDirItem(url)
