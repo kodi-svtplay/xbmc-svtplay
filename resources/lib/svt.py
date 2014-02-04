@@ -27,6 +27,7 @@ SECTION_LATEST_VIDEOS = "latest-videos"
 SECTION_LAST_CHANCE = "last-chance-videos"
 SECTION_BROADCAST = "live-channels"
 SECTION_LATEST_CLIPS = "latest-clips"
+SECTION_EPISODES = "more-episodes"
 
 CLASS_SHOW_MORE_BTN = "[^\"']*playShowMoreButton[^\"']*"
 DATA_NAME_SHOW_MORE_BTN = "sida"
@@ -252,11 +253,13 @@ def getPlayBox(html,tabname):
   return container
 
 
-def getArticles(sectionName):
+def getArticles(sectionName, url=None):
   """
 
   """
-  html = getPage("/")
+  if not url:
+    url = "/"
+  html = getPage(url)
 
   videoListClass = "[^\"']*play-videolist\s+[^\"']*" 
   containers = common.parseDOM(html, "div", attrs = { "class" : videoListClass })

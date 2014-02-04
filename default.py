@@ -130,7 +130,7 @@ def viewProgramsByLetter(letter):
   programs = svt.getProgramsByLetter(letter)
 
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
+    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
 def viewPopular():
   articles = svt.getArticles(svt.SECTION_POPULAR)
@@ -183,12 +183,29 @@ def viewCategory(url,page,index):
   createDirectory(url,page,index,MODE_CATEGORY,MODE_PROGRAM)
 
 
-def viewProgram(url,page,index):
-  if FULL_PROGRAM_PARSE:
-    createTabIndex(url)
-  else:
-    createDirectory(url,page,index,MODE_PROGRAM,MODE_VIDEO)
+def viewEpisodes(url):
+  """
+  Displays the episodes for a program with URL 'url'.
+  """
+  episodes = svt.getArticles(svt.SECTION_EPISODES, url)
+  if not episodes:
+    common.log("No episodes found!")
+    return
+  
+  for episode in episodes:
+    createDirItem(episode, MODE_VIDEO)
 
+def viewClips(url):
+  """
+  Displays the latest clips for a program
+  """
+  clips = svt.getArticles(svt.SECTION_LATEST_CLIPS, url)
+  if not clips:
+    common.log("No clips found!")
+    return
+  
+  for clip in clips:
+    createDirItem(clip, MODE_VIDEO)
 
 def viewSearch():
 
@@ -727,7 +744,9 @@ elif mode == MODE_CATEGORIES:
 elif mode == MODE_CATEGORY:
   viewCategory(url,page,index)
 elif mode == MODE_PROGRAM:
-  viewProgram(url,page,index)
+  viewEpisodes(url)
+  if FULL_PROGRAM_PARSE:
+    viewClips(url)
 elif mode == MODE_VIDEO:
   startVideo(url)
 elif mode == MODE_LATEST:
