@@ -261,9 +261,19 @@ def getArticles(sectionName, url=None):
     url = "/"
   html = getPage(url)
 
-  videoListClass = "[^\"']*play-videolist\s+[^\"']*" 
+  videoListClass = "[^\"']*play-videolist" 
   containers = common.parseDOM(html, "div", attrs = { "class" : videoListClass })
+
+  if not containers:
+    common.log("Could not find container for "+sectionName)
+    return None
+
   ids = common.parseDOM(html, "div", attrs = { "class" : videoListClass }, ret = "id")
+
+  if not ids:
+    common.log("Could not find IDs for "+sectionName)
+    return None
+
   container = None
   for index, section in enumerate(containers):
     if ids[index] == sectionName:

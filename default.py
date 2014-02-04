@@ -16,6 +16,7 @@ import resources.lib.svt as svt
 MODE_CHANNELS = "kanaler"
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "pr"
+MODE_CLIPS = "clips"
 MODE_LIVE = "live"
 MODE_LATEST = "ep"
 MODE_LATEST_NEWS = "en"
@@ -160,19 +161,6 @@ def viewLatestClips():
   for article in articles:
     createDirItem(article, MODE_VIDEO)
 
-def viewLatest(mode,page,index):
-
-  dirtype = MODE_VIDEO
-
-  if mode == MODE_LATEST_NEWS:
-    url = svt.URL_TO_LATEST_NEWS
-  elif mode == MODE_RECOMMENDED:
-    url = svt.URL_TO_RECOMMENDED
-  elif mode == MODE_LATEST:
-    url = svt.URL_TO_LATEST
-
-  createDirectory(url,page,index,mode,dirtype)
-
 
 def viewCategory(url,page,index):
   if url == svt.URL_TO_OA:
@@ -194,6 +182,15 @@ def viewEpisodes(url):
   
   for episode in episodes:
     createDirItem(episode, MODE_VIDEO)
+
+def addClipDirItem(url):
+  """
+  Adds the "Clips" directory item to a program listing.
+  """
+  params = {}
+  params["mode"] = MODE_CLIPS
+  params["url"] = url
+  addDirectoryItem(localize(30108), params)
 
 def viewClips(url):
   """
@@ -745,8 +742,9 @@ elif mode == MODE_CATEGORY:
   viewCategory(url,page,index)
 elif mode == MODE_PROGRAM:
   viewEpisodes(url)
-  if FULL_PROGRAM_PARSE:
-    viewClips(url)
+  addClipDirItem(url)
+elif mode == MODE_CLIPS:
+  viewClips(url)
 elif mode == MODE_VIDEO:
   startVideo(url)
 elif mode == MODE_LATEST:
@@ -757,8 +755,6 @@ elif mode == MODE_LAST_CHANCE:
   viewLastChance()
 elif mode == MODE_LATEST_CLIPS:
   viewLatestClips()
-elif mode == MODE_LATEST_NEWS:
-  viewLatest(mode,page,index)
 elif mode == MODE_LETTER:
   viewProgramsByLetter(letter)
 elif mode == MODE_RECOMMENDED:
