@@ -29,6 +29,10 @@ SECTION_BROADCAST = "live-channels"
 SECTION_LATEST_CLIPS = "latest-clips"
 SECTION_EPISODES = "more-episodes"
 
+SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
+SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*" 
+SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*" 
+
 CLASS_SHOW_MORE_BTN = "[^\"']*playShowMoreButton[^\"']*"
 DATA_NAME_SHOW_MORE_BTN = "sida"
 
@@ -236,6 +240,31 @@ def getProgramsByLetter(letter):
     
   return programs
 
+def getSearchResults(url, listId):
+  
+  html = getPage(url)
+
+  container = common.parseDOM(html, "div", attrs = { "id" : listId })
+  if not container:
+    common.log("No container found for list ID '"+listId+"'")
+    return None
+
+  articles = common.parseDOM(container, "article")
+  if not articles:
+    common.log("No articles found for list ID '"+listId+"'")
+    return None
+
+  titles = common.parseDOM(container, "article", ret = "data-title")
+  
+  results = []
+  for index, article in enumerate(articles):
+    thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play-videolist-thumbnail[^\"']*" }, ret = "src")[0]
+    url = common.parseDOM(article, "a", ret = "href")[0]
+    title = common.replaceHTMLCodes(titles[index])
+    thumbnail = helper.prepareThumb(thumbnail)
+    results.append({ "title" : title, "thumbnail" : thumbnail, "url" : url  })
+
+  return results
 
 def getAjaxUrl(html,tabname):
   """

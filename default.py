@@ -86,6 +86,8 @@ def viewStart():
   addDirectoryItem(localize(30010), { "mode": MODE_LAST_CHANCE })
   addDirectoryItem(localize(30011), { "mode": MODE_LATEST_CLIPS })
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
+  addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
+
 
 
 def viewChannels():
@@ -222,8 +224,17 @@ def viewSearch():
 
   url = svt.URL_TO_SEARCH + keyword
   
-  createTabIndex(url)
-
+  for listId in [svt.SEARCH_LIST_TITLES, svt.SEARCH_LIST_EPISODES, svt.SEARCH_LIST_CLIPS]:
+    common.log("Looking for results in '"+listId+"' for '"+keyword+"'")
+    items = svt.getSearchResults(url, listId)
+    if not items:
+      common.log("No search results in list '"+listId+"'")
+      break
+    for item in items:
+      mode = MODE_VIDEO
+      if listId == svt.SEARCH_LIST_TITLES:
+        mode = MODE_PROGRAM
+      createDirItem(item, mode)
 
 def createTabIndex(url):
   """
@@ -460,8 +471,10 @@ def createDirItem(article,mode):
     if mode == MODE_PROGRAM:
       folder = True
       params["page"] = 1
-
-    addDirectoryItem(article["title"], params, article["thumbnail"], folder, False, article["info"])
+    info = None
+    if "info" in article.keys():
+      info = article["info"]
+    addDirectoryItem(article["title"], params, article["thumbnail"], folder, False, info)
     CURR_DIR_ITEMS += 1
 
 
