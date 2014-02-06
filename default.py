@@ -41,6 +41,7 @@ pluginHandle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon()
 localize = addon.getLocalizedString
+xbmcplugin.setContent(pluginHandle, "tvshows")
 
 common.plugin = addon.getAddonInfo('name') + ' ' + addon.getAddonInfo('version')
 
