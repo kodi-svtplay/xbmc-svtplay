@@ -240,10 +240,27 @@ def getProgramsByLetter(letter):
     
   return programs
 
-def getSearchResults(url, listId):
-  
+def getSearchResults(url):
+  """
+
+  """
   html = getPage(url)
 
+  results = []
+
+  for listId in [SEARCH_LIST_TITLES, SEARCH_LIST_EPISODES, SEARCH_LIST_CLIPS]:
+    items = getSearchResultsForList(html ,listId)
+    if not items:
+      common.log("No items in list '"+listId+"'")
+    results.extend(items)
+
+  return results
+
+
+def getSearchResultsForList(html, listId):
+  """
+
+  """
   container = common.parseDOM(html, "div", attrs = { "id" : listId })
   if not container:
     common.log("No container found for list ID '"+listId+"'")
@@ -262,7 +279,11 @@ def getSearchResults(url, listId):
     url = common.parseDOM(article, "a", ret = "href")[0]
     title = common.replaceHTMLCodes(titles[index])
     thumbnail = helper.prepareThumb(thumbnail)
-    results.append({ "title" : title, "thumbnail" : thumbnail, "url" : url  })
+
+    itemType = "video"
+    if listId == SEARCH_LIST_TITLES:
+      itemType = "program"
+    results.append({"item": { "title" : title, "thumbnail" : thumbnail, "url" : url  }, "type" : itemType })
 
   return results
 

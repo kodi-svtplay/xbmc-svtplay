@@ -223,18 +223,14 @@ def viewSearch():
   keyword = re.sub(r" ","+",keyword) 
 
   url = svt.URL_TO_SEARCH + keyword
-  
-  for listId in [svt.SEARCH_LIST_TITLES, svt.SEARCH_LIST_EPISODES, svt.SEARCH_LIST_CLIPS]:
-    common.log("Looking for results in '"+listId+"' for '"+keyword+"'")
-    items = svt.getSearchResults(url, listId)
-    if not items:
-      common.log("No search results in list '"+listId+"'")
-      break
-    for item in items:
-      mode = MODE_VIDEO
-      if listId == svt.SEARCH_LIST_TITLES:
-        mode = MODE_PROGRAM
-      createDirItem(item, mode)
+ 
+  results = svt.getSearchResults(url)
+  for result in results:
+    mode = MODE_VIDEO
+    if result["type"] == "program":
+      mode = MODE_PROGRAM
+    createDirItem(result["item"], mode)
+
 
 def createTabIndex(url):
   """
