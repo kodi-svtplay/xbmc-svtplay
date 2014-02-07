@@ -35,8 +35,6 @@ MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
 
-CURR_DIR_ITEMS = 0
-
 pluginHandle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon()
@@ -90,30 +88,11 @@ def viewStart():
   addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
 
 
-
-def viewChannels():
-  channels = svt.getChannels()
-  
-  params = {}
-  params["mode"] = MODE_VIDEO
-
-  for channel in channels:
-    params["url"] = channel["url"]
-    addDirectoryItem(channel["title"],params,channel["thumbnail"],False,True)
-    
-  
 def viewAtoO():
   programs = svt.getAtoO()
   
   for program in programs:
     addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
-
-
-def viewLive():
-  programs = svt.getLivePrograms()
-  
-  for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_VIDEO, "url": program["url"] }, program["thumbnail"], False, True)
 
 
 def viewCategories():
@@ -142,7 +121,7 @@ def viewPopular():
   if not articles:
     return
   for article in articles:
-    createDirItem(article, MODE_VIDEO) 
+    createDirItem(article, MODE_VIDEO)
 
 def viewLatestVideos():
   articles = svt.getArticles(svt.SECTION_LATEST_VIDEOS)
@@ -233,95 +212,6 @@ def viewSearch():
     createDirItem(result["item"], mode)
 
 
-def createTabIndex(url):
-  """
-  Creates a directory item for each available tab; Klipp, Hela program, Programtitlar
-  """
-  html = svt.getPage(url)
-  tTab = False
-  eTab = False
-  cTab = False
-  tab_tit = svt.TAB_TITLES
-  tab_eps = svt.TAB_EPISODES
-  tab_cli = svt.TAB_CLIPS
-
-  # Search for the "titles" tab if in search mode. If it exists; create link to result directory  
-  if mode == MODE_SEARCH:
-    tab_tit = svt.TAB_S_TITLES
-    tab_eps = svt.TAB_S_EPISODES
-    tab_cli = svt.TAB_S_CLIPS
-  
-    if helper.tabExists(html,tab_tit):
-      tTab = True
-      addDirectoryItem(localize(30104), { 
-                      "mode": MODE_VIEW_TITLES,
-                      "url": url,
-                      "page": 1,
-                      "index": 0 })
-    else:
-      # Do nothing
-      common.log("No titles found")
-
-
-  # Search for the "episodes" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,tab_eps):
-    eTab = True
-    addDirectoryItem(localize(30105), { 
-                    "mode": MODE_VIEW_EPISODES,
-                    "url": url,
-                    "page": 1,
-                    "index": 0 })
-  else:
-    # Do nothing
-    common.log("No episodes found")
-
-
-  # Search for the "clips" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,tab_cli):
-    cTab = True
-    addDirectoryItem(localize(30106), { 
-                    "mode": MODE_VIEW_CLIPS,
-                    "url": url,
-                    "page": 1,
-                    "index": 0 })
-  else:
-    # Do nothing 
-    common.log("No clips found")
-
-  foundTab = tTab or eTab or cTab
-
-  if not foundTab:
-    # Raise dialog with a "No results found" message
-    # Should only happen when using Search
-    common.log("No search results") 
-    dialog = xbmcgui.Dialog()
-    dialog.ok("SVT Play",localize(30103))
-    viewStart()
-    return
-
-
-def viewPageResults(url,mode,page,index):
-  """
-  Creates a directory for the search results from
-  the tab specified by the mode parameter.
-  """ 
-  common.log("url: " + url + " mode: " + mode)
-  dirtype = None
-
-  if MODE_VIEW_TITLES == mode:
-    dirtype = MODE_PROGRAM
-  elif MODE_VIEW_EPISODES == mode:
-    dirtype = MODE_VIDEO
-  elif MODE_VIEW_CLIPS == mode:
-    dirtype = MODE_VIDEO
-  else:
-    common.log("Undefined mode")
-    viewStart()
-    return
-
-  createDirectory(url,page,index,mode,dirtype)
-
-
 def viewBestOfCategories():
   """
   Creates a directory displaying each of the
@@ -350,114 +240,11 @@ def viewBestOfCategory(url):
     addDirectoryItem(show["title"], params, show["thumbnail"], False, False, show["info"])
 
 
-def createDirectory(url,page,index,callertype,dirtype):
-  """
-  Creates a directory with list items from the supplied program
-  page (url).
-  """
-  if not url.startswith("/"):
-    url = "/" + url
-  tabname = ""
-  if svt.URL_TO_SEARCH in url:
-    if MODE_VIEW_EPISODES == callertype:
-      tabname = svt.TAB_S_EPISODES
-    elif MODE_VIEW_CLIPS == callertype:
-      tabname = svt.TAB_S_CLIPS
-    elif MODE_VIEW_TITLES == callertype:
-      tabname = svt.TAB_S_TITLES
-  else:
-    tabname = svt.TAB_EPISODES
-    if MODE_RECOMMENDED == callertype:
-      tabname = svt.TAB_RECOMMENDED
-    elif MODE_LATEST_NEWS == callertype:
-      tabname = svt.TAB_NEWS
-    elif MODE_LATEST == callertype:
-      tabname = svt.TAB_LATEST
-    elif MODE_VIEW_CLIPS == callertype:
-      tabname = svt.TAB_CLIPS
-    elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
-      tabname = svt.TAB_TITLES
-
-  html = svt.getPage(url)
-
-  if not helper.tabExists(html,tabname) and tabname == svt.TAB_EPISODES:
-    tabname = svt.TAB_CLIPS # In case there are no episodes for a show, get the clips instead
-  
-  if not helper.tabExists(html,tabname):
-    common.log("Could not find tab "+tabname+" on page with url "+url+". Aborting!")
-    return 
-
-  ajaxurl = svt.getAjaxUrl(html,tabname)
-
-  if not ajaxurl:
-    populateDirNoPaging(url,dirtype,tabname)
-    return
-  
-  lastpage = svt.getLastPage(html,tabname)
-
-  fetchitems = True
-  pastlastpage = False
-
-  page = int(page)
-  index = int(index)
-  lastpage = int(lastpage)
-
-  while fetchitems:
-
-    if page > lastpage:
-      pastlastpage = True
-      break
-
-    global CURR_DIR_ITEMS
-
-    articles = svt.getArticles(ajaxurl,str(page))
-    articles = articles[index:]
-    lastindex = 0
-
-    for article in articles:
-
-      if CURR_DIR_ITEMS >= MAX_DIR_ITEMS:
-        CURR_DIR_ITEMS = 0
-        fetchitems = False
-        break
-        
-      createDirItem(article,dirtype)      
-
-      lastindex += 1
-
-    page += 1
-
-  if not pastlastpage:
-    page = page - 1
-    addDirectoryItem(localize(30101),
-             { "mode": callertype,
-               "url": url,
-               "page": str(page),
-               "index": lastindex})
-
-
-def populateDirNoPaging(url,mode,tabname):
-  """
-  Program pages that have less than 8 videos
-  does not have a way to fetch the Ajax URL.
-  Use the normal page URL to populate the
-  directory.
-  """
-  common.log("url: " + url + ", mode: " + mode + ", tabname: " + tabname)
-
-  articles = svt.getArticles(url,None,tabname)
-  
-  for article in articles:
-    createDirItem(article,mode)
-
-
 def createDirItem(article,mode):
   """
   Given an article and a mode; create directory item
   for the article.
   """
-  global CURR_DIR_ITEMS
-
   if (not HIDE_SIGN_LANGUAGE) or (article["title"].lower().endswith("teckentolkad") == False and article["title"].lower().find("teckenspråk".decode("utf-8")) == -1):
 
     params = {}
@@ -472,7 +259,6 @@ def createDirItem(article,mode):
     if "info" in article.keys():
       info = article["info"]
     addDirectoryItem(article["title"], params, article["thumbnail"], folder, False, info)
-    CURR_DIR_ITEMS += 1
 
 
 def startVideo(url):
@@ -749,8 +535,6 @@ elif mode == MODE_A_TO_O:
     viewAlphaDirectories()
   else:
     viewAtoO()
-elif mode == MODE_LIVE:
-  viewLive()
 elif mode == MODE_CATEGORIES:
   viewCategories()
 elif mode == MODE_CATEGORY:
@@ -772,19 +556,11 @@ elif mode == MODE_LATEST_CLIPS:
   viewLatestClips()
 elif mode == MODE_LETTER:
   viewProgramsByLetter(letter)
-elif mode == MODE_RECOMMENDED:
-  viewPopular()
 elif mode == MODE_SEARCH:
   viewSearch()
-elif mode == MODE_VIEW_TITLES or \
-     mode == MODE_VIEW_EPISODES or \
-     mode == MODE_VIEW_CLIPS:
-  viewPageResults(url,mode,page,index)
 elif mode == MODE_BESTOF_CATEGORIES:
   viewBestOfCategories()
 elif mode == MODE_BESTOF_CATEGORY:
   viewBestOfCategory(url)
-elif mode == MODE_CHANNELS:
-  viewChannels()
 
 xbmcplugin.endOfDirectory(pluginHandle)
