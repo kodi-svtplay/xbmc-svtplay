@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+import sys
 import time
 import urllib
 import xbmc
@@ -8,7 +9,6 @@ import xbmcgui
 import xbmcaddon
 import xbmcplugin
 import CommonFunctions as common
-import os
 import resources.lib.bestofsvt as bestof
 import resources.lib.helper as helper
 import resources.lib.svt as svt
@@ -35,11 +35,11 @@ MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
 
-pluginHandle = int(sys.argv[1])
+PLUGIN_HANDLE = int(sys.argv[1])
 
 addon = xbmcaddon.Addon()
 localize = addon.getLocalizedString
-xbmcplugin.setContent(pluginHandle, "tvshows")
+xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 
 common.plugin = addon.getAddonInfo('name') + ' ' + addon.getAddonInfo('version')
 
@@ -80,7 +80,7 @@ LOW_BANDWIDH   = LOW_BANDWIDTH
 def viewStart():
 
   addDirectoryItem(localize(30009), { "mode": MODE_POPULAR })
-  addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
+  addDirectoryItem(localize(30003), { "mode": MODE_LATEST })
   addDirectoryItem(localize(30010), { "mode": MODE_LAST_CHANCE })
   addDirectoryItem(localize(30011), { "mode": MODE_LATEST_CLIPS })
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
@@ -92,7 +92,7 @@ def viewAtoO():
   programs = svt.getAtoO()
   
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
+    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
 
 def viewCategories():
@@ -200,7 +200,7 @@ def viewSearch():
   keyword = urllib.quote(keyword)
   common.log("Search string: " + keyword)
 
-  keyword = re.sub(r" ","+",keyword) 
+  keyword = re.sub(r" ", "+", keyword) 
 
   url = svt.URL_TO_SEARCH + keyword
  
@@ -240,7 +240,7 @@ def viewBestOfCategory(url):
     addDirectoryItem(show["title"], params, show["thumbnail"], False, False, show["info"])
 
 
-def createDirItem(article,mode):
+def createDirItem(article, mode):
   """
   Given an article and a mode; create directory item
   for the article.
@@ -254,7 +254,6 @@ def createDirItem(article,mode):
 
     if mode == MODE_PROGRAM:
       folder = True
-      params["page"] = 1
     info = None
     if "info" in article.keys():
       info = article["info"]
@@ -283,7 +282,7 @@ def startVideo(url):
   startTime = time.time()
 
   if videoUrl:
-    xbmcplugin.setResolvedUrl(pluginHandle, True, xbmcgui.ListItem(path=videoUrl))
+    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=videoUrl))
 
     if subtitle:
       while not player.isPlaying() and time.time() - startTime < 10:
@@ -312,11 +311,9 @@ def getVideoUrl(jsonObj):
   args = ""
 
   for video in jsonObj["video"]["videoReferences"]:
-    """
-    Determine which file extension that will be used
-    m3u8 is preferred, hence the break.
-    Order: m3u8, f4m, mp4, flv
-    """
+    # Determine which file extension that will be used
+    # m3u8 is preferred, hence the break.
+    # Order: m3u8, f4m, mp4, flv
     tmpurl = video["url"]
     argpos = tmpurl.rfind("?")
     errormsg = ""
@@ -433,7 +430,6 @@ def hlsStrip(videoUrl):
     ufile = urllib.urlopen(videoUrl)
     lines = ufile.readlines()
 
-    newplaylist = "#EXTM3U\n"
     hlsurl = ""
     bandwidth = 0
     foundhigherquality = False
@@ -445,7 +441,7 @@ def hlsStrip(videoUrl):
         hlsurl = line
       if "EXT-X-STREAM-INF" in line: # The header
         if not "avc1.77.30" in line:
-          match = re.match(r'.*BANDWIDTH=(\d+).+',line)
+          match = re.match(r'.*BANDWIDTH=(\d+).+', line)
           if match:
             if bandwidth < int(match.group(1)):
               foundhigherquality = True
@@ -480,7 +476,7 @@ def getStreamForBW(url):
       hlsurl = line
       break
     if marker in line: # The header
-      match = re.match(r'.*BANDWIDTH=(\d+)000.+',line)
+      match = re.match(r'.*BANDWIDTH=(\d+)000.+', line)
       if match:
         if LOW_BANDWIDTH < int(match.group(1)) < HIGH_BANDWIDTH:
           common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(LOW_BANDWIDTH))
@@ -514,53 +510,46 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
   if info:
     li.setInfo("Video", info)
 
-  xbmcplugin.addDirectoryItem(pluginHandle, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
+  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
 
+# Main segment of script
+ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
+ARG_MODE = ARG_PARAMS.get("mode")
+ARG_URL = urllib.unquote_plus(ARG_PARAMS.get("url", ""))
 
-params = helper.getUrlParameters(sys.argv[2])
-
-mode = params.get("mode")
-url = urllib.unquote_plus(params.get("url", ""))
-page = params.get("page")
-letter = params.get("letter")
-index = params.get("index")
-
-if not index:
-  index = "0"
-
-if not mode:
+if not ARG_MODE:
   viewStart()
-elif mode == MODE_A_TO_O:
+elif ARG_MODE == MODE_A_TO_O:
   if USE_ALPHA_CATEGORIES:
     viewAlphaDirectories()
   else:
     viewAtoO()
-elif mode == MODE_CATEGORIES:
+elif ARG_MODE == MODE_CATEGORIES:
   viewCategories()
-elif mode == MODE_CATEGORY:
-  viewCategory(url)
-elif mode == MODE_PROGRAM:
-  viewEpisodes(url)
-  addClipDirItem(url)
-elif mode == MODE_CLIPS:
-  viewClips(url)
-elif mode == MODE_VIDEO:
-  startVideo(url)
-elif mode == MODE_LATEST:
+elif ARG_MODE == MODE_CATEGORY:
+  viewCategory(ARG_URL)
+elif ARG_MODE == MODE_PROGRAM:
+  viewEpisodes(ARG_URL)
+  addClipDirItem(ARG_URL)
+elif ARG_MODE == MODE_CLIPS:
+  viewClips(ARG_URL)
+elif ARG_MODE == MODE_VIDEO:
+  startVideo(ARG_URL)
+elif ARG_MODE == MODE_LATEST:
   viewLatestVideos()
-elif mode == MODE_POPULAR:
+elif ARG_MODE == MODE_POPULAR:
   viewPopular()
-elif mode == MODE_LAST_CHANCE:
+elif ARG_MODE == MODE_LAST_CHANCE:
   viewLastChance()
-elif mode == MODE_LATEST_CLIPS:
+elif ARG_MODE == MODE_LATEST_CLIPS:
   viewLatestClips()
-elif mode == MODE_LETTER:
-  viewProgramsByLetter(letter)
-elif mode == MODE_SEARCH:
+elif ARG_MODE == MODE_LETTER:
+  viewProgramsByLetter(ARG_PARAMS.get("letter"))
+elif ARG_MODE == MODE_SEARCH:
   viewSearch()
-elif mode == MODE_BESTOF_CATEGORIES:
+elif ARG_MODE == MODE_BESTOF_CATEGORIES:
   viewBestOfCategories()
-elif mode == MODE_BESTOF_CATEGORY:
-  viewBestOfCategory(url)
+elif ARG_MODE == MODE_BESTOF_CATEGORY:
+  viewBestOfCategory(ARG_URL)
 
-xbmcplugin.endOfDirectory(pluginHandle)
+xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
