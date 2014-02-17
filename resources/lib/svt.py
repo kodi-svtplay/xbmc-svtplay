@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import CommonFunctions
-import re
-import resources.lib.helper as helper
 import urllib
-
-common = CommonFunctions
+import resources.lib.helper as helper
+import CommonFunctions as common
 
 BASE_URL = "http://beta.svtplay.se"
 SWF_URL = "http://www.svtplay.se/public/swf/video/svtplayer-2013.05.swf"
@@ -34,9 +31,9 @@ def getAtoO():
   """
   html = getPage(URL_A_TO_O)
 
-  linkClass = "play-alphabetic-link"
-  texts = common.parseDOM(html, "a" , attrs = { "class": linkClass })
-  hrefs = common.parseDOM(html, "a" , attrs = { "class": linkClass }, ret = "href")
+  link_class = "play-alphabetic-link"
+  texts = common.parseDOM(html, "a" , attrs = { "class": link_class })
+  hrefs = common.parseDOM(html, "a" , attrs = { "class": link_class }, ret = "href")
   
   programs = []
 
@@ -56,9 +53,7 @@ def getCategories():
   html = getPage("/")
 
   container = common.parseDOM(html, "div", attrs = { "id": "[^\"']*playJs-categories[^\"']*" })
-
   articles = common.parseDOM(container, "article")
-
   categories = []
 
   for article in articles:
@@ -142,6 +137,7 @@ def getProgramsByLetter(letter):
   html = getPage(URL_A_TO_O)
 
   letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*play-alphabetic-letter[^\"']*" })
+  letterbox = None
 
   for letterbox in letterboxes:
 
@@ -171,27 +167,27 @@ def getSearchResults(url):
 
   results = []
 
-  for listId in [SEARCH_LIST_TITLES, SEARCH_LIST_EPISODES, SEARCH_LIST_CLIPS]:
-    items = getSearchResultsForList(html, listId)
+  for list_id in [SEARCH_LIST_TITLES, SEARCH_LIST_EPISODES, SEARCH_LIST_CLIPS]:
+    items = getSearchResultsForList(html, list_id)
     if not items:
-      common.log("No items in list '"+listId+"'")
+      common.log("No items in list '"+list_id+"'")
     results.extend(items)
 
   return results
 
 
-def getSearchResultsForList(html, listId):
+def getSearchResultsForList(html, list_id):
   """
 
   """
-  container = common.parseDOM(html, "div", attrs = { "id" : listId })
+  container = common.parseDOM(html, "div", attrs = { "id" : list_id })
   if not container:
-    common.log("No container found for list ID '"+listId+"'")
+    common.log("No container found for list ID '"+list_id+"'")
     return None
 
   articles = common.parseDOM(container, "article")
   if not articles:
-    common.log("No articles found for list ID '"+listId+"'")
+    common.log("No articles found for list ID '"+list_id+"'")
     return None
 
   titles = common.parseDOM(container, "article", ret = "data-title")
@@ -203,15 +199,15 @@ def getSearchResultsForList(html, listId):
     title = common.replaceHTMLCodes(titles[index])
     thumbnail = helper.prepareThumb(thumbnail)
 
-    itemType = "video"
-    if listId == SEARCH_LIST_TITLES:
-      itemType = "program"
-    results.append({"item": { "title" : title, "thumbnail" : thumbnail, "url" : url  }, "type" : itemType })
+    item_type = "video"
+    if list_id == SEARCH_LIST_TITLES:
+      item_type = "program"
+    results.append({"item": { "title" : title, "thumbnail" : thumbnail, "url" : url  }, "type" : item_type })
 
   return results
 
 
-def getArticles(sectionName, url=None):
+def getArticles(section_name, url=None):
   """
 
   """
@@ -219,70 +215,70 @@ def getArticles(sectionName, url=None):
     url = "/"
   html = getPage(url)
 
-  videoListClass = "[^\"']*play-videolist" 
-  containers = common.parseDOM(html, "div", attrs = { "class" : videoListClass })
+  video_list_class = "[^\"']*play-videolist" 
+  containers = common.parseDOM(html, "div", attrs = { "class" : video_list_class })
 
   if not containers:
-    common.log("Could not find container for "+sectionName)
+    common.log("Could not find container for "+section_name)
     return None
 
-  ids = common.parseDOM(html, "div", attrs = { "class" : videoListClass }, ret = "id")
+  ids = common.parseDOM(html, "div", attrs = { "class" : video_list_class }, ret = "id")
 
   if not ids:
-    common.log("Could not find IDs for "+sectionName)
+    common.log("Could not find IDs for "+section_name)
     return None
 
   container = None
   for index, section in enumerate(containers):
-    if ids[index] == sectionName:
+    if ids[index] == section_name:
       #Found right section, use for articles
       container = section
       break
   
   if not container:
-    common.log("No section found matching '"+sectionName+"' !")
+    common.log("No section found matching '"+section_name+"' !")
     return None
   
-  articleClass = "[^\"']*play-videolist-element[^\"']*"
-  articles = common.parseDOM(container, "article", attrs = { "class" : articleClass })
-  titles = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-title")
-  plots = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-description")
-  airtimes = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-broadcasted")
-  durations = common.parseDOM(container, "article", attrs = { "class" : articleClass }, ret = "data-length")
-  newarticles = []
+  article_class = "[^\"']*play-videolist-element[^\"']*"
+  articles = common.parseDOM(container, "article", attrs = { "class" : article_class })
+  titles = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-title")
+  plots = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-description")
+  airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-broadcasted")
+  durations = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-length")
+  new_articles = []
   
   if not articles:
-    common.log("No articles found for section '"+sectionName+"' !")
+    common.log("No articles found for section '"+section_name+"' !")
     return None
  
   for index, article in enumerate(articles):
     info = {}
-    newarticle = {}
+    new_article = {}
     plot = plots[index]
     aired = airtimes[index]
     duration = durations[index]
     title = titles[index]
-    newarticle["url"] = common.parseDOM(article, "a",
+    new_article["url"] = common.parseDOM(article, "a",
                             attrs = { "class": "[^\"']*play-videolist-element-link[^\"']*" },
                             ret = "href")[0]
     thumbnail = common.parseDOM(article,
                                 "img",
                                 attrs = { "class": "[^\"']*play-videolist-thumbnail[^\"']*" },
                                 ret = "src")[0]
-    newarticle["thumbnail"] = helper.prepareThumb(thumbnail)
+    new_article["thumbnail"] = helper.prepareThumb(thumbnail)
     
     title = common.replaceHTMLCodes(title)
     plot = common.replaceHTMLCodes(plot)
     aired = common.replaceHTMLCodes(aired) 
-    newarticle["title"] = title
+    new_article["title"] = title
     info["title"] = title
     info["plot"] = plot
     info["aired"] = aired
     info["duration"] = helper.convertDuration(duration)
-    newarticle["info"] = info
-    newarticles.append(newarticle)
+    new_article["info"] = info
+    new_articles.append(new_article)
  
-  return newarticles
+  return new_articles
 
 
 def getPage(url):
