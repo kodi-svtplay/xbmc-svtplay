@@ -111,7 +111,7 @@ def getAlphas():
     common.log("No container found!")
     return None
 
-  letters = common.parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play-alphabetic-heading[^\"']*" })
+  letters = common.parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play-alphabetic-letter--title[^\"']*" })
 
   if not letters:
     common.log("Could not find any letters!")
