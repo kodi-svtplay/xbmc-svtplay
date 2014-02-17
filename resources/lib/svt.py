@@ -72,6 +72,9 @@ def getCategories():
 
 
 def getProgramsForCategory(url):
+  """
+  Returns a list of programs for a specific category URL.
+  """
   html = getPage(url)
 
   container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
@@ -101,8 +104,7 @@ def getProgramsForCategory(url):
 
 def getAlphas():
   """
-  Returns a list of all letters in the alphabet that 
-  matches the starting letter of some program.
+  Returns a list of all letters in the alphabet that has programs.
   """
   html = getPage(URL_A_TO_O)
   container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
@@ -159,9 +161,11 @@ def getProgramsByLetter(letter):
     
   return programs
 
+
 def getSearchResults(url):
   """
-
+  Returns a list of both clips and programs
+  for the supplied search URL.
   """
   html = getPage(url)
 
@@ -178,7 +182,9 @@ def getSearchResults(url):
 
 def getSearchResultsForList(html, list_id):
   """
+  Returns the items in the supplied list.
 
+  Lists are the containers on a program page that contains clips or programs.
   """
   container = common.parseDOM(html, "div", attrs = { "id" : list_id })
   if not container:
@@ -209,7 +215,9 @@ def getSearchResultsForList(html, list_id):
 
 def getArticles(section_name, url=None):
   """
+  Returns a list of the articles ina section as program items.
 
+  Program items has 'title', 'thumbnail', 'url' and 'info' keys.
   """
   if not url:
     url = "/"
@@ -283,9 +291,10 @@ def getArticles(section_name, url=None):
 
 def getPage(url):
   """
-  Wrapper, calls helper.getPage
+  Wrapper, calls helper.getPage with SVT's base URL
   """
   return helper.getPage(BASE_URL + url) 
+
 
 def getHighBw(low):
   """
