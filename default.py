@@ -52,10 +52,6 @@ HLS_STRIP = False
 if addon.getSetting("hlsstrip") == "true":
     HLS_STRIP = True
 
-FULL_PROGRAM_PARSE = False
-if addon.getSetting("fullparse") == "true":
-  FULL_PROGRAM_PARSE = True
-
 HIDE_SIGN_LANGUAGE = False
 if addon.getSetting("hidesignlanguage") == "true":
   HIDE_SIGN_LANGUAGE = True 
@@ -66,8 +62,6 @@ if addon.getSetting("showsubtitles") == "true":
 USE_ALPHA_CATEGORIES = False
 if addon.getSetting("alpha") == "true":
   USE_ALPHA_CATEGORIES = True
-
-MAX_DIR_ITEMS = int(float(addon.getSetting("diritems")))
 
 BW_SELECT = False
 if addon.getSetting("bwselect") == "true":
