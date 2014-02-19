@@ -79,6 +79,7 @@ def viewStart():
   #addDirectoryItem(localize(30011), { "mode": MODE_LATEST_CLIPS })
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
+  addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
   addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
 
 
