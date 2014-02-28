@@ -288,6 +288,17 @@ def getArticles(section_name, url=None):
  
   return new_articles
 
+def getVideoUrl(json_obj):
+  """
+  Returns the video URL from a SVT JSON object.
+  """
+  url = None
+
+  for video in json_obj["video"]["videoReferences"]:
+    if video["playerType"] == "ios":
+      url = video["url"]
+
+  return url
 
 def getPage(url):
   """
