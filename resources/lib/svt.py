@@ -300,6 +300,22 @@ def getVideoUrl(json_obj):
 
   return url
 
+def getSubtitleUrl(jsonObj):
+  """
+  Returns a subtitleURL from a SVT JSON object.
+  """
+  url = None
+
+  for subtitle in jsonObj["video"]["subtitleReferences"]:
+    if subtitle["url"].endswith(".wsrt"):
+      url = subtitle["url"]
+    else:
+      if len(subtitle["url"]) > 0:
+        common.log("Skipping unknown subtitle: " + subtitle["url"])
+  
+  return url
+
+
 def getPage(url):
   """
   Wrapper, calls helper.getPage with SVT's base URL
