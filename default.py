@@ -264,26 +264,45 @@ def startVideo(url):
     url = "/" + url
 
   url = url + svt.JSON_SUFFIX
-  common.log("url: " + url)
   html = svt.getPage(url)
 
-  jsonString = common.replaceHTMLCodes(html)
-  jsonObj = json.loads(jsonString)
-  common.log(jsonString)
+  json_string = common.replaceHTMLCodes(html)
+  json_obj = json.loads(json_string)
+  common.log(json_string)
 
-  (videoUrl, errormsg) = getVideoUrl(jsonObj)
-  subtitle = getSubtitle(jsonObj)
+  video_url = svt.getVideoUrl(json_obj)
+  errormsg = None
+  extension = getVideoExtension(video_url)
+
+  if extension == "HLS":
+    if HLS_STRIP:
+      video_url = hlsStrip(video_url)
+    elif BW_SELECT: 
+      (video_url, errormsg) = getStreamForBW(video_url)
+
+  if extension == "MP4":
+    video_url = mp4Handler(jsonObj)
+
+  if not extension and video_url:
+    # No supported video was found
+    common.log("No supported video extension found for URL: " + video_url)
+    return None
+
+  if extension == "MP4" and video_url.startswith("rtmp://"):
+    video_url = video_url + " swfUrl="+svt.SWF_URL+" swfVfy=1"
+
+  subtitle_url = svt.getSubtitleUrl(json_obj)
   player = xbmc.Player()
   startTime = time.time()
 
-  if videoUrl:
-    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=videoUrl))
+  if video_url:
+    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=video_url))
 
-    if subtitle:
+    if subtitle_url:
       while not player.isPlaying() and time.time() - startTime < 10:
         time.sleep(1.)
 
-      player.setSubtitles(subtitle)
+      player.setSubtitles(subtitle_url)
 
       if not SHOW_SUBTITLES:
         player.showSubtitles(False)
@@ -296,68 +315,19 @@ def startVideo(url):
       dialog.ok("SVT Play", errormsg)
 
 
-def getVideoUrl(jsonObj):
+def getVideoExtension(video_url):
   """
-  Returns a video URL from a JSON object and
-  an error message, if available.
+  Returns a string representation of the video extension.
   """
-  videoUrl = None
-  extension = "None"
-  args = ""
+  # Remove all query strings
+  url = video_url.split("?")[0]
+  extension = None
+  if url.endswith(".m3u8"):
+    extension = "HLS"
+  elif url.endswith(".mp4"):
+    extension = "MP4"
 
-  for video in jsonObj["video"]["videoReferences"]:
-    # Determine which file extension that will be used
-    # m3u8 is preferred, hence the break.
-    # Order: m3u8, f4m, mp4, flv
-    tmpurl = video["url"]
-    argpos = tmpurl.rfind("?")
-    errormsg = ""
-
-    if argpos > 0:
-      args = tmpurl[argpos:]
-      tmpurl = tmpurl[:argpos]
-
-    if tmpurl.endswith(".m3u8"):
-      extension = "HLS"
-      videoUrl = tmpurl
-      break
-    if tmpurl.endswith(".f4m"):
-      extension = "F4M"
-      videoUrl = tmpurl
-      continue
-    if tmpurl.endswith(".mp4"):
-      extension = "MP4"
-      videoUrl = tmpurl
-      continue
-    if tmpurl.endswith(".flv"):
-      extension = "FLV"
-      videoUrl = tmpurl
-      continue
-    videoUrl = tmpurl
-
-  if extension == "HLS" and HLS_STRIP:
-    videoUrl = hlsStrip(videoUrl)
-  elif extension == "HLS" and BW_SELECT: 
-    (videoUrl, errormsg) = getStreamForBW(videoUrl)
-
-  if extension == "F4M":
-    videoUrl = videoUrl.replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
-
-  if extension == "MP4":
-    videoUrl = mp4Handler(jsonObj)
-
-  if extension == "None" and videoUrl:
-    # No supported video was found
-    common.log("No supported video extension found for URL: " + videoUrl)
-    return None
-
-  if args and not (HLS_STRIP or BW_SELECT):
-    videoUrl = videoUrl + args
-
-  if extension == "MP4" and videoUrl.startswith("rtmp://"):
-    videoUrl = videoUrl + " swfUrl="+svt.SWF_URL+" swfVfy=1"
-
-  return (videoUrl, errormsg)
+  return extension
 
 
 def getSubtitle(jsonObj):
