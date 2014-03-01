@@ -298,13 +298,13 @@ def getVideoUrl(json_obj):
 
   return url
 
-def getSubtitleUrl(jsonObj):
+def getSubtitleUrl(json_obj):
   """
   Returns a subtitleURL from a SVT JSON object.
   """
   url = None
 
-  for subtitle in jsonObj["video"]["subtitleReferences"]:
+  for subtitle in json_obj["video"]["subtitleReferences"]:
     if subtitle["url"].endswith(".wsrt"):
       url = subtitle["url"]
     else:
