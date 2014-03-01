@@ -8,6 +8,9 @@ common = CommonFunctions
 addon = xbmcaddon.Addon("plugin.video.svtplay")
 THUMB_SIZE = "extralarge"
 
+# Available bandwidths
+BANDWIDTH = [300, 500, 900, 1600, 2500, 5000]
+
 def getPage(url):
   if not url.startswith("/") and not url.startswith("http://"):
     url = "/" + url
@@ -185,6 +188,54 @@ def hlsStrip(videoUrl):
     hlsurl = hlsurl.rstrip()
     common.log("Returned stream url : " + hlsurl)
     return hlsurl
+
+
+def getStreamForBW(url):
+  """
+  Returns a stream URL for the set bandwidth,
+  and an error message, if applicable.
+  """
+  low_bandwidth  = int(float(addon.getSetting("bandwidth")))
+  high_bandwidth = getHighBw(low_bandwidth)
+  
+  f = urllib.urlopen(url)
+  lines = f.readlines()
+  
+  hlsurl = ""
+  marker = "#EXT-X-STREAM-INF"
+  found = False
+
+  for line in lines:
+    if found:
+      # The stream url is on the line proceeding the header
+      hlsurl = line
+      break
+    if marker in line: # The header
+      match = re.match(r'.*BANDWIDTH=(\d+)000.+', line)
+      if match:
+        if low_bandwidth < int(match.group(1)) < high_bandwidth:
+          common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(low_bandwidth))
+          found = True
+  
+  f.close()
+
+  if found:
+    hlsurl = hlsurl.rstrip()
+    common.log("Returned stream url: " + hlsurl)
+    return (hlsurl, '')
+  else:
+    errormsg = "No stream found for bandwidth setting " + str(low_bandwidth)
+    common.log(errormsg)
+    return (None, errormsg)
+
+
+def getHighBw(low):
+  """
+  Returns the higher bandwidth boundary
+  """
+  i = BANDWIDTH.index(low)
+  return BANDWIDTH[i+1]
+
 
 def getSetting(setting):
   return True if addon.getSetting(setting) == "true" else False

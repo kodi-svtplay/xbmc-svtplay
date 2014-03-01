@@ -49,12 +49,8 @@ localize = addon.getLocalizedString
 xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 
 common.plugin = addon.getAddonInfo('name') + ' ' + addon.getAddonInfo('version')
-
 common.dbg = helper.getSetting(S_DEBUG)
 
-if helper.getSetting(S_BW_SELECT):
-  LOW_BANDWIDTH  = int(float(addon.getSetting("bandwidth")))
-  HIGH_BANDWIDTH = svt.getHighBw(LOW_BANDWIDTH)
 
 def viewStart():
 
@@ -268,7 +264,7 @@ def startVideo(url):
     if helper.getSetting(S_HLS_STRIP):
       video_url = helper.hlsStrip(video_url)
     elif helper.getSetting(S_BW_SELECT): 
-      (video_url, errormsg) = getStreamForBW(video_url)
+      (video_url, errormsg) = helper.getStreamForBW(video_url)
   
   # MP4 support is disabled until it shows up on SVT Play again
   # since it today unclear how the mp4 streams will be served.
@@ -314,43 +310,6 @@ def getVideoExtension(video_url):
     extension = "MP4"
 
   return extension
-
-
-def getStreamForBW(url):
-  """
-  Returns a stream URL for the set bandwidth,
-  and an error message, if applicable.
-  """
-  
-  f = urllib.urlopen(url)
-  lines = f.readlines()
-  
-  hlsurl = ""
-  marker = "#EXT-X-STREAM-INF"
-  found = False
-
-  for line in lines:
-    if found:
-      # The stream url is on the line proceeding the header
-      hlsurl = line
-      break
-    if marker in line: # The header
-      match = re.match(r'.*BANDWIDTH=(\d+)000.+', line)
-      if match:
-        if LOW_BANDWIDTH < int(match.group(1)) < HIGH_BANDWIDTH:
-          common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(LOW_BANDWIDTH))
-          found = True
-  
-  f.close()
-
-  if found:
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url: " + hlsurl)
-    return (hlsurl, '')
-  else:
-    errormsg = "No stream found for bandwidth setting " + str(LOW_BANDWIDTH)
-    common.log(errormsg)
-    return (None, errormsg)
 
 
 def addDirectoryItem(title, params, thumbnail = None, folder = True, live = False, info = None):
