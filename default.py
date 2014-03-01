@@ -35,40 +35,26 @@ MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
 
+S_DEBUG = "debug"
+S_HIDE_SIGN_LANGUAGE = "hidesignlanguage"
+S_SHOW_SUBTITLES = "showsubtitles"
+S_USE_ALPHA_CATEGORIES = "alpha"
+S_BW_SELECT = "bwselect"
+S_HLS_STRIP = "hlsstrip"
+
 PLUGIN_HANDLE = int(sys.argv[1])
 
-addon = xbmcaddon.Addon()
+addon = xbmcaddon.Addon("plugin.video.svtplay")
 localize = addon.getLocalizedString
 xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 
 common.plugin = addon.getAddonInfo('name') + ' ' + addon.getAddonInfo('version')
 
-# Get and set settings
-common.dbg = False
-if addon.getSetting('debug') == "true":
-  common.dbg = True
+common.dbg = helper.getSetting(S_DEBUG)
 
-HLS_STRIP = False
-if addon.getSetting("hlsstrip") == "true":
-    HLS_STRIP = True
-
-HIDE_SIGN_LANGUAGE = False
-if addon.getSetting("hidesignlanguage") == "true":
-  HIDE_SIGN_LANGUAGE = True 
-SHOW_SUBTITLES = False
-if addon.getSetting("showsubtitles") == "true":
-  SHOW_SUBTITLES = True
-
-USE_ALPHA_CATEGORIES = False
-if addon.getSetting("alpha") == "true":
-  USE_ALPHA_CATEGORIES = True
-
-BW_SELECT = False
-if addon.getSetting("bwselect") == "true":
-  BW_SELECT = True
-
-LOW_BANDWIDTH  = int(float(addon.getSetting("bandwidth")))
-HIGH_BANDWIDTH = svt.getHighBw(LOW_BANDWIDTH)
+if helper.getSetting(S_BW_SELECT):
+  LOW_BANDWIDTH  = int(float(addon.getSetting("bandwidth")))
+  HIGH_BANDWIDTH = svt.getHighBw(LOW_BANDWIDTH)
 
 def viewStart():
 
@@ -239,7 +225,7 @@ def createDirItem(article, mode):
   Given an article and a mode; create directory item
   for the article.
   """
-  if (not HIDE_SIGN_LANGUAGE) or (article["title"].lower().endswith("teckentolkad") == False and article["title"].lower().find("teckenspråk".decode("utf-8")) == -1):
+  if not helper.getSetting(S_HIDE_SIGN_LANGUAGE) or (article["title"].lower().endswith("teckentolkad") == False and article["title"].lower().find("teckenspråk".decode("utf-8")) == -1):
 
     params = {}
     params["mode"] = mode
@@ -279,9 +265,9 @@ def startVideo(url):
     return None
 
   if extension == "HLS":
-    if HLS_STRIP:
+    if helper.getSetting(S_HLS_STRIP):
       video_url = helper.hlsStrip(video_url)
-    elif BW_SELECT: 
+    elif helper.getSetting(S_BW_SELECT): 
       (video_url, errormsg) = getStreamForBW(video_url)
   
   # MP4 support is disabled until it shows up on SVT Play again
@@ -304,7 +290,7 @@ def startVideo(url):
 
       player.setSubtitles(subtitle_url)
 
-      if not SHOW_SUBTITLES:
+      if not helper.getSetting(S_SHOW_SUBTITLES):
         player.showSubtitles(False)
   else:
     # No video URL was found
@@ -393,7 +379,7 @@ ARG_URL = urllib.unquote_plus(ARG_PARAMS.get("url", ""))
 if not ARG_MODE:
   viewStart()
 elif ARG_MODE == MODE_A_TO_O:
-  if USE_ALPHA_CATEGORIES:
+  if helper.getSetting(S_USE_ALPHA_CATEGORIES):
     viewAlphaDirectories()
   else:
     viewAtoO()

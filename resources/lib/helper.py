@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import xbmcaddon
 import CommonFunctions
 import re
 import urllib
 
 common = CommonFunctions
+addon = xbmcaddon.Addon("plugin.video.svtplay")
 THUMB_SIZE = "extralarge"
 
 def getPage(url):
@@ -184,4 +186,5 @@ def hlsStrip(videoUrl):
     common.log("Returned stream url : " + hlsurl)
     return hlsurl
 
-
+def getSetting(setting):
+  return True if addon.getSetting(setting) == "true" else False
