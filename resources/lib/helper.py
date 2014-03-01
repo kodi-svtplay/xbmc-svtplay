@@ -111,7 +111,7 @@ def prepareThumb(thumbnail):
   common.log("old thumbnail: " + thumbnail)
   if not thumbnail.startswith("http://"):
     thumbnail = "http://www.svtplay.se" + thumbnail
-  thumbnail = re.sub(r"/small|medium|large|extralarge/", "/"+THUMB_SIZE+"/", thumbnail)
+  thumbnail = re.sub(r"/small|medium|large|extralarge/", ""+THUMB_SIZE+"", thumbnail)
   common.log("new thumbnail: " + thumbnail)
   return thumbnail
 
