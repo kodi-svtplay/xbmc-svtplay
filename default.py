@@ -69,7 +69,6 @@ if addon.getSetting("bwselect") == "true":
 
 LOW_BANDWIDTH  = int(float(addon.getSetting("bandwidth")))
 HIGH_BANDWIDTH = svt.getHighBw(LOW_BANDWIDTH)
-LOW_BANDWIDH   = LOW_BANDWIDTH
 
 def viewStart():
 
@@ -274,22 +273,23 @@ def startVideo(url):
   errormsg = None
   extension = getVideoExtension(video_url)
 
-  if extension == "HLS":
-    if HLS_STRIP:
-      video_url = hlsStrip(video_url)
-    elif BW_SELECT: 
-      (video_url, errormsg) = getStreamForBW(video_url)
-
-  if extension == "MP4":
-    video_url = mp4Handler(jsonObj)
-
   if not extension and video_url:
     # No supported video was found
     common.log("No supported video extension found for URL: " + video_url)
     return None
 
-  if extension == "MP4" and video_url.startswith("rtmp://"):
-    video_url = video_url + " swfUrl="+svt.SWF_URL+" swfVfy=1"
+  if extension == "HLS":
+    if HLS_STRIP:
+      video_url = helper.hlsStrip(video_url)
+    elif BW_SELECT: 
+      (video_url, errormsg) = getStreamForBW(video_url)
+  
+  # MP4 support is disabled until it shows up on SVT Play again
+  # since it today unclear how the mp4 streams will be served.
+  #if extension == "MP4":
+  #  video_url = helper.mp4Handler(json_obj)
+  #  if video_url.startswith("rtmp://"):
+  #    video_url = video_url + " swfUrl="+svt.SWF_URL+" swfVfy=1"
 
   subtitle_url = svt.getSubtitleUrl(json_obj)
   player = xbmc.Player()
@@ -328,98 +328,6 @@ def getVideoExtension(video_url):
     extension = "MP4"
 
   return extension
-
-
-def getSubtitle(jsonObj):
-  """
-  Returns a subtitle from a JSON object
-  """
-  subtitle = None
-
-  for sub in jsonObj["video"]["subtitleReferences"]:
-    if sub["url"].endswith(".wsrt"):
-      subtitle = sub["url"]
-    else:
-      if len(sub["url"]) > 0:
-        common.log("Skipping unknown subtitle: " + sub["url"])
-
-  return subtitle
-
-
-def mp4Handler(jsonObj):
-  """
-  Returns a mp4 stream URL.
-
-  If there are several mp4 streams in the JSON object:
-  pick the one with the highest bandwidth.
-
-  Some programs are available with multiple mp4 streams
-  for different bitrates. This function ensures that the one
-  with the highest bitrate is chosen.
-
-  Can possibly be extended to support some kind of quality
-  setting in the plugin.
-  """
-  videos = []
-
-  # Find all mp4 videos
-  for video in jsonObj["video"]["videoReferences"]:
-    if video["url"].endswith(".mp4"):
-      videos.append(video)
-  
-  if len(videos) == 1:
-    return videos[0]["url"]
-
-  bitrate = 0
-  url = ""
-
-  # Find the video with the highest bitrate
-  for video in videos:
-    if video["bitrate"] > bitrate:
-      bitrate = video["bitrate"]
-      url = video["url"]          
-
-  common.log("Info: bitrate="+str(bitrate)+" url="+url)
-  return url
-
-
-def hlsStrip(videoUrl):
-    """
-    Extracts the stream that supports the
-    highest bandwidth and is not using the avc1.77.30 codec.
-    Returns the path to a m3u8 file on the local disk with a
-    reference to the extracted stream.
-    """
-    common.log("Stripping file: " + videoUrl)
-
-    ufile = urllib.urlopen(videoUrl)
-    lines = ufile.readlines()
-
-    hlsurl = ""
-    bandwidth = 0
-    foundhigherquality = False
-
-    for line in lines:
-      if foundhigherquality:
-        # The stream url is on the line proceeding the header
-        foundhigherquality = False
-        hlsurl = line
-      if "EXT-X-STREAM-INF" in line: # The header
-        if not "avc1.77.30" in line:
-          match = re.match(r'.*BANDWIDTH=(\d+).+', line)
-          if match:
-            if bandwidth < int(match.group(1)):
-              foundhigherquality = True
-              bandwidth = int(match.group(1))
-          continue
-
-    if bandwidth == 0:
-      return None
-
-    ufile.close()
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url : " + hlsurl)
-    return hlsurl
 
 
 def getStreamForBW(url):
