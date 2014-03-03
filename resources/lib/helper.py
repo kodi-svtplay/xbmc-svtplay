@@ -237,5 +237,49 @@ def getHighBw(low):
   return BANDWIDTH[i+1]
 
 
+def getVideoUrl(json_obj):
+  """
+  Returns the video URL from a SVT JSON object.
+  """
+  url = None
+
+  for video in json_obj["video"]["videoReferences"]:
+    if video["playerType"] == "ios":
+      url = video["url"]
+
+  return url
+
+
+def getSubtitleUrl(json_obj):
+  """
+  Returns a subtitleURL from a SVT JSON object.
+  """
+  url = None
+
+  for subtitle in json_obj["video"]["subtitleReferences"]:
+    if subtitle["url"].endswith(".wsrt"):
+      url = subtitle["url"]
+    else:
+      if len(subtitle["url"]) > 0:
+        common.log("Skipping unknown subtitle: " + subtitle["url"])
+  
+  return url
+
+
+def getVideoExtension(video_url):
+  """
+  Returns a string representation of the video extension.
+  """
+  # Remove all query strings
+  url = video_url.split("?")[0]
+  extension = None
+  if url.endswith(".m3u8"):
+    extension = "HLS"
+  elif url.endswith(".mp4"):
+    extension = "MP4"
+
+  return extension
+
+
 def getSetting(setting):
   return True if addon.getSetting(setting) == "true" else False

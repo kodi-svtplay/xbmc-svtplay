@@ -251,9 +251,9 @@ def startVideo(url):
   json_obj = json.loads(json_string)
   common.log(json_string)
 
-  video_url = svt.getVideoUrl(json_obj)
+  video_url = helper.getVideoUrl(json_obj)
   errormsg = None
-  extension = getVideoExtension(video_url)
+  extension = helper.getVideoExtension(video_url)
 
   if not extension and video_url:
     # No supported video was found
@@ -273,7 +273,7 @@ def startVideo(url):
   #  if video_url.startswith("rtmp://"):
   #    video_url = video_url + " swfUrl="+svt.SWF_URL+" swfVfy=1"
 
-  subtitle_url = svt.getSubtitleUrl(json_obj)
+  subtitle_url = helper.getSubtitleUrl(json_obj)
   player = xbmc.Player()
   startTime = time.time()
 
@@ -295,21 +295,6 @@ def startVideo(url):
       dialog.ok("SVT Play", localize(30100))
     else:
       dialog.ok("SVT Play", errormsg)
-
-
-def getVideoExtension(video_url):
-  """
-  Returns a string representation of the video extension.
-  """
-  # Remove all query strings
-  url = video_url.split("?")[0]
-  extension = None
-  if url.endswith(".m3u8"):
-    extension = "HLS"
-  elif url.endswith(".mp4"):
-    extension = "MP4"
-
-  return extension
 
 
 def addDirectoryItem(title, params, thumbnail = None, folder = True, live = False, info = None):

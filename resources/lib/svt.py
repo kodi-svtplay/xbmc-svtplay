@@ -286,33 +286,6 @@ def getArticles(section_name, url=None):
  
   return new_articles
 
-def getVideoUrl(json_obj):
-  """
-  Returns the video URL from a SVT JSON object.
-  """
-  url = None
-
-  for video in json_obj["video"]["videoReferences"]:
-    if video["playerType"] == "ios":
-      url = video["url"]
-
-  return url
-
-def getSubtitleUrl(json_obj):
-  """
-  Returns a subtitleURL from a SVT JSON object.
-  """
-  url = None
-
-  for subtitle in json_obj["video"]["subtitleReferences"]:
-    if subtitle["url"].endswith(".wsrt"):
-      url = subtitle["url"]
-    else:
-      if len(subtitle["url"]) > 0:
-        common.log("Skipping unknown subtitle: " + subtitle["url"])
-  
-  return url
-
 
 def getPage(url):
   """
