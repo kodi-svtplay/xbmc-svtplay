@@ -221,31 +221,15 @@ def getArticles(section_name, url=None):
     url = "/"
   html = getPage(url)
 
-  video_list_class = "[^\"']*play-videolist" 
-  containers = common.parseDOM(html, "div", attrs = { "class" : video_list_class })
+  video_list_class = "[^\"']*play_videolist[^\"']*" 
 
-  if not containers:
-    common.log("Could not find container for "+section_name)
-    return None
-
-  ids = common.parseDOM(html, "div", attrs = { "class" : video_list_class }, ret = "id")
-
-  if not ids:
-    common.log("Could not find IDs for "+section_name)
-    return None
-
-  container = None
-  for index, section in enumerate(containers):
-    if ids[index] == section_name:
-      #Found right section, use for articles
-      container = section
-      break
-  
+  container = common.parseDOM(html, "div", attrs = { "class" : video_list_class, "id" : section_name })
   if not container:
-    common.log("No section found matching '"+section_name+"' !")
+    common.log("No container found for section "+section_name+"!")
     return None
-  
-  article_class = "[^\"']*play-videolist-element[^\"']*"
+  container = container[0]
+
+  article_class = "[^\"']*play_videolist-element[^\"']*"
   articles = common.parseDOM(container, "article", attrs = { "class" : article_class })
   titles = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-title")
   plots = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-description")
@@ -265,11 +249,11 @@ def getArticles(section_name, url=None):
     duration = durations[index]
     title = titles[index]
     new_article["url"] = common.parseDOM(article, "a",
-                            attrs = { "class": "[^\"']*play-videolist-element-link[^\"']*" },
+                            attrs = { "class": "[^\"']*play_videolist-element__link[^\"']*" },
                             ret = "href")[0]
     thumbnail = common.parseDOM(article,
                                 "img",
-                                attrs = { "class": "[^\"']*play-videolist-thumbnail[^\"']*" },
+                                attrs = { "class": "[^\"']*play_videolist__thumbnail[^\"']*" },
                                 ret = "src")[0]
     new_article["thumbnail"] = helper.prepareThumb(thumbnail)
     
