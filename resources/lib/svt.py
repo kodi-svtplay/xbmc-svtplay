@@ -52,9 +52,10 @@ def getCategories():
 
   container = common.parseDOM(html, "div", attrs = { "id": "[^\"']*playJs-categories[^\"']*" })
   articles = common.parseDOM(container, "article")
+  thumbs = common.parseDOM(container, "img", attrs = { "class": "[^\"']*play_videolist__thumbnail[^\"']*" }, ret = "src")
   categories = []
 
-  for article in articles:
+  for index, article in enumerate(articles):
     category = {}
     category["url"] = common.parseDOM(article, "a", ret = "href")[0]
     title = common.parseDOM(article, "h2")[0]
@@ -64,6 +65,7 @@ def getCategories():
       continue
 
     category["title"] = common.replaceHTMLCodes(title)
+    category["thumbnail"] = BASE_URL + thumbs[index]
     categories.append(category)
 
   return categories
