@@ -200,7 +200,7 @@ def getSearchResultsForList(html, list_id):
   
   results = []
   for index, article in enumerate(articles):
-    thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play-videolist-thumbnail[^\"']*" }, ret = "src")[0]
+    thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play_videolist__thumbnail[^\"']*" }, ret = "src")[0]
     url = common.parseDOM(article, "a", ret = "href")[0]
     title = common.replaceHTMLCodes(titles[index])
     thumbnail = helper.prepareThumb(thumbnail)
