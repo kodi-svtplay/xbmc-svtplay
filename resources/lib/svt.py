@@ -77,13 +77,13 @@ def getProgramsForCategory(url):
   """
   html = getPage(url)
 
-  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
+  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play_alphabetic-list-titles[^\"']*" })
 
   if not container:
     common.log("Could not find container for URL "+url)
     return None
 
-  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*play-list-item[^\"']*" })
+  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*play_list-item[^\"']*" })
 
   if not lis:
     common.log("Could not find program links for URL "+url)
@@ -107,13 +107,13 @@ def getAlphas():
   Returns a list of all letters in the alphabet that has programs.
   """
   html = getPage(URL_A_TO_O)
-  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play-alphabetic-list-titles[^\"']*" })
+  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play_alphabetic-list-titles[^\"']*" })
 
   if not container:
     common.log("No container found!")
     return None
 
-  letters = common.parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play-alphabetic-letter--title[^\"']*" })
+  letters = common.parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play_alphabetic-letter--title[^\"']*" })
 
   if not letters:
     common.log("Could not find any letters!")
@@ -138,7 +138,7 @@ def getProgramsByLetter(letter):
 
   html = getPage(URL_A_TO_O)
 
-  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*play-alphabetic-letter[^\"']*" })
+  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*play_alphabetic-letter[^\"']*" })
   letterbox = None
 
   for letterbox in letterboxes:
@@ -148,7 +148,7 @@ def getProgramsByLetter(letter):
     if heading == letter:
       break
 
-  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play-list-item[^\"']*" })
+  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_list-item[^\"']*" })
 
   programs = []
 
