@@ -4,7 +4,6 @@ import resources.lib.helper as helper
 import CommonFunctions as common
 
 BASE_URL = "http://beta.svtplay.se"
-SWF_URL = "http://www.svtplay.se/public/swf/video/svtplayer-2013.05.swf"
 
 URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
