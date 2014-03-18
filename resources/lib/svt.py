@@ -16,6 +16,7 @@ SECTION_LAST_CHANCE = "last-chance-videos"
 SECTION_BROADCAST = "live-channels"
 SECTION_LATEST_CLIPS = "latest-clips"
 SECTION_EPISODES = "more-episodes"
+SECTION_LIVE_CHANNELS = "live-channels"
 
 SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
 SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*" 
