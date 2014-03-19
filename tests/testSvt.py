@@ -168,7 +168,7 @@ def testGetArticles():
   fails = 0
 
   # Test all sections on the frontpage
-  for section_name in [svt.SECTION_POPULAR, svt.SECTION_LATEST_VIDEOS, svt.SECTION_LAST_CHANCE]:
+  for section_name in [svt.SECTION_POPULAR, svt.SECTION_LATEST_VIDEOS, svt.SECTION_LAST_CHANCE, svt.SECTION_LIVE_CHANNELS]:
     articles = svt.getArticles(section_name)
     if not articles:
       fail("testGetArticles", "No articles for section '"+section_name+"'")
