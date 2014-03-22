@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import urllib
-import resources.lib.helper as helper
+
+import helper
 import CommonFunctions as common
 
 BASE_URL = "http://beta.svtplay.se"

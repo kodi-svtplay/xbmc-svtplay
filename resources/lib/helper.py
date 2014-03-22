@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
 import re
 import urllib
 
 import xbmcaddon
 
-import CommonFunctions
+import CommonFunctions as common
 
-common = CommonFunctions
 addon = xbmcaddon.Addon("plugin.video.svtplay")
 THUMB_SIZE = "extralarge"
 
@@ -19,7 +19,7 @@ def getPage(url):
     url = "/" + url
 
   result = common.fetchPage({ "link": url })
-  
+
   if result["status"] == 200:
     return result["content"]
 
@@ -62,11 +62,11 @@ def convertDuration(duration):
 
   if match.group(3):
     dminutes = int(match.group(4))
- 
+
   if match.group(5):
     dseconds = int(match.group(6)) / 60
 
-  return str(dhours + dminutes + dseconds) 
+  return str(dhours + dminutes + dseconds)
 
 def convertDate(date):
   """
@@ -81,9 +81,9 @@ def convertDate(date):
     return ""
 
   months = {
-      "jan": 1, 
-      "feb": 2, 
-      "mar": 3, 
+      "jan": 1,
+      "feb": 2,
+      "mar": 3,
       "apr": 4,
       "maj": 5,
       "jun": 6,
@@ -119,7 +119,7 @@ def getUrlParameters(arguments):
   params = {}
 
   if arguments:
-    
+
       start = arguments.find("?") + 1
       pairs = arguments[start:].split("&")
 
@@ -129,7 +129,7 @@ def getUrlParameters(arguments):
 
         if len(split) == 2:
           params[split[0]] = split[1]
-  
+
   return params
 
 
@@ -180,7 +180,7 @@ def mp4Handler(jsonObj):
   for video in jsonObj["video"]["videoReferences"]:
     if video["url"].endswith(".mp4"):
       videos.append(video)
-  
+
   if len(videos) == 1:
     return videos[0]["url"]
 
@@ -191,7 +191,7 @@ def mp4Handler(jsonObj):
   for video in videos:
     if video["bitrate"] > bitrate:
       bitrate = video["bitrate"]
-      url = video["url"]          
+      url = video["url"]
 
   common.log("Info: bitrate="+str(bitrate)+" url="+url)
   return url
@@ -241,10 +241,10 @@ def getStreamForBW(url):
   """
   low_bandwidth  = int(float(addon.getSetting("bandwidth")))
   high_bandwidth = getHighBw(low_bandwidth)
-  
+
   f = urllib.urlopen(url)
   lines = f.readlines()
-  
+
   hlsurl = ""
   marker = "#EXT-X-STREAM-INF"
   found = False
@@ -260,7 +260,7 @@ def getStreamForBW(url):
         if low_bandwidth < int(match.group(1)) < high_bandwidth:
           common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(low_bandwidth))
           found = True
-  
+
   f.close()
 
   if found:
@@ -280,19 +280,46 @@ def getHighBw(low):
   i = BANDWIDTH.index(low)
   return BANDWIDTH[i+1]
 
+def getJSONObj(show_url):
+  """
+  Returns a SVT JSON object from a show URL
+  """
+  url_obj = urllib.urlopen(show_url)
+  json_obj = json.load(url_obj)
+  url_obj.close()
+  return json_obj
 
-def getVideoUrl(json_obj):
+
+def getVideoURL(json_obj):
   """
   Returns the video URL from a SVT JSON object.
   """
-  url = None
+  video_url = None
 
   for video in json_obj["video"]["videoReferences"]:
     if video["playerType"] == "ios":
-      url = video["url"]
+      video_url = video["url"]
 
-  return url
+  return video_url
 
+def resolveShowURL(show_url):
+  """
+  Returns an object containing the video and subtitle URL for a show URL.
+  Takes all settings into account.
+  """
+  json_obj = getJSONObj(show_url)
+  video_url = getVideoURL(json_obj)
+  subtitle_url = getSubtitleUrl(json_obj)
+  extension = getVideoExtension(video_url)
+  errormsg = None
+
+  if extension == "HLS":
+    if getSetting("hlsstrip"):
+      video_url = hlsStrip(video_url)
+    elif getSetting("bwselect"):
+      (video_url, errormsg) = getStreamForBW(video_url)
+
+  return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
 
 def getSubtitleUrl(json_obj):
   """
@@ -306,7 +333,7 @@ def getSubtitleUrl(json_obj):
     else:
       if len(subtitle["url"]) > 0:
         common.log("Skipping unknown subtitle: " + subtitle["url"])
-  
+
   return url
 
 

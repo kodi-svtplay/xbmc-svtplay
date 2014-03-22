@@ -12,6 +12,8 @@ import CommonFunctions as common
 import resources.lib.bestofsvt as bestof
 import resources.lib.helper as helper
 import resources.lib.svt as svt
+import resources.lib.PlaylistManager as PlaylistManager
+from resources.lib.PlaylistDialog import PlaylistDialog
 
 MODE_CHANNELS = "kanaler"
 MODE_A_TO_O = "a-o"
@@ -34,13 +36,12 @@ MODE_BESTOF_CATEGORY = "bestofcategory"
 MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
+MODE_PLAYLIST_MANAGER = "playlist-manager"
 
 S_DEBUG = "debug"
 S_HIDE_SIGN_LANGUAGE = "hidesignlanguage"
 S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
-S_BW_SELECT = "bwselect"
-S_HLS_STRIP = "hlsstrip"
 
 PLUGIN_HANDLE = int(sys.argv[1])
 
@@ -62,11 +63,17 @@ def viewStart():
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
   addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
   addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
+  addDirectoryItem(localize(30400), { "mode": MODE_PLAYLIST_MANAGER }, folder=False)
 
+
+def viewManagePlaylist():
+  plm_dialog = PlaylistDialog()
+  plm_dialog.doModal()
+  del plm_dialog
 
 def viewAtoO():
   programs = svt.getAtoO()
-  
+
   for program in programs:
     addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
@@ -79,7 +86,7 @@ def viewCategories():
 
 
 def viewAlphaDirectories():
-  alphas = svt.getAlphas() 
+  alphas = svt.getAlphas()
   if not alphas:
     return
   for alpha in alphas:
@@ -132,13 +139,13 @@ def viewCategory(url):
     dialog = xbmcgui.Dialog()
     dialog.ok("SVT Play", localize(30107))
     viewStart()
-    return 
+    return
 
   programs = svt.getProgramsForCategory(url)
   if not programs:
     return
   for program in programs:
-    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }, thumbnail=program["thumbnail"]) 
+    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }, thumbnail=program["thumbnail"])
 
 def viewEpisodes(url):
   """
@@ -148,7 +155,7 @@ def viewEpisodes(url):
   if not episodes:
     common.log("No episodes found!")
     return
-  
+
   for episode in episodes:
     createDirItem(episode, MODE_VIDEO)
 
@@ -169,7 +176,7 @@ def viewClips(url):
   if not clips:
     common.log("No clips found!")
     return
-  
+
   for clip in clips:
     createDirItem(clip, MODE_VIDEO)
 
@@ -182,10 +189,10 @@ def viewSearch():
   keyword = urllib.quote(keyword)
   common.log("Search string: " + keyword)
 
-  keyword = re.sub(r" ", "+", keyword) 
+  keyword = re.sub(r" ", "+", keyword)
 
   url = svt.URL_TO_SEARCH + keyword
- 
+
   results = svt.getSearchResults(url)
   for result in results:
     mode = MODE_VIDEO
@@ -244,53 +251,26 @@ def createDirItem(article, mode):
 
 def startVideo(url):
   """
-  Starts the XBMC player if a valid video URL is 
+  Starts the XBMC player if a valid video URL is
   found for the given page URL.
   """
   if not url.startswith("/"):
     url = "/" + url
 
-  url = url + svt.JSON_SUFFIX
-  html = svt.getPage(url)
+  url = svt.BASE_URL + url + svt.JSON_SUFFIX
 
-  json_string = common.replaceHTMLCodes(html)
-  json_obj = json.loads(json_string)
-  common.log(json_string)
-
-  video_url = helper.getVideoUrl(json_obj)
-  errormsg = None
-  extension = helper.getVideoExtension(video_url)
-
-  if not extension and video_url:
-    # No supported video was found
-    common.log("No supported video extension found for URL: " + video_url)
-    return None
-
-  if extension == "HLS":
-    if helper.getSetting(S_HLS_STRIP):
-      video_url = helper.hlsStrip(video_url)
-    elif helper.getSetting(S_BW_SELECT): 
-      (video_url, errormsg) = helper.getStreamForBW(video_url)
-  
-  # MP4 support is disabled until it shows up on SVT Play again
-  # since it today unclear how the mp4 streams will be served.
-  #if extension == "MP4":
-  #  video_url = helper.mp4Handler(json_obj)
-  #  if video_url.startswith("rtmp://"):
-  #    video_url = video_url + " swfUrl="+svt.SWF_URL+" swfVfy=1"
-
-  subtitle_url = helper.getSubtitleUrl(json_obj)
+  show_obj = helper.resolveShowURL(url)
   player = xbmc.Player()
   startTime = time.time()
 
-  if video_url:
-    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=video_url))
+  if show_obj["videoUrl"]:
+    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=show_obj["videoUrl"]))
 
-    if subtitle_url:
+    if show_obj["subtitleUrl"]:
       while not player.isPlaying() and time.time() - startTime < 10:
         time.sleep(1.)
 
-      player.setSubtitles(subtitle_url)
+      player.setSubtitles(show_obj["subtitleUrl"])
 
       if not helper.getSetting(S_SHOW_SUBTITLES):
         player.showSubtitles(False)
@@ -314,7 +294,20 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
     li.setProperty("IsLive", "true")
 
   if not folder:
-    li.setProperty("IsPlayable", "true")
+    if params["mode"] == MODE_VIDEO:
+      li.setProperty("IsPlayable", "true")
+      # Add context menu item for adding a video to playlist
+      plm_script = "special://home/addons/plugin.video.svtplay/resources/lib/PlaylistManager.py"
+      plm_action = "add"
+      if not thumbnail:
+        thumnail= ""
+      li.addContextMenuItems(
+        [
+          (
+            localize(30404),
+            "XBMC.RunScript("+plm_script+", "+plm_action+", "+params["url"]+", "+title+", "+thumbnail+")"
+           )
+        ])
 
   if info:
     li.setInfo("Video", info)
@@ -362,5 +355,7 @@ elif ARG_MODE == MODE_BESTOF_CATEGORIES:
   viewBestOfCategories()
 elif ARG_MODE == MODE_BESTOF_CATEGORY:
   viewBestOfCategory(ARG_URL)
+elif ARG_MODE == MODE_PLAYLIST_MANAGER:
+  viewManagePlaylist()
 
 xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
