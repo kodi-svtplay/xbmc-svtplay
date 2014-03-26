@@ -215,7 +215,7 @@ def getSearchResultsForList(html, list_id):
 
 def getArticles(section_name, url=None):
   """
-  Returns a list of the articles ina section as program items.
+  Returns a list of the articles in a section as program items.
 
   Program items has 'title', 'thumbnail', 'url' and 'info' keys.
   """
@@ -236,6 +236,8 @@ def getArticles(section_name, url=None):
   titles = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-title")
   plots = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-description")
   airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-broadcasted")
+  if section_name == SECTION_LATEST_CLIPS:
+    airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-published")
   durations = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-length")
   new_articles = []
   
@@ -257,15 +259,14 @@ def getArticles(section_name, url=None):
                                 "img",
                                 attrs = { "class": "[^\"']*play_videolist__thumbnail[^\"']*" },
                                 ret = "src")[0]
-    new_article["thumbnail"] = helper.prepareThumb(thumbnail)
+    new_article["thumbnail"] = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
     
     title = common.replaceHTMLCodes(title)
     plot = common.replaceHTMLCodes(plot)
-    aired = common.replaceHTMLCodes(aired) 
     new_article["title"] = title
     info["title"] = title
     info["plot"] = plot
-    info["aired"] = aired
+    info["aired"] = helper.convertDate(aired)
     info["duration"] = helper.convertDuration(duration)
     new_article["info"] = info
     new_articles.append(new_article)

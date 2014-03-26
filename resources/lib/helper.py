@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import xbmcaddon
-import CommonFunctions
+import datetime
 import re
 import urllib
+
+import xbmcaddon
+
+import CommonFunctions
 
 common = CommonFunctions
 addon = xbmcaddon.Addon("plugin.video.svtplay")
@@ -65,6 +68,50 @@ def convertDuration(duration):
 
   return str(dhours + dminutes + dseconds) 
 
+def convertDate(date):
+  """
+  Converts a SVT date string to a XBMC date string
+
+  Examples:
+  From "lör 21 mar" to "2014-03-21"
+  From "idag 18.00" to "2014-03-24"
+  From "igår 20.00" to "2014-03-23"
+  """
+  if not date:
+    common.log("No date to convert, return empty string")
+    return ""
+
+  months = {
+      "jan": 1, 
+      "feb": 2, 
+      "mar": 3, 
+      "apr": 4,
+      "maj": 5,
+      "jun": 6,
+      "jul": 7,
+      "aug": 8,
+      "sep": 9,
+      "okt": 10,
+      "nov": 11,
+      "dec": 12
+      }
+  today = datetime.date.today()
+  one_day = datetime.timedelta(days=1)
+  return_date = today
+
+  match = re.match(r"(.+)\s(\d+)\s(\w+)", date)
+  if match:
+    # "lör 21 mar" match
+    month = months[match.group(3)]
+    day = int(match.group(2))
+    return_date = today.replace(day=day, month=month)
+  else:
+    match = re.match(r"(.+)\s.+", date)
+    if match:
+      if match.group(1) == "ig&aring;r":
+        # "igår 18.00" match
+        return_date = today - one_day
+  return return_date.isoformat()
 
 def getUrlParameters(arguments):
   """
@@ -104,12 +151,12 @@ def elementExists(html, etype, attrs):
   return len(htmlelement) > 0
 
 
-def prepareThumb(thumbnail):
+def prepareThumb(thumbnail, baseUrl):
   """
   Returns a thumbnail with size THUMB_SIZE
   """
-  if not thumbnail.startswith("http://"):
-    thumbnail = "http://www.svtplay.se" + thumbnail
+  if not thumbnail.startswith("http://") and baseUrl:
+    thumbnail = baseUrl + thumbnail
   thumbnail = re.sub(r"/small|medium|large|extralarge/", ""+THUMB_SIZE+"", thumbnail)
   return thumbnail
 
