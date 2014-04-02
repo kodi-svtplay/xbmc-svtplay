@@ -203,7 +203,7 @@ def getSearchResultsForList(html, list_id):
     thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play_videolist__thumbnail[^\"']*" }, ret = "src")[0]
     url = common.parseDOM(article, "a", ret = "href")[0]
     title = common.replaceHTMLCodes(titles[index])
-    thumbnail = helper.prepareThumb(thumbnail)
+    thumbnail = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
 
     item_type = "video"
     if list_id == SEARCH_LIST_TITLES:
