@@ -78,7 +78,6 @@ def convertDate(date):
   From "igår 20.00" to "2014-03-23"
   """
   if not date:
-    common.log("No date to convert, return empty string")
     return ""
 
   months = {
