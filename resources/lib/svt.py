@@ -14,8 +14,8 @@ SECTION_POPULAR = "popular-videos"
 SECTION_LATEST_VIDEOS = "latest-videos"
 SECTION_LAST_CHANCE = "last-chance-videos"
 SECTION_BROADCAST = "live-channels"
-SECTION_LATEST_CLIPS = "latest-clips"
-SECTION_EPISODES = "more-episodes"
+SECTION_LATEST_CLIPS = "playJs-latest-clips"
+SECTION_EPISODES = "playJs-more-episodes"
 SECTION_LIVE_CHANNELS = "live-channels"
 
 SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
@@ -83,7 +83,7 @@ def getProgramsForCategory(url):
     common.log("Could not find container for URL "+url)
     return None
 
-  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*play_list-item[^\"']*" })
+  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*playJsAlphabeticTitle[^\"']*" })
 
   if not lis:
     common.log("Could not find program links for URL "+url)
