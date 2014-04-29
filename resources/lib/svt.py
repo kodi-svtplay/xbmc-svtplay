@@ -77,26 +77,25 @@ def getProgramsForCategory(url):
   """
   html = getPage(url)
 
-  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play_alphabetic-list-titles[^\"']*" })
+  container = common.parseDOM(html, "div", attrs = { "id" : "[^\"']*playJs-alphabetic-list[^\"']*" })
 
   if not container:
     common.log("Could not find container for URL "+url)
     return None
 
-  lis = common.parseDOM(container, "li", attrs = { "class" : "[^\"']*playJsAlphabeticTitle[^\"']*" })
+  articles = common.parseDOM(container, "article", attrs = { "class" : "[^\"']*play_videolist-element[^\"']*" })
 
-  if not lis:
+  if not articles:
     common.log("Could not find program links for URL "+url)
     return None
   
   programs = []
-
-  for li in lis:
-    href = common.parseDOM(li, "a", ret = "href")[0]
-    title = common.parseDOM(li, "a")[0]
-    program = {}
-    program["title"] = common.replaceHTMLCodes(title)
-    program["url"] = href
+  for index, article in enumerate(articles):
+    url = common.parseDOM(article, "a", ret="href")[0]
+    title = common.parseDOM(article, "span", attrs= { "class" : "play-link-sub"})[0]
+    title = common.replaceHTMLCodes(title)
+    thumbnail = common.parseDOM(article, "img", ret="src")[0]
+    program = { "title": title, "url": url, "thumbnail": thumbnail}
     programs.append(program)
 
   return programs

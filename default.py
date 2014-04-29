@@ -138,7 +138,7 @@ def viewCategory(url):
   if not programs:
     return
   for program in programs:
-    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }) 
+    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }, thumbnail=program["thumbnail"]) 
 
 def viewEpisodes(url):
   """
