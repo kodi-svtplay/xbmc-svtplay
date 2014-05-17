@@ -14,14 +14,13 @@ JSON_SUFFIX = "?output=json"
 SECTION_POPULAR = "popular-videos"
 SECTION_LATEST_VIDEOS = "latest-videos"
 SECTION_LAST_CHANCE = "last-chance-videos"
-SECTION_BROADCAST = "live-channels"
 SECTION_LATEST_CLIPS = "playJs-latest-clips"
 SECTION_EPISODES = "playJs-more-episodes"
 SECTION_LIVE_CHANNELS = "live-channels"
 
 SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
-SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*" 
-SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*" 
+SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*"
+SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*"
 
 
 def getAtoO():
@@ -33,7 +32,7 @@ def getAtoO():
   link_class = "[^\"']*play_alphabetic-link[^\"']*"
   texts = common.parseDOM(html, "a" , attrs = { "class": link_class })
   hrefs = common.parseDOM(html, "a" , attrs = { "class": link_class }, ret = "href")
-  
+
   programs = []
 
   for index, text in enumerate(texts):
@@ -89,7 +88,7 @@ def getProgramsForCategory(url):
   if not articles:
     common.log("Could not find program links for URL "+url)
     return None
-  
+
   programs = []
   for index, article in enumerate(articles):
     url = common.parseDOM(article, "a", ret="href")[0]
@@ -158,7 +157,7 @@ def getProgramsByLetter(letter):
     title = common.parseDOM(li, "a")[0]
     program["title"] = common.replaceHTMLCodes(title)
     programs.append(program)
-    
+
   return programs
 
 
@@ -197,7 +196,7 @@ def getSearchResultsForList(html, list_id):
     return None
 
   titles = common.parseDOM(container, "article", ret = "data-title")
-  
+
   results = []
   for index, article in enumerate(articles):
     thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play_videolist__thumbnail[^\"']*" }, ret = "src")[0]
@@ -217,13 +216,13 @@ def getArticles(section_name, url=None):
   """
   Returns a list of the articles in a section as program items.
 
-  Program items has 'title', 'thumbnail', 'url' and 'info' keys.
+  Program items have 'title', 'thumbnail', 'url' and 'info' keys.
   """
   if not url:
     url = "/"
   html = getPage(url)
 
-  video_list_class = "[^\"']*play_videolist[^\"']*" 
+  video_list_class = "[^\"']*play_videolist[^\"']*"
 
   container = common.parseDOM(html, "div", attrs = { "class" : video_list_class, "id" : section_name })
   if not container:
@@ -240,11 +239,11 @@ def getArticles(section_name, url=None):
     airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-published")
   durations = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-length")
   new_articles = []
-  
+
   if not articles:
     common.log("No articles found for section '"+section_name+"' !")
     return None
- 
+
   for index, article in enumerate(articles):
     info = {}
     new_article = {}
@@ -260,7 +259,12 @@ def getArticles(section_name, url=None):
                                 attrs = { "class": "[^\"']*play_videolist__thumbnail[^\"']*" },
                                 ret = "src")[0]
     new_article["thumbnail"] = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
-    
+    if section_name == SECTION_LIVE_CHANNELS:
+      notlive = common.parseDOM(article, "span", attrs = {"class": "[^\"']*play_icon-live[^\"']*is-inactive[^\"']*"})
+      if notlive:
+        new_article["live"] = False
+      else:
+        new_article["live"] = True
     title = common.replaceHTMLCodes(title)
     plot = common.replaceHTMLCodes(plot)
     new_article["title"] = title
@@ -270,7 +274,7 @@ def getArticles(section_name, url=None):
     info["duration"] = helper.convertDuration(duration)
     new_article["info"] = info
     new_articles.append(new_article)
- 
+
   return new_articles
 
 
@@ -278,4 +282,4 @@ def getPage(url):
   """
   Wrapper, calls helper.getPage with SVT's base URL
   """
-  return helper.getPage(BASE_URL + url) 
+  return helper.getPage(BASE_URL + url)

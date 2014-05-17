@@ -132,7 +132,8 @@ def viewLiveChannels():
   if not articles:
     return
   for article in articles:
-    createDirItem(article, MODE_VIDEO)
+    if article["live"] == True:
+      createDirItem(article, MODE_VIDEO)
 
 def viewCategory(url):
   if url == svt.URL_TO_OA:
