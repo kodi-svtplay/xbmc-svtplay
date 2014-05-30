@@ -1,3 +1,7 @@
+Version 3.4.0
+-------------
+- Update script to support the new SVT Play site
+
 Version 3.3.5
 -------------
 - Fix issue #89 by hiding "Oppetarkiv" in the category listing
