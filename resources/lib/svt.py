@@ -9,6 +9,8 @@ BASE_URL = "http://beta.svtplay.se"
 URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
 URL_TO_OA = "/kategorier/oppetarkiv"
+URL_TO_CHANNELS = "/kanaler"
+
 JSON_SUFFIX = "?output=json"
 
 SECTION_POPULAR = "popular-videos"
@@ -210,6 +212,34 @@ def getSearchResultsForList(html, list_id):
     results.append({"item": { "title" : title, "thumbnail" : thumbnail, "url" : url  }, "type" : item_type })
 
   return results
+
+def getChannels():
+  """
+  Returns the live channels from the page "Kanaler".
+  """
+  anchor_class = "[^\"']*play_zapper__menu__item-link[^\"']*"
+  html = getPage(URL_TO_CHANNELS)
+
+  container = common.parseDOM(html, "ul", attrs = { "data-tabarea" : "ta-schedule"})
+  if not container:
+    common.log("No container found for channels")
+    return None
+
+  channels = []
+  ch_boxes = common.parseDOM(container, "li")
+  for box in ch_boxes:
+    title = common.parseDOM(box, "a", attrs = {"class" : anchor_class}, ret = "title")[0]
+    url = common.parseDOM(box, "a", attrs = {"class" : anchor_class}, ret = "href")[0]
+    plot = common.parseDOM(box, "span", attrs = {"class" : "[^\"']*play_zapper__menu__item-title[^\"']*"})[0]
+    thumbnail = BASE_URL + common.parseDOM(box, "img", attrs = {"class" : "[^\"']*play_hide--gte-m[^\"']*"}, ret = "src")[0]
+    channels.append({
+      "title" : title,
+      "url" : url,
+      "thumbnail" : thumbnail,
+      "info" : { "title" : plot, "plot" : plot}
+    })
+
+  return channels
 
 
 def getArticles(section_name, url=None):
