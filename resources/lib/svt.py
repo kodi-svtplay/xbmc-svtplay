@@ -241,6 +241,41 @@ def getChannels():
 
   return channels
 
+def getPopular():
+  """
+  Returns the 'popular' items.
+  """
+  return getArticles(SECTION_POPULAR)
+
+def getLatestVideos():
+  """
+  Returns the latest videos.
+  """
+  return getArticles(SECTION_LATEST_VIDEOS)
+
+def getLastChance():
+  """
+  Returns the 'last chance' videos
+  """
+  return getArticles(SECTION_LAST_CHANCE)
+
+def getLiveChannels():
+  """
+  Returns the 'live' channels (differs from 'channels')
+  """
+  return getArticles(SECTION_LIVE_CHANNELS)
+
+def getEpisodes(url):
+  """
+  Returns the episodes for a program URL.
+  """
+  return getArticles(SECTION_EPISODES, url)
+
+def getClips(url):
+  """
+  Returns the clips for a program URL.
+  """
+  return getArticles(SECTION_LATEST_CLIPS, url)
 
 def getArticles(section_name, url=None):
   """

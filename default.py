@@ -24,7 +24,6 @@ MODE_LATEST = "ep"
 MODE_LATEST_NEWS = "en"
 MODE_POPULAR = "popular"
 MODE_LAST_CHANCE = "last-chance"
-MODE_LATEST_CLIPS = "latest-clips"
 MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "ti"
@@ -101,35 +100,28 @@ def viewProgramsByLetter(letter):
     addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
 def viewPopular():
-  articles = svt.getArticles(svt.SECTION_POPULAR)
+  articles = svt.getPopular()
   if not articles:
     return
   for article in articles:
     createDirItem(article, MODE_VIDEO)
 
 def viewLatestVideos():
-  articles = svt.getArticles(svt.SECTION_LATEST_VIDEOS)
+  articles = svt.getLatestVideos()
   if not articles:
     return
   for article in articles:
     createDirItem(article, MODE_VIDEO)
 
 def viewLastChance():
-  articles = svt.getArticles(svt.SECTION_LAST_CHANCE)
-  if not articles:
-    return
-  for article in articles:
-    createDirItem(article, MODE_VIDEO)
-
-def viewLatestClips():
-  articles = svt.getArticles(svt.SECTION_LATEST_CLIPS)
+  articles = svt.getLastChance()
   if not articles:
     return
   for article in articles:
     createDirItem(article, MODE_VIDEO)
 
 def viewLiveChannels():
-  articles = svt.getArticles(svt.SECTION_LIVE_CHANNELS)
+  articles = svt.getLiveChannels()
   if not articles:
     return
   for article in articles:
@@ -160,7 +152,7 @@ def viewEpisodes(url):
   """
   Displays the episodes for a program with URL 'url'.
   """
-  episodes = svt.getArticles(svt.SECTION_EPISODES, url)
+  episodes = svt.getEpisodes(url)
   if not episodes:
     common.log("No episodes found!")
     return
@@ -181,7 +173,7 @@ def viewClips(url):
   """
   Displays the latest clips for a program
   """
-  clips = svt.getArticles(svt.SECTION_LATEST_CLIPS, url)
+  clips = svt.getClips(url)
   if not clips:
     common.log("No clips found!")
     return
@@ -190,7 +182,6 @@ def viewClips(url):
     createDirItem(clip, MODE_VIDEO)
 
 def viewSearch():
-
   keyword = common.getUserInput(localize(30102))
   if keyword == "" or not keyword:
     viewStart()
@@ -356,8 +347,6 @@ elif ARG_MODE == MODE_LIVE_CHANNELS:
   viewLiveChannels()
 elif ARG_MODE == MODE_CHANNELS:
   viewChannels()
-elif ARG_MODE == MODE_LATEST_CLIPS:
-  viewLatestClips()
 elif ARG_MODE == MODE_LETTER:
   viewProgramsByLetter(ARG_PARAMS.get("letter"))
 elif ARG_MODE == MODE_SEARCH:
