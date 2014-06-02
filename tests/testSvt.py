@@ -14,39 +14,41 @@ common.dbg = True
 
 class TestSvtModule(unittest.TestCase):
 
+  def assertHasContent(self, list):
+    if list == None:
+      self.fail("List is None")
+
+    if list == []:
+      self.fail("List is empty")
+
   def test_alphabetic(self):
-    """
-    Verifies tbat svt.getAtoO() returns programs 
-    and that there are no empty attributes.
-    """
     programs = svt.getAtoO()
 
     self.assertIsNotNone(programs)
+    self.assertNotEqual([], programs)
 
     for program in programs:
       for key in program.keys():
         self.assertIsNotNone(program[key])
 
-
-
   def test_categories(self):
-    
+
     categories = svt.getCategories()
 
-    self.assertIsNotNone(categories)
+    self.assertHasContent(categories)
 
     for category in categories:
       for key in category.keys():
         self.assertIsNotNone(category[key])
 
   def test_programs_for_category(self):
-   
+
     # Use the "Barn" category since is changes a lot
     url = "/barn"
 
     programs = svt.getProgramsForCategory(url)
-    
-    self.assertIsNotNone(programs)
+
+    self.assertHasContent(programs)
 
     for program in programs:
       for key in program.keys():
@@ -56,14 +58,15 @@ class TestSvtModule(unittest.TestCase):
 
     alphas = svt.getAlphas()
 
-    self.assertIsNotNone(alphas)
+    self.assertNotEqual([], alphas)
 
   def test_programs_by_letter(self):
-    
+
     letter = u'A' # "A" should always have programs...
 
     programs = svt.getProgramsByLetter(letter)
-    self.assertIsNotNone(programs)
+
+    self.assertHasContent(programs)
 
     for program in programs:
       for key in program.keys():
@@ -75,7 +78,7 @@ class TestSvtModule(unittest.TestCase):
 
     items = svt.getSearchResults(url)
 
-    self.assertIsNotNone(items)
+    self.assertHasContent(items)
 
     for item in items:
       for key in item.keys():
@@ -84,17 +87,17 @@ class TestSvtModule(unittest.TestCase):
   def test_get_articles(self):
 
     section_names = [
-        svt.SECTION_POPULAR, 
-        svt.SECTION_LATEST_VIDEOS, 
-        svt.SECTION_LAST_CHANCE, 
+        svt.SECTION_POPULAR,
+        svt.SECTION_LATEST_VIDEOS,
+        svt.SECTION_LAST_CHANCE,
         svt.SECTION_LIVE_CHANNELS
-        ] 
+        ]
 
     # Test all sections on the frontpage
     for section_name in section_names:
       articles = svt.getArticles(section_name)
-      
-      self.assertIsNotNone(articles)
+
+      self.assertHasContent(articles)
 
       for article in articles:
         for key in article.keys():
@@ -105,7 +108,7 @@ class TestSvtModule(unittest.TestCase):
     articles = None
     articles = svt.getArticles(svt.SECTION_EPISODES, url)
 
-    self.assertIsNotNone(articles)
+    self.assertHasContent(articles)
 
     for article in articles:
       for key in article.keys():
