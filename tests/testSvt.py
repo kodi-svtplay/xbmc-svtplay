@@ -84,35 +84,42 @@ class TestSvtModule(unittest.TestCase):
       for key in item.keys():
         self.assertIsNotNone(item[key])
 
-  def test_get_articles(self):
+  def test_get_popular(self):
+    items = svt.getPopular()
 
-    section_names = [
-        svt.SECTION_POPULAR,
-        svt.SECTION_LATEST_VIDEOS,
-        svt.SECTION_LAST_CHANCE,
-        svt.SECTION_LIVE_CHANNELS
-        ]
+    self.assertHasContent(items)
 
-    # Test all sections on the frontpage
-    for section_name in section_names:
-      articles = svt.getArticles(section_name)
+  def test_get_latest_videos(self):
+    items = svt.getLatestVideos()
 
-      self.assertHasContent(articles)
+    self.assertHasContent(items)
 
-      for article in articles:
-        for key in article.keys():
-          self.assertIsNotNone(article[key])
+  def test_get_last_chance(self):
+    items = svt.getLastChance()
 
-    # Test a program page (Agenda)
+    self.assertHasContent(items)
+
+  def test_get_live_channels(self):
+    items = svt.getLiveChannels()
+
+    self.assertHasContent(items)
+
+  def test_get_channels(self):
+    items = svt.getChannels()
+
+    self.assertHasContent(items)
+
+  def test_get_episodes(self):
     url = "/agenda"
-    articles = None
-    articles = svt.getArticles(svt.SECTION_EPISODES, url)
+    articles = svt.getEpisodes(url)
 
     self.assertHasContent(articles)
 
-    for article in articles:
-      for key in article.keys():
-        self.assertIsNotNone(article[key])
+  def test_get_clips(self):
+    url = "/agenda"
+    articles = svt.getClips(url)
+
+    self.assertHasContent(articles)
 
 if __name__ == "__main__":
   unittest.main()
