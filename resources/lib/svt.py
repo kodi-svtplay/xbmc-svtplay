@@ -4,7 +4,7 @@ import urllib
 import helper
 import CommonFunctions as common
 
-BASE_URL = "http://beta.svtplay.se"
+BASE_URL = "http://svtplay.se"
 
 URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
@@ -16,7 +16,7 @@ JSON_SUFFIX = "?output=json"
 SECTION_POPULAR = "popular-videos"
 SECTION_LATEST_VIDEOS = "latest-videos"
 SECTION_LAST_CHANCE = "last-chance-videos"
-SECTION_LATEST_CLIPS = "playJs-latest-clips"
+SECTION_LATEST_CLIPS = "playJs-more-clips"
 SECTION_EPISODES = "playJs-more-episodes"
 SECTION_LIVE_CHANNELS = "live-channels"
 
@@ -149,7 +149,10 @@ def getProgramsByLetter(letter):
     if heading == letter:
       break
 
-  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_list-item[^\"']*" })
+  lis = common.parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_js-filterable-item[^\"']*" })
+  if not lis:
+    common.log("No items found for letter '"+letter+"'")
+    return None
 
   programs = []
 
@@ -176,6 +179,7 @@ def getSearchResults(url):
     items = getSearchResultsForList(html, list_id)
     if not items:
       common.log("No items in list '"+list_id+"'")
+      continue
     results.extend(items)
 
   return results
