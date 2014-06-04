@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+import sys
 import time
 import urllib
 import xbmc
@@ -8,17 +9,21 @@ import xbmcgui
 import xbmcaddon
 import xbmcplugin
 import CommonFunctions as common
-import os
 import resources.lib.bestofsvt as bestof
 import resources.lib.helper as helper
 import resources.lib.svt as svt
+import resources.lib.PlaylistManager as PlaylistManager
+from resources.lib.PlaylistDialog import PlaylistDialog
 
 MODE_CHANNELS = "kanaler"
 MODE_A_TO_O = "a-o"
 MODE_PROGRAM = "pr"
-MODE_LIVE = "live"
+MODE_CLIPS = "clips"
+MODE_LIVE_CHANNELS = "live-channels"
 MODE_LATEST = "ep"
 MODE_LATEST_NEWS = "en"
+MODE_POPULAR = "popular"
+MODE_LAST_CHANCE = "last-chance"
 MODE_VIDEO = "video"
 MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "ti"
@@ -30,98 +35,60 @@ MODE_BESTOF_CATEGORY = "bestofcategory"
 MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
+MODE_PLAYLIST_MANAGER = "playlist-manager"
 
-CURR_DIR_ITEMS = 0
+S_DEBUG = "debug"
+S_HIDE_SIGN_LANGUAGE = "hidesignlanguage"
+S_SHOW_SUBTITLES = "showsubtitles"
+S_USE_ALPHA_CATEGORIES = "alpha"
 
-pluginHandle = int(sys.argv[1])
+PLUGIN_HANDLE = int(sys.argv[1])
 
-addon = xbmcaddon.Addon()
+addon = xbmcaddon.Addon("plugin.video.svtplay")
 localize = addon.getLocalizedString
+xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 
 common.plugin = addon.getAddonInfo('name') + ' ' + addon.getAddonInfo('version')
+common.dbg = helper.getSetting(S_DEBUG)
 
-# Get and set settings
-common.dbg = False
-if addon.getSetting('debug') == "true":
-  common.dbg = True
-
-HLS_STRIP = False
-if addon.getSetting("hlsstrip") == "true":
-    HLS_STRIP = True
-
-FULL_PROGRAM_PARSE = False
-if addon.getSetting("fullparse") == "true":
-  FULL_PROGRAM_PARSE = True
-
-HIDE_SIGN_LANGUAGE = False
-if addon.getSetting("hidesignlanguage") == "true":
-  HIDE_SIGN_LANGUAGE = True 
-SHOW_SUBTITLES = False
-if addon.getSetting("showsubtitles") == "true":
-  SHOW_SUBTITLES = True
-
-USE_ALPHA_CATEGORIES = False
-if addon.getSetting("alpha") == "true":
-  USE_ALPHA_CATEGORIES = True
-
-MAX_DIR_ITEMS = int(float(addon.getSetting("diritems")))
-
-BW_SELECT = False
-if addon.getSetting("bwselect") == "true":
-  BW_SELECT = True
-
-LOW_BANDWIDTH  = int(float(addon.getSetting("bandwidth")))
-HIGH_BANDWIDTH = svt.getHighBw(LOW_BANDWIDTH)
-LOW_BANDWIDH   = LOW_BANDWIDTH
 
 def viewStart():
 
-  #addDirectoryItem(localize(30008), { "mode": MODE_CHANNELS })
+  addDirectoryItem(localize(30009), { "mode": MODE_POPULAR })
+  addDirectoryItem(localize(30003), { "mode": MODE_LATEST })
+  addDirectoryItem(localize(30010), { "mode": MODE_LAST_CHANCE })
+  addDirectoryItem(localize(30002), { "mode": MODE_LIVE_CHANNELS })
+  addDirectoryItem(localize(30008), { "mode": MODE_CHANNELS })
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
-  addDirectoryItem(localize(30005), { "mode": MODE_RECOMMENDED, "page": 1 })
-  #addDirectoryItem(localize(30002), { "mode": MODE_LIVE })
-  addDirectoryItem(localize(30003), { "mode": MODE_LATEST, "page": 1 })
-  addDirectoryItem(localize(30004), { "mode": MODE_LATEST_NEWS, "page": 1 })
-  addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
   addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
+  addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
+  addDirectoryItem(localize(30400), { "mode": MODE_PLAYLIST_MANAGER }, folder=False)
 
 
-def viewChannels():
-  channels = svt.getChannels()
-  
-  params = {}
-  params["mode"] = MODE_VIDEO
+def viewManagePlaylist():
+  plm_dialog = PlaylistDialog()
+  plm_dialog.doModal()
+  del plm_dialog
 
-  for channel in channels:
-    params["url"] = channel["url"]
-    addDirectoryItem(channel["title"],params,channel["thumbnail"],False,True)
-    
-  
 def viewAtoO():
   programs = svt.getAtoO()
-  
-  for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
 
-
-def viewLive():
-  programs = svt.getLivePrograms()
-  
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_VIDEO, "url": program["url"] }, program["thumbnail"], False, True)
+    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
 
 def viewCategories():
   categories = svt.getCategories()
 
   for category in categories:
-    addDirectoryItem(category["title"], { "mode": MODE_CATEGORY, "url": category["url"], "page": 1})
+    addDirectoryItem(category["title"], { "mode": MODE_CATEGORY, "url": category["url"] }, thumbnail=category["thumbnail"])
 
 
 def viewAlphaDirectories():
-  alphas = svt.getAlphas() 
-
+  alphas = svt.getAlphas()
+  if not alphas:
+    return
   for alpha in alphas:
     addDirectoryItem(alpha["title"], { "mode": MODE_LETTER, "letter": alpha["char"] })
 
@@ -130,41 +97,91 @@ def viewProgramsByLetter(letter):
   programs = svt.getProgramsByLetter(letter)
 
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"], "page": 1 })
+    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
 
+def viewPopular():
+  articles = svt.getPopular()
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
 
-def viewLatest(mode,page,index):
+def viewLatestVideos():
+  articles = svt.getLatestVideos()
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
 
-  dirtype = MODE_VIDEO
+def viewLastChance():
+  articles = svt.getLastChance()
+  if not articles:
+    return
+  for article in articles:
+    createDirItem(article, MODE_VIDEO)
 
-  if mode == MODE_LATEST_NEWS:
-    url = svt.URL_TO_LATEST_NEWS
-  elif mode == MODE_RECOMMENDED:
-    url = svt.URL_TO_RECOMMENDED
-  elif mode == MODE_LATEST:
-    url = svt.URL_TO_LATEST
+def viewLiveChannels():
+  articles = svt.getLiveChannels()
+  if not articles:
+    return
+  for article in articles:
+    if article["live"] == True:
+      createDirItem(article, MODE_VIDEO)
 
-  createDirectory(url,page,index,mode,dirtype)
+def viewChannels():
+  channels = svt.getChannels()
+  if not channels:
+    return
+  for channel in channels:
+    createDirItem(channel, MODE_VIDEO)
 
-
-def viewCategory(url,page,index):
+def viewCategory(url):
   if url == svt.URL_TO_OA:
     dialog = xbmcgui.Dialog()
     dialog.ok("SVT Play", localize(30107))
     viewStart()
-    return 
-  createDirectory(url,page,index,MODE_CATEGORY,MODE_PROGRAM)
+    return
 
+  programs = svt.getProgramsForCategory(url)
+  if not programs:
+    return
+  for program in programs:
+    addDirectoryItem(program["title"], { "mode" : MODE_PROGRAM, "url" : program["url"] }, thumbnail=program["thumbnail"])
 
-def viewProgram(url,page,index):
-  if FULL_PROGRAM_PARSE:
-    createTabIndex(url)
-  else:
-    createDirectory(url,page,index,MODE_PROGRAM,MODE_VIDEO)
+def viewEpisodes(url):
+  """
+  Displays the episodes for a program with URL 'url'.
+  """
+  episodes = svt.getEpisodes(url)
+  if not episodes:
+    common.log("No episodes found!")
+    return
 
+  for episode in episodes:
+    createDirItem(episode, MODE_VIDEO)
+
+def addClipDirItem(url):
+  """
+  Adds the "Clips" directory item to a program listing.
+  """
+  params = {}
+  params["mode"] = MODE_CLIPS
+  params["url"] = url
+  addDirectoryItem(localize(30108), params)
+
+def viewClips(url):
+  """
+  Displays the latest clips for a program
+  """
+  clips = svt.getClips(url)
+  if not clips:
+    common.log("No clips found!")
+    return
+
+  for clip in clips:
+    createDirItem(clip, MODE_VIDEO)
 
 def viewSearch():
-
   keyword = common.getUserInput(localize(30102))
   if keyword == "" or not keyword:
     viewStart()
@@ -172,100 +189,16 @@ def viewSearch():
   keyword = urllib.quote(keyword)
   common.log("Search string: " + keyword)
 
-  keyword = re.sub(r" ","+",keyword) 
+  keyword = re.sub(r" ", "+", keyword)
 
   url = svt.URL_TO_SEARCH + keyword
-  
-  createTabIndex(url)
 
-
-def createTabIndex(url):
-  """
-  Creates a directory item for each available tab; Klipp, Hela program, Programtitlar
-  """
-  html = svt.getPage(url)
-  tTab = False
-  eTab = False
-  cTab = False
-  tab_tit = svt.TAB_TITLES
-  tab_eps = svt.TAB_EPISODES
-  tab_cli = svt.TAB_CLIPS
-
-  # Search for the "titles" tab if in search mode. If it exists; create link to result directory  
-  if mode == MODE_SEARCH:
-    tab_tit = svt.TAB_S_TITLES
-    tab_eps = svt.TAB_S_EPISODES
-    tab_cli = svt.TAB_S_CLIPS
-  
-    if helper.tabExists(html,tab_tit):
-      tTab = True
-      addDirectoryItem(localize(30104), { 
-                      "mode": MODE_VIEW_TITLES,
-                      "url": url,
-                      "page": 1,
-                      "index": 0 })
-    else:
-      # Do nothing
-      common.log("No titles found")
-
-
-  # Search for the "episodes" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,tab_eps):
-    eTab = True
-    addDirectoryItem(localize(30105), { 
-                    "mode": MODE_VIEW_EPISODES,
-                    "url": url,
-                    "page": 1,
-                    "index": 0 })
-  else:
-    # Do nothing
-    common.log("No episodes found")
-
-
-  # Search for the "clips" tab. If it exists; create link to result directory   
-  if helper.tabExists(html,tab_cli):
-    cTab = True
-    addDirectoryItem(localize(30106), { 
-                    "mode": MODE_VIEW_CLIPS,
-                    "url": url,
-                    "page": 1,
-                    "index": 0 })
-  else:
-    # Do nothing 
-    common.log("No clips found")
-
-  foundTab = tTab or eTab or cTab
-
-  if not foundTab:
-    # Raise dialog with a "No results found" message
-    # Should only happen when using Search
-    common.log("No search results") 
-    dialog = xbmcgui.Dialog()
-    dialog.ok("SVT Play",localize(30103))
-    viewStart()
-    return
-
-
-def viewPageResults(url,mode,page,index):
-  """
-  Creates a directory for the search results from
-  the tab specified by the mode parameter.
-  """ 
-  common.log("url: " + url + " mode: " + mode)
-  dirtype = None
-
-  if MODE_VIEW_TITLES == mode:
-    dirtype = MODE_PROGRAM
-  elif MODE_VIEW_EPISODES == mode:
-    dirtype = MODE_VIDEO
-  elif MODE_VIEW_CLIPS == mode:
-    dirtype = MODE_VIDEO
-  else:
-    common.log("Undefined mode")
-    viewStart()
-    return
-
-  createDirectory(url,page,index,mode,dirtype)
+  results = svt.getSearchResults(url)
+  for result in results:
+    mode = MODE_VIDEO
+    if result["type"] == "program":
+      mode = MODE_PROGRAM
+    createDirItem(result["item"], mode)
 
 
 def viewBestOfCategories():
@@ -296,115 +229,12 @@ def viewBestOfCategory(url):
     addDirectoryItem(show["title"], params, show["thumbnail"], False, False, show["info"])
 
 
-def createDirectory(url,page,index,callertype,dirtype):
-  """
-  Creates a directory with list items from the supplied program
-  page (url).
-  """
-  if not url.startswith("/"):
-    url = "/" + url
-  tabname = ""
-  if svt.URL_TO_SEARCH in url:
-    if MODE_VIEW_EPISODES == callertype:
-      tabname = svt.TAB_S_EPISODES
-    elif MODE_VIEW_CLIPS == callertype:
-      tabname = svt.TAB_S_CLIPS
-    elif MODE_VIEW_TITLES == callertype:
-      tabname = svt.TAB_S_TITLES
-  else:
-    tabname = svt.TAB_EPISODES
-    if MODE_RECOMMENDED == callertype:
-      tabname = svt.TAB_RECOMMENDED
-    elif MODE_LATEST_NEWS == callertype:
-      tabname = svt.TAB_NEWS
-    elif MODE_LATEST == callertype:
-      tabname = svt.TAB_LATEST
-    elif MODE_VIEW_CLIPS == callertype:
-      tabname = svt.TAB_CLIPS
-    elif MODE_CATEGORY == callertype or MODE_VIEW_TITLES == callertype:
-      tabname = svt.TAB_TITLES
-
-  html = svt.getPage(url)
-
-  if not helper.tabExists(html,tabname) and tabname == svt.TAB_EPISODES:
-    tabname = svt.TAB_CLIPS # In case there are no episodes for a show, get the clips instead
-  
-  if not helper.tabExists(html,tabname):
-    common.log("Could not find tab "+tabname+" on page with url "+url+". Aborting!")
-    return 
-
-  ajaxurl = svt.getAjaxUrl(html,tabname)
-
-  if not ajaxurl:
-    populateDirNoPaging(url,dirtype,tabname)
-    return
-  
-  lastpage = svt.getLastPage(html,tabname)
-
-  fetchitems = True
-  pastlastpage = False
-
-  page = int(page)
-  index = int(index)
-  lastpage = int(lastpage)
-
-  while fetchitems:
-
-    if page > lastpage:
-      pastlastpage = True
-      break
-
-    global CURR_DIR_ITEMS
-
-    articles = svt.getArticles(ajaxurl,str(page))
-    articles = articles[index:]
-    lastindex = 0
-
-    for article in articles:
-
-      if CURR_DIR_ITEMS >= MAX_DIR_ITEMS:
-        CURR_DIR_ITEMS = 0
-        fetchitems = False
-        break
-        
-      createDirItem(article,dirtype)      
-
-      lastindex += 1
-
-    page += 1
-
-  if not pastlastpage:
-    page = page - 1
-    addDirectoryItem(localize(30101),
-             { "mode": callertype,
-               "url": url,
-               "page": str(page),
-               "index": lastindex})
-
-
-def populateDirNoPaging(url,mode,tabname):
-  """
-  Program pages that have less than 8 videos
-  does not have a way to fetch the Ajax URL.
-  Use the normal page URL to populate the
-  directory.
-  """
-  common.log("url: " + url + ", mode: " + mode + ", tabname: " + tabname)
-
-  articles = svt.getArticles(url,None,tabname)
-  
-  for article in articles:
-    createDirItem(article,mode)
-
-
-def createDirItem(article,mode):
+def createDirItem(article, mode):
   """
   Given an article and a mode; create directory item
   for the article.
   """
-  global CURR_DIR_ITEMS
-
-  if (not HIDE_SIGN_LANGUAGE) or (article["title"].lower().endswith("teckentolkad") == False and article["title"].lower().find("teckenspråk".decode("utf-8")) == -1):
+  if not helper.getSetting(S_HIDE_SIGN_LANGUAGE) or (article["title"].lower().endswith("teckentolkad") == False and article["title"].lower().find("teckenspråk".decode("utf-8")) == -1):
 
     params = {}
     params["mode"] = mode
@@ -413,43 +243,36 @@ def createDirItem(article,mode):
 
     if mode == MODE_PROGRAM:
       folder = True
-      params["page"] = 1
-
-    addDirectoryItem(article["title"], params, article["thumbnail"], folder, False, article["info"])
-    CURR_DIR_ITEMS += 1
+    info = None
+    if "info" in article.keys():
+      info = article["info"]
+    addDirectoryItem(article["title"], params, article["thumbnail"], folder, False, info)
 
 
 def startVideo(url):
   """
-  Starts the XBMC player if a valid video URL is 
+  Starts the XBMC player if a valid video URL is
   found for the given page URL.
   """
   if not url.startswith("/"):
     url = "/" + url
 
-  url = url + svt.JSON_SUFFIX
-  common.log("url: " + url)
-  html = svt.getPage(url)
+  url = svt.BASE_URL + url + svt.JSON_SUFFIX
 
-  jsonString = common.replaceHTMLCodes(html)
-  jsonObj = json.loads(jsonString)
-  common.log(jsonString)
-
-  (videoUrl, errormsg) = getVideoUrl(jsonObj)
-  subtitle = getSubtitle(jsonObj)
+  show_obj = helper.resolveShowURL(url)
   player = xbmc.Player()
   startTime = time.time()
 
-  if videoUrl:
-    xbmcplugin.setResolvedUrl(pluginHandle, True, xbmcgui.ListItem(path=videoUrl))
+  if show_obj["videoUrl"]:
+    xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=show_obj["videoUrl"]))
 
-    if subtitle:
+    if show_obj["subtitleUrl"]:
       while not player.isPlaying() and time.time() - startTime < 10:
         time.sleep(1.)
 
-      player.setSubtitles(subtitle)
+      player.setSubtitles(show_obj["subtitleUrl"])
 
-      if not SHOW_SUBTITLES:
+      if not helper.getSetting(S_SHOW_SUBTITLES):
         player.showSubtitles(False)
   else:
     # No video URL was found
@@ -458,202 +281,6 @@ def startVideo(url):
       dialog.ok("SVT Play", localize(30100))
     else:
       dialog.ok("SVT Play", errormsg)
-
-
-def getVideoUrl(jsonObj):
-  """
-  Returns a video URL from a JSON object and
-  an error message, if available.
-  """
-  videoUrl = None
-  extension = "None"
-  args = ""
-
-  for video in jsonObj["video"]["videoReferences"]:
-    """
-    Determine which file extension that will be used
-    m3u8 is preferred, hence the break.
-    Order: m3u8, f4m, mp4, flv
-    """
-    tmpurl = video["url"]
-    argpos = tmpurl.rfind("?")
-    errormsg = ""
-
-    if argpos > 0:
-      args = tmpurl[argpos:]
-      tmpurl = tmpurl[:argpos]
-
-    if tmpurl.endswith(".m3u8"):
-      extension = "HLS"
-      videoUrl = tmpurl
-      break
-    if tmpurl.endswith(".f4m"):
-      extension = "F4M"
-      videoUrl = tmpurl
-      continue
-    if tmpurl.endswith(".mp4"):
-      extension = "MP4"
-      videoUrl = tmpurl
-      continue
-    if tmpurl.endswith(".flv"):
-      extension = "FLV"
-      videoUrl = tmpurl
-      continue
-    videoUrl = tmpurl
-
-  if extension == "HLS" and HLS_STRIP:
-    videoUrl = hlsStrip(videoUrl)
-  elif extension == "HLS" and BW_SELECT: 
-    (videoUrl, errormsg) = getStreamForBW(videoUrl)
-
-  if extension == "F4M":
-    videoUrl = videoUrl.replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
-
-  if extension == "MP4":
-    videoUrl = mp4Handler(jsonObj)
-
-  if extension == "None" and videoUrl:
-    # No supported video was found
-    common.log("No supported video extension found for URL: " + videoUrl)
-    return None
-
-  if args and not (HLS_STRIP or BW_SELECT):
-    videoUrl = videoUrl + args
-
-  if extension == "MP4" and videoUrl.startswith("rtmp://"):
-    videoUrl = videoUrl + " swfUrl="+svt.SWF_URL+" swfVfy=1"
-
-  return (videoUrl, errormsg)
-
-
-def getSubtitle(jsonObj):
-  """
-  Returns a subtitle from a JSON object
-  """
-  subtitle = None
-
-  for sub in jsonObj["video"]["subtitleReferences"]:
-    if sub["url"].endswith(".wsrt"):
-      subtitle = sub["url"]
-    else:
-      if len(sub["url"]) > 0:
-        common.log("Skipping unknown subtitle: " + sub["url"])
-
-  return subtitle
-
-
-def mp4Handler(jsonObj):
-  """
-  Returns a mp4 stream URL.
-
-  If there are several mp4 streams in the JSON object:
-  pick the one with the highest bandwidth.
-
-  Some programs are available with multiple mp4 streams
-  for different bitrates. This function ensures that the one
-  with the highest bitrate is chosen.
-
-  Can possibly be extended to support some kind of quality
-  setting in the plugin.
-  """
-  videos = []
-
-  # Find all mp4 videos
-  for video in jsonObj["video"]["videoReferences"]:
-    if video["url"].endswith(".mp4"):
-      videos.append(video)
-  
-  if len(videos) == 1:
-    return videos[0]["url"]
-
-  bitrate = 0
-  url = ""
-
-  # Find the video with the highest bitrate
-  for video in videos:
-    if video["bitrate"] > bitrate:
-      bitrate = video["bitrate"]
-      url = video["url"]          
-
-  common.log("Info: bitrate="+str(bitrate)+" url="+url)
-  return url
-
-
-def hlsStrip(videoUrl):
-    """
-    Extracts the stream that supports the
-    highest bandwidth and is not using the avc1.77.30 codec.
-    Returns the path to a m3u8 file on the local disk with a
-    reference to the extracted stream.
-    """
-    common.log("Stripping file: " + videoUrl)
-
-    ufile = urllib.urlopen(videoUrl)
-    lines = ufile.readlines()
-
-    newplaylist = "#EXTM3U\n"
-    hlsurl = ""
-    bandwidth = 0
-    foundhigherquality = False
-
-    for line in lines:
-      if foundhigherquality:
-        # The stream url is on the line proceeding the header
-        foundhigherquality = False
-        hlsurl = line
-      if "EXT-X-STREAM-INF" in line: # The header
-        if not "avc1.77.30" in line:
-          match = re.match(r'.*BANDWIDTH=(\d+).+',line)
-          if match:
-            if bandwidth < int(match.group(1)):
-              foundhigherquality = True
-              bandwidth = int(match.group(1))
-          continue
-
-    if bandwidth == 0:
-      return None
-
-    ufile.close()
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url : " + hlsurl)
-    return hlsurl
-
-
-def getStreamForBW(url):
-  """
-  Returns a stream URL for the set bandwidth,
-  and an error message, if applicable.
-  """
-  
-  f = urllib.urlopen(url)
-  lines = f.readlines()
-  
-  hlsurl = ""
-  marker = "#EXT-X-STREAM-INF"
-  found = False
-
-  for line in lines:
-    if found:
-      # The stream url is on the line proceeding the header
-      hlsurl = line
-      break
-    if marker in line: # The header
-      match = re.match(r'.*BANDWIDTH=(\d+)000.+',line)
-      if match:
-        if LOW_BANDWIDTH < int(match.group(1)) < HIGH_BANDWIDTH:
-          common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(LOW_BANDWIDTH))
-          found = True
-  
-  f.close()
-
-  if found:
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url: " + hlsurl)
-    return (hlsurl, '')
-  else:
-    errormsg = "No stream found for bandwidth setting " + str(LOW_BANDWIDTH)
-    common.log(errormsg)
-    return (None, errormsg)
 
 
 def addDirectoryItem(title, params, thumbnail = None, folder = True, live = False, info = None):
@@ -667,61 +294,68 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
     li.setProperty("IsLive", "true")
 
   if not folder:
-    li.setProperty("IsPlayable", "true")
+    if params["mode"] == MODE_VIDEO:
+      li.setProperty("IsPlayable", "true")
+      # Add context menu item for adding a video to playlist
+      plm_script = "special://home/addons/plugin.video.svtplay/resources/lib/PlaylistManager.py"
+      plm_action = "add"
+      if not thumbnail:
+        thumnail= ""
+      li.addContextMenuItems(
+        [
+          (
+            localize(30404),
+            "XBMC.RunScript("+plm_script+", "+plm_action+", "+params["url"]+", "+title+", "+thumbnail+")"
+           )
+        ])
 
   if info:
     li.setInfo("Video", info)
 
-  xbmcplugin.addDirectoryItem(pluginHandle, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
+  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
 
+# Main segment of script
+ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
+ARG_MODE = ARG_PARAMS.get("mode")
+ARG_URL = urllib.unquote_plus(ARG_PARAMS.get("url", ""))
 
-params = helper.getUrlParameters(sys.argv[2])
-
-mode = params.get("mode")
-url = urllib.unquote_plus(params.get("url", ""))
-page = params.get("page")
-letter = params.get("letter")
-index = params.get("index")
-
-if not index:
-  index = "0"
-
-if not mode:
+if not ARG_MODE:
   viewStart()
-elif mode == MODE_A_TO_O:
-  if USE_ALPHA_CATEGORIES:
+elif ARG_MODE == MODE_A_TO_O:
+  if helper.getSetting(S_USE_ALPHA_CATEGORIES):
     viewAlphaDirectories()
   else:
     viewAtoO()
-elif mode == MODE_LIVE:
-  viewLive()
-elif mode == MODE_CATEGORIES:
+elif ARG_MODE == MODE_CATEGORIES:
   viewCategories()
-elif mode == MODE_CATEGORY:
-  viewCategory(url,page,index)
-elif mode == MODE_PROGRAM:
-  viewProgram(url,page,index)
-elif mode == MODE_VIDEO:
-  startVideo(url)
-elif mode == MODE_LATEST:
-  viewLatest(mode,page,index)
-elif mode == MODE_LATEST_NEWS:
-  viewLatest(mode,page,index)
-elif mode == MODE_LETTER:
-  viewProgramsByLetter(letter)
-elif mode == MODE_RECOMMENDED:
-  viewLatest(mode,page,index)
-elif mode == MODE_SEARCH:
-  viewSearch()
-elif mode == MODE_VIEW_TITLES or \
-     mode == MODE_VIEW_EPISODES or \
-     mode == MODE_VIEW_CLIPS:
-  viewPageResults(url,mode,page,index)
-elif mode == MODE_BESTOF_CATEGORIES:
-  viewBestOfCategories()
-elif mode == MODE_BESTOF_CATEGORY:
-  viewBestOfCategory(url)
-elif mode == MODE_CHANNELS:
+elif ARG_MODE == MODE_CATEGORY:
+  viewCategory(ARG_URL)
+elif ARG_MODE == MODE_PROGRAM:
+  viewEpisodes(ARG_URL)
+  addClipDirItem(ARG_URL)
+elif ARG_MODE == MODE_CLIPS:
+  viewClips(ARG_URL)
+elif ARG_MODE == MODE_VIDEO:
+  startVideo(ARG_URL)
+elif ARG_MODE == MODE_LATEST:
+  viewLatestVideos()
+elif ARG_MODE == MODE_POPULAR:
+  viewPopular()
+elif ARG_MODE == MODE_LAST_CHANCE:
+  viewLastChance()
+elif ARG_MODE == MODE_LIVE_CHANNELS:
+  viewLiveChannels()
+elif ARG_MODE == MODE_CHANNELS:
   viewChannels()
+elif ARG_MODE == MODE_LETTER:
+  viewProgramsByLetter(ARG_PARAMS.get("letter"))
+elif ARG_MODE == MODE_SEARCH:
+  viewSearch()
+elif ARG_MODE == MODE_BESTOF_CATEGORIES:
+  viewBestOfCategories()
+elif ARG_MODE == MODE_BESTOF_CATEGORY:
+  viewBestOfCategory(ARG_URL)
+elif ARG_MODE == MODE_PLAYLIST_MANAGER:
+  viewManagePlaylist()
 
-xbmcplugin.endOfDirectory(pluginHandle)
+xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
