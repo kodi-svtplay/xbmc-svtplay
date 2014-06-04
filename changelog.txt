@@ -1,6 +1,6 @@
-Version 3.4.0
+Version 4.0.0
 -------------
-- Update script to support the new SVT Play site
+- Rewrite script to support the new SVT Play site
 
 Version 3.3.5
 -------------
