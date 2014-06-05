@@ -5,7 +5,7 @@
        provider-name="nilzen">
   <requires>
     <import addon="script.module.parsedom" version="1.2.0"/>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="2.14.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
