@@ -1,3 +1,6 @@
+**This is a temporary uplift of frodo to gotham. Incase there are issues on gotham due to the required library "parsedom".**
+
+
 # XBMC SVT Play Addon
 
 With this addon you can stream content from SVT Play (svtplay.se).
