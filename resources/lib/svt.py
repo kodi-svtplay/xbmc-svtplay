@@ -110,7 +110,7 @@ def getAlphas():
   Returns a list of all letters in the alphabet that has programs.
   """
   html = getPage(URL_A_TO_O)
-  container = common.parseDOM(html, "div", attrs = { "class" : "[^\"']*play_alphabetic-list-titles[^\"']*" })
+  container = common.parseDOM(html, "ul", attrs = { "class" : "[^\"']*play_alphabetic-list-titles[^\"']*" })
 
   if not container:
     common.log("No container found!")
@@ -141,7 +141,11 @@ def getProgramsByLetter(letter):
 
   html = getPage(URL_A_TO_O)
 
-  letterboxes = common.parseDOM(html, "div", attrs = { "class": "[^\"']*play_alphabetic-letter[^\"']*" })
+  letterboxes = common.parseDOM(html, "li", attrs = { "class": "[^\"']*play_alphabetic-letter[^\"']*" })
+  if not letterboxes:
+    common.log("No containers found for letter '%s'" % letter)
+    return None
+
   letterbox = None
 
   for letterbox in letterboxes:

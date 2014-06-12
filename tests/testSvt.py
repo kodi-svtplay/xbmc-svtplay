@@ -24,8 +24,7 @@ class TestSvtModule(unittest.TestCase):
   def test_alphabetic(self):
     programs = svt.getAtoO()
 
-    self.assertIsNotNone(programs)
-    self.assertNotEqual([], programs)
+    self.assertHasContent(programs)
 
     for program in programs:
       for key in program.keys():
@@ -57,7 +56,7 @@ class TestSvtModule(unittest.TestCase):
 
     alphas = svt.getAlphas()
 
-    self.assertNotEqual([], alphas)
+    self.assertHasContent(alphas)
 
   def test_programs_by_letter(self):
 
