@@ -97,8 +97,8 @@ class TestSvtModule(unittest.TestCase):
 
     self.assertHasContent(items)
 
-  def test_get_live_channels(self):
-    items = svt.getLiveChannels()
+  def test_get_live_programs(self):
+    items = svt.getLivePrograms()
 
     self.assertHasContent(items)
 
