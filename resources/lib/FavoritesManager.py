@@ -5,10 +5,14 @@ import os
 import xbmc
 import xbmcaddon
 
+import CommonFunctions as common
+
 ADDON_ID = "plugin.video.svtplay"
 FILE_PATH = xbmc.translatePath("special://profile/addon_data/%s/favorites.json" % ADDON_ID)
 
 FAVORITES = {}
+
+log = common.log
 
 def add(title, url):
   global FAVORITES
@@ -77,19 +81,19 @@ def __load_from_disk():
     file_handle.close()
   except IOError:
     FAVORITES = {}
-  print("Load from disk: "+str(FAVORITES))
+  log("Load from disk: "+str(FAVORITES))
 
 def __save_to_disk():
-  print("Save to disk: "+str(FAVORITES))
+  log("Save to disk: "+str(FAVORITES))
   file_handle = open(FILE_PATH, "w+")
   file_handle.write(json.dumps(FAVORITES))
   file_handle.close()
 
 # To support XBMC.RunScript
 if __name__ == "__main__":
-  print("FM called as script!")
+  log("FM called as script!")
   if len(sys.argv) < 2:
-    print "No argument given!"
+    log("No argument given!")
   else:
     if sys.argv[1] == "add" and len(sys.argv) > 3:
       add(sys.argv[2], sys.argv[3])
