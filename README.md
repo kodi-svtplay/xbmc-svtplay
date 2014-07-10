@@ -39,7 +39,7 @@ To remove a favorite, open the context menu, when a favorite is highlighted in t
 
 ## Known Issues
 ### Live broadcasts does not work on iOS, ATV2, OSX and Android
-This is due to encrypted HLS streams not being supported. See this issue ticket for more info #98.
+This is due to encrypted HLS streams not being supported. See this issue ticket for more info [#98](https://github.com/nilzen/xbmc-svtplay/issues/98).
 
 ## Development
 
