@@ -319,7 +319,7 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
       plm_script = "special://home/addons/plugin.video.svtplay/resources/lib/PlaylistManager.py"
       plm_action = "add"
       if not thumbnail:
-        thumbnail= ""
+        thumbnail = ""
       li.addContextMenuItems(
         [
           (
