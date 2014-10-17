@@ -7,6 +7,7 @@ import xbmcaddon
 
 import helper
 import CommonFunctions as common
+import helper
 
 ADDON_ID = "plugin.video.svtplay"
 FILE_PATH = xbmc.translatePath("special://profile/addon_data/%s/favorites.json" % ADDON_ID)

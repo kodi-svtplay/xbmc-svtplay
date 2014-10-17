@@ -60,7 +60,7 @@ def getCategories():
   for index, article in enumerate(articles):
     category = {}
     category["url"] = common.parseDOM(article, "a", ret = "href")[0]
-    title= common.parseDOM(article, "a", ret = "title")[0]
+    title = common.parseDOM(article, "a", ret="title")[0]
 
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
