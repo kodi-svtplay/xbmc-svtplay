@@ -67,7 +67,7 @@ def getCategories():
       continue
 
     category["title"] = common.replaceHTMLCodes(title)
-    category["thumbnail"] = BASE_URL + thumbs[index]
+    category["thumbnail"] = BASE_URL + thumbs[index] if index in thumbs else ""
     categories.append(category)
 
   return categories
@@ -94,7 +94,7 @@ def getProgramsForCategory(url):
   programs = []
   for index, article in enumerate(articles):
     url = common.parseDOM(article, "a", ret="href")[0]
-    title = common.parseDOM(article, "span", attrs= { "class" : "play_link__sub" })[0]
+    title = common.parseDOM(article, "span", attrs= { "class" : "play_videolist-element__title-text" })[0]
     title = common.replaceHTMLCodes(title)
     thumbnail = common.parseDOM(article, "img", ret="src")[0]
     program = { "title": title, "url": url, "thumbnail": thumbnail}
@@ -209,7 +209,7 @@ def getSearchResultsForList(html, list_id):
 
   results = []
   for index, article in enumerate(articles):
-    thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play_videolist__thumbnail[^\"']*" }, ret = "src")[0]
+    thumbnail = common.parseDOM(article, "img", attrs = { "class" : "[^\"']*play_js-video-list-thumbnail[^\"']*" }, ret = "src")[0]
     url = common.parseDOM(article, "a", ret = "href")[0]
     title = common.replaceHTMLCodes(titles[index])
     thumbnail = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
