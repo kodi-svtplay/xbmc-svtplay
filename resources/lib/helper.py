@@ -156,7 +156,7 @@ def prepareThumb(thumbnail, baseUrl):
   """
   if not thumbnail.startswith("http://") and baseUrl:
     thumbnail = baseUrl + thumbnail
-  thumbnail = re.sub(r"/small|medium|large|extralarge/", ""+THUMB_SIZE+"", thumbnail)
+  thumbnail = re.sub(r"small|medium|large|extralarge", THUMB_SIZE, thumbnail)
   return thumbnail
 
 def prepareFanart(url, baseUrl):
@@ -165,7 +165,7 @@ def prepareFanart(url, baseUrl):
   """
   if not url.startswith("http://") and baseUrl:
     url = baseUrl + url
-  new_url = re.sub(r"/small|medium|large|extralarge/", "extralarge_imax", url)
+  new_url = re.sub(r"small|medium|large|extralarge", "extralarge_imax", url)
   return new_url
 
 
