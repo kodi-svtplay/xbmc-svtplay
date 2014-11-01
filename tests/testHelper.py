@@ -56,7 +56,7 @@ class MyFile(file):
     return self.name
 
 def stub_urllib_urlopen(url):
-  return myfile(url)
+  return MyFile(url)
 
 def stub_json_load(file):
   if file.get_name() == "good":
@@ -92,3 +92,15 @@ class TestHelperModule(unittest.TestCase):
     # Test with a bad URL
     show_obj = helper.resolveShowURL("bad")
     self.assertIsNone(show_obj["videoUrl"])
+
+  def test_prepareFanart(self):
+    url = "http://apa/large/"
+    expected = "http://apa/extralarge_imax/"
+    result = helper.prepareFanart(url, "www.base.org")
+    self.assertEqual(expected, result)
+
+  def test_prepareThumb(self):
+    url = "http://apa/medium/"
+    expected = "http://apa/extralarge/"
+    result = helper.prepareThumb(url, "www.base.org")
+    self.assertEqual(expected, result)
