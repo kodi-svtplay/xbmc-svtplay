@@ -5,7 +5,6 @@ import os
 import xbmc
 import xbmcaddon
 
-import helper
 import CommonFunctions as common
 import helper
 
