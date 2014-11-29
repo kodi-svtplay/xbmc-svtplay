@@ -7,6 +7,7 @@ import CommonFunctions as common
 BASE_URL = "http://svtplay.se"
 
 URL_A_TO_O = "/program"
+URL_CATEGORIES = "/program"
 URL_TO_SEARCH = "/sok?q="
 URL_TO_OA = "/kategorier/oppetarkiv"
 URL_TO_CHANNELS = "/kanaler"
@@ -50,17 +51,17 @@ def getCategories():
   """
   Returns a list of all categories.
   """
-  html = getPage("/")
+  html = getPage(URL_CATEGORIES)
 
-  container = common.parseDOM(html, "div", attrs = { "id": "[^\"']*playJs-categories[^\"']*" })
-  articles = common.parseDOM(container, "article")
-  thumbs = common.parseDOM(container, "img", attrs = { "class": "[^\"']*play_js-video-list-thumbnail[^\"']*" }, ret = "src")
+  container = common.parseDOM(html, "section", attrs = { "class": "[^\"']*play_alphabetic-group--categories[^\"']*" })
+  listitems = common.parseDOM(container, "li", attrs = { "class": "play_grid-block[^\"']*" })
+  thumbs = common.parseDOM(container, "img", attrs = { "class": "[^\"']*play_category[^\"']*" }, ret = "src")
   categories = []
 
-  for index, article in enumerate(articles):
+  for index, listitem in enumerate(listitems):
     category = {}
-    category["url"] = common.parseDOM(article, "a", ret = "href")[0]
-    title = common.parseDOM(article, "a", ret="title")[0]
+    category["url"] = common.parseDOM(listitem, "a", ret = "href")[0]
+    title = common.parseDOM(listitem, "span", attrs = { "class": "[^\"']*play_category-grid__title[^\"']*" })[0]
 
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
