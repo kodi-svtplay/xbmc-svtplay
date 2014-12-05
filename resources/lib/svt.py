@@ -31,7 +31,7 @@ def getAtoO():
   """
   html = getPage(URL_A_TO_O)
 
-  link_class = "[^\"']*play_alphabetic-link[^\"']*"
+  link_class = "[^\"']*play_alphabetic-list__video-link[^\"']*"
   texts = common.parseDOM(html, "a" , attrs = { "class": link_class })
   hrefs = common.parseDOM(html, "a" , attrs = { "class": link_class }, ret = "href")
 
