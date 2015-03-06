@@ -287,6 +287,12 @@ def getEpisodes(url):
   """
   Returns the episodes for a program URL.
   """
+  if not url.startswith('/video/'): # Vertical playlist, find the horizontal one
+    html = getPage(url)
+    url = common.parseDOM(html, "a",
+                          attrs = { "class": "[^\"']*play_title-page-trailer__start-button[^\"']*" },
+                          ret = "href")[0]
+    url = url[:url.rfind('/') + 1]
   return getArticles(SECTION_EPISODES, url)
 
 def getClips(url):
