@@ -45,72 +45,22 @@ def convertDuration(duration):
   """
   Converts SVT's duration format to XBMC friendly format (minutes).
 
-  SVT has the following format on their duration strings:
-  1 h 30 min
-  1 min 30 sek
-  1 min
+  SVT reports duration in seconds
   """
 
-  match = re.match(r'(^(\d+)\sh)*(\s*(\d+)\smin)*(\s*(\d+)\ssek)*', duration)
-
-  dhours = 0
-  dminutes = 0
-  dseconds = 0
-
-  if match.group(1):
-    dhours = int(match.group(2)) * 60
-
-  if match.group(3):
-    dminutes = int(match.group(4))
-
-  if match.group(5):
-    dseconds = int(match.group(6)) / 60
-
-  return str(dhours + dminutes + dseconds)
+  return str(duration // 60)
 
 def convertDate(date):
   """
   Converts a SVT date string to a XBMC date string
 
   Examples:
-  From "lör 21 mar" to "2014-03-21"
-  From "idag 18.00" to "2014-03-24"
-  From "igår 20.00" to "2014-03-23"
+  From "20140321" to "2014-03-21"
   """
   if not date:
     return ""
 
-  months = {
-      "jan": 1,
-      "feb": 2,
-      "mar": 3,
-      "apr": 4,
-      "maj": 5,
-      "jun": 6,
-      "jul": 7,
-      "aug": 8,
-      "sep": 9,
-      "okt": 10,
-      "nov": 11,
-      "dec": 12
-      }
-  today = datetime.date.today()
-  one_day = datetime.timedelta(days=1)
-  return_date = today
-
-  match = re.match(r"(.+)\s(\d+)\s(\w+)", date)
-  if match:
-    # "lör 21 mar" match
-    month = months[match.group(3)]
-    day = int(match.group(2))
-    return_date = today.replace(day=day, month=month)
-  else:
-    match = re.match(r"(.+)\s.+", date)
-    if match:
-      if match.group(1) == "ig&aring;r":
-        # "igår 18.00" match
-        return_date = today - one_day
-  return return_date.isoformat()
+  return "%s-%s-%s" % (date[0:4], date[4:2], date[6:2])
 
 def getUrlParameters(arguments):
   """
