@@ -17,7 +17,7 @@ SECTION_POPULAR = "popular-videos"
 SECTION_LATEST_VIDEOS = "latest-videos"
 SECTION_LAST_CHANCE = "last-chance-videos"
 SECTION_LATEST_CLIPS = "playJs-more-clips"
-SECTION_EPISODES = "playJs-more-episodes"
+SECTION_EPISODES = "play_js-tabpanel-more-episodes"
 SECTION_LIVE_PROGRAMS = "live-channels"
 
 SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
@@ -305,7 +305,7 @@ def getArticles(section_name, url=None):
     url = "/"
   html = getPage(url)
 
-  video_list_class = "[^\"']*play_videolist[^\"']*"
+  video_list_class = "[^\"']*play_title-page__panels[^\"']*"
 
   container = common.parseDOM(html, "div", attrs = { "class" : video_list_class, "id" : section_name })
   if not container:
@@ -313,14 +313,8 @@ def getArticles(section_name, url=None):
     return None
   container = container[0]
 
-  article_class = "[^\"']*play_videolist-element[^\"']*"
+  article_class = "[^\"']*play_vertical-list__video-element[^\"']*"
   articles = common.parseDOM(container, "article", attrs = { "class" : article_class })
-  titles = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-title")
-  plots = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-description")
-  airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-broadcasted")
-  if section_name == SECTION_LATEST_CLIPS:
-    airtimes = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-published")
-  durations = common.parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-length")
   new_articles = []
 
   if not articles:
@@ -330,25 +324,20 @@ def getArticles(section_name, url=None):
   for index, article in enumerate(articles):
     info = {}
     new_article = {}
-    plot = plots[index]
-    aired = airtimes[index]
-    duration = durations[index]
-    title = titles[index]
-    new_article["url"] = common.parseDOM(article, "a",
-                            attrs = { "class": "[^\"']*play_videolist-element__link[^\"']*" },
-                            ret = "href")[0]
-    thumbnail = common.parseDOM(article,
-                                "img",
-                                attrs = { "class": "[^\"']*play_videolist-element__thumbnail-image[^\"']*" },
-                                ret = "src")[0]
+
+    new_article["url"] = common.parseDOM(article, "a", attrs = { "class": "[^\"']*play_vertical-list__header-link[^\"']*" }, ret = "href")[0]
+    plot = common.parseDOM(article, "p", attrs = { "class" : "play_vertical-list__description-text" })[0]
+
+    jsonobj = helper.getJSONObj(BASE_URL + new_article["url"] + JSON_SUFFIX)
+    title = jsonobj["context"]["title"]
+    aired = jsonobj["statistics"]["broadcastDate"]
+    duration = jsonobj["video"]["materialLength"]
+    thumbnail = jsonobj["context"]["thumbnailImage"]
     new_article["thumbnail"] = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
+
     if section_name == SECTION_LIVE_PROGRAMS:
-      notlive = common.parseDOM(article, "span", attrs = {"class": "[^\"']*play_graphics-live[^\"']*is-inactive[^\"']*"})
-      if notlive:
-        new_article["live"] = False
-      else:
-        new_article["live"] = True
-    title = common.replaceHTMLCodes(title)
+      new_article["live"] = jsonobj["video"]["live"]
+
     plot = common.replaceHTMLCodes(plot)
     new_article["title"] = title
     info["title"] = title
