@@ -25,6 +25,31 @@ SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*"
 SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*"
 
 
+def keynat(string):
+  r'''A natural sort helper function for sort() and sorted()
+  without using regular expression.
+  >>> items = ('Z', 'a', '10', '1', '9')
+  >>> sorted(items)
+  ['1', '10', '9', 'Z', 'a']
+  >>> sorted(items, key=keynat)
+  ['1', '9', '10', 'Z', 'a']
+  '''
+  r = ""
+  q = ""
+  for c in string:
+    try:
+      c = int(c)
+      try: q = q * 10 + c
+      except: q = c
+    except:
+      try: r = (r+"%05d")%q
+      except: pass
+      q = ""
+      r = r+c
+  try: r = (r+"%05d")%q
+  except: pass
+  return r
+
 def getAtoO():
   """
   Returns a list of all programs, sorted A-Z.
@@ -359,7 +384,7 @@ def getArticles(section_name, url=None):
     new_article["info"] = info
     new_articles.append(new_article)
 
-  return new_articles
+  return  sorted(new_articles, key=lambda e: keynat(e["title"]))
 
 def getProgramItems(section_name, url=None):
   """
@@ -424,7 +449,7 @@ def getProgramItems(section_name, url=None):
     new_article["info"] = info
     new_articles.append(new_article)
 
-  return new_articles
+  return sorted(new_articles, key=lambda e: keynat(e["title"]))
 
 
 def getPage(url):
