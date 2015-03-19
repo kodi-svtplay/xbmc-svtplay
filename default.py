@@ -41,6 +41,7 @@ S_DEBUG = "debug"
 S_HIDE_SIGN_LANGUAGE = "hidesignlanguage"
 S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
+S_FORCE_SORT = "forcesort"
 
 PLUGIN_HANDLE = int(sys.argv[1])
 
@@ -340,6 +341,8 @@ def addDirectoryItem(title, params, thumbnail = None, folder = True, live = Fals
       li.setArt({"fanart": info["fanart"]})
 
   xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urllib.urlencode(params), li, folder)
+  if helper.getSetting(S_FORCE_SORT):
+    xbmcplugin.addSortMethod(PLUGIN_HANDLE, 9)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
