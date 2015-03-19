@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib
+import HTMLParser
 
 import helper
 import CommonFunctions as common
@@ -287,6 +288,12 @@ def getEpisodes(url):
   """
   Returns the episodes for a program URL.
   """
+  if "#" not in url: # Request full program list
+    html = getPage(url)
+    container = common.parseDOM(html, "a", attrs = { "class" : "[^\"']*play_js-title-page__pagination-button[^\"']*" }, ret="href")
+    if container:
+        p = HTMLParser.HTMLParser()
+        url = p.unescape(container[0]).split("svtplay.se",2)[1]
   return getProgramItems(SECTION_EPISODES, url)
 
 def getClips(url):
