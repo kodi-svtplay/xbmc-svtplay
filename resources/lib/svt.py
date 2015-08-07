@@ -39,9 +39,10 @@ def getAtoO():
 
   for index, text in enumerate(texts):
     program = {}
-    program["title"] = common.replaceHTMLCodes(text)
-    program["url"] = hrefs[index]
-    programs.append(program)
+    if (hrefs[index][0:7] != u'/genre/'):
+        program["title"] = common.replaceHTMLCodes(text)
+        program["url"] = hrefs[index]
+        programs.append(program)
 
   return programs
 
