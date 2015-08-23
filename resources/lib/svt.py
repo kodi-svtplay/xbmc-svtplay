@@ -10,7 +10,6 @@ URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
 URL_TO_OA = "/kategorier/oppetarkiv"
 URL_TO_CHANNELS = "/kanaler"
-URL_TO_NEWS = "/nyheter"
 
 JSON_SUFFIX = "?output=json"
 
@@ -25,12 +24,6 @@ SEARCH_LIST_TITLES = "[^\"']*playJs-search-titles[^\"']*"
 SEARCH_LIST_EPISODES = "[^\"']*playJs-search-episodes[^\"']*"
 SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*"
 
-def getLatestNews():
-  """
-  Returns a list of latest news.
-  """
-  sliderId = "playJs-latest"
-  return getArticles(sliderId, URL_TO_NEWS)
 
 def getAtoO():
   """
