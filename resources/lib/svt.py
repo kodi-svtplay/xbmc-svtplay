@@ -29,8 +29,7 @@ def getLatestNews():
   """
   Returns a list of latest news.
   """
-  sliderId = "playJs-latest"
-  return getArticles(sliderId, URL_TO_NEWS)
+  return getArticles("playJs-latest", URL_TO_NEWS)
 
 def getAtoO():
   """
