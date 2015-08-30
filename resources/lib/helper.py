@@ -43,7 +43,7 @@ def convertChar(char):
 
 def convertDuration(duration):
   """
-  Converts SVT's duration format to XBMC friendly format (seconds).
+  Converts SVT's duration format to XBMC friendly format (minutes).
 
   SVT has the following format on their duration strings:
   1 h 30 min
@@ -58,13 +58,13 @@ def convertDuration(duration):
   dseconds = 0
 
   if match.group(1):
-    dhours = int(match.group(2)) * 3600
+    dhours = int(match.group(2)) * 60
 
   if match.group(3):
-    dminutes = int(match.group(4)) * 60
+    dminutes = int(match.group(4))
 
   if match.group(5):
-    dseconds = int(match.group(6))
+    dseconds = int(match.group(6)) / 60
 
   return str(dhours + dminutes + dseconds)
 
