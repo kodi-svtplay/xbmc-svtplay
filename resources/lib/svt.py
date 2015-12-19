@@ -28,12 +28,6 @@ SEARCH_LIST_CLIPS = "[^\"']*playJs-search-clips[^\"']*"
 # Using Python magic to create shortcut
 parseDOM = common.parseDOM 
 
-def getLatestNews():
-  """
-  Returns a list of latest news.
-  """
-  return getArticles("playJs-latest", URL_TO_NEWS)
-
 def getAtoO():
   """
   Returns a list of all programs, sorted A-Z.
@@ -60,27 +54,44 @@ def getCategories():
   """
   Returns a list of all categories.
   """
-  html = getPage("/")
+  html = getPage(URL_A_TO_O)
 
 
-  container = parseDOM(html, "div", attrs = { "id": "[^\"']*playJs-categories[^\"']*" })
+  container = parseDOM(html,
+                       "ul",
+                       attrs = { "class": "[^\"']*play_categories-link-grid[^\"']*"})
   if not container:
     helper.errorMsg("Could not find container")
     return None
-  articles = parseDOM(container, "article")
-  if not articles:
-    helper.errorMsg("Could not find articles")
+
+  titles = parseDOM(container,
+                    "span",
+                    attrs={"class": "[^\"']*play_category-grid__title[^\"']*"})
+  if not titles:
+    helper.errorMsg("Could not find titles")
     return None
-  thumbs = parseDOM(container, "img", attrs = { "class": "[^\"']*play_categorylist-element__thumbnail-image[^\"']*" }, ret = "src")
+
+  thumbs = parseDOM(container,
+                    "img",
+                    attrs = { "class": "[^\"']*play_category-grid__image[^\"']*" },
+                    ret = "src")
   if not thumbs:
     helper.errorMsg("Could not find thumbnails")
     return None
+
+  hrefs = parseDOM(container,
+                   "a",
+                    attrs={"class": "[^\"']*play_category-grid__link[^\"']*"},
+                    ret="href")
+  if not hrefs:
+    helper.errorMsg("Could not find hrefs")
+    return None
+
   categories = []
 
-  for index, article in enumerate(articles):
+  for index, title in enumerate(titles):
     category = {}
-    category["url"] = parseDOM(article, "a", ret = "href")[0]
-    title = parseDOM(article, "a", ret="title")[0]
+    category["url"] = hrefs[index]
 
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
