@@ -126,35 +126,6 @@ def viewSection(section, page):
   if moreItems:
     addNextPageItem(page+1, section)
 
-def viewLatestVideos():
-  articles = svt.getLatestVideos()
-  if not articles:
-    return
-  for article in articles:
-    createDirItem(article, MODE_VIDEO)
-
-def viewLatestNews():
-  articles = svt.getLatestNews()
-  if not articles:
-    return
-  for article in articles:
-    createDirItem(article, MODE_VIDEO)
-
-def viewLastChance():
-  articles = svt.getLastChance()
-  if not articles:
-    return
-  for article in articles:
-    createDirItem(article, MODE_VIDEO)
-
-def viewLivePrograms():
-  articles = svt.getLivePrograms()
-  if not articles:
-    return
-  for article in articles:
-    if article["live"] == True:
-      createDirItem(article, MODE_VIDEO)
-
 def viewChannels():
   channels = svt.getChannels()
   if not channels:
