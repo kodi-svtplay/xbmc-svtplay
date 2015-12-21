@@ -436,6 +436,7 @@ def getProgramItems(section_name, url=None):
       # Some items does not contain this meta data
       aired = ""
 
+    title = common.replaceHTMLCodes(title)
     plot = common.replaceHTMLCodes(plot)
     new_article["title"] = title
     info["title"] = title
