@@ -103,6 +103,38 @@ def getCategories():
 
   return categories
 
+def getLatestNews():
+  """
+  Returns a list of latest news programs.
+  """
+  html = getPage("/nyheter")
+
+  container = parseDOM(html, "section", attrs = { "class" : "[^\"']*play_category__latest-list[^\"']*" })
+  if not container:
+    helper.errorMsg("Could not find container!")
+    return None
+
+  articles = parseDOM(container, "article")
+  if not articles:
+    helper.errorMsg("Could not find articles!")
+    return None
+
+  titles = parseDOM(container, "article", ret = "data-title")
+  airtimes = parseDOM(container, "article", ret = "data-broadcasted")
+  durations = parseDOM(container, "article", ret = "data-length")
+  urls = parseDOM(container, "a", attrs = { "class" : "[^\"']*play_js-videolist-element-link[^\"']*"}, ret = "href")
+  thumbnails = parseDOM(container, "img", attrs = { "class" : "[^\"']*play_videolist-element__thumbnail-image[^\"']*"}, ret = "src")
+
+  items = []
+  for index, article in enumerate(articles):
+     item = {
+        "title" : common.replaceHTMLCodes(titles[index]),
+        "thumbnail" : helper.prepareThumb(thumbnails[index], baseUrl=BASE_URL),
+        "url" : urls[index]
+        }
+     items.append(item)
+
+  return items
 
 def getProgramsForCategory(url):
   """
@@ -409,7 +441,7 @@ def getProgramItems(section_name, url=None):
     if aired:
       aired = aired[0].replace("Publicerades ", "")
     else:
-      # Some items does not contain this meta data
+      # Some items do not contain this meta data
       aired = ""
 
     title = common.replaceHTMLCodes(title)

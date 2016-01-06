@@ -87,6 +87,11 @@ class TestSvtModule(unittest.TestCase):
 
     self.assertHasContent(items)
 
+  def test_get_latest_news(self):
+    items = svt.getLatestNews()
+
+    self.assertHasContent(items)
+
   def test_get_episodes(self):
     url = "/agenda"
     articles = svt.getEpisodes(url)
