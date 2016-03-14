@@ -352,8 +352,29 @@ def resolveShowURL(show_url):
         video_url = hlsStrip(video_url)
       elif getSetting("bwselect"):
         (video_url, errormsg) = getStreamForBW(video_url)
-
+    video_url = cleanUrl(video_url)
   return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
+
+def cleanUrl(video_url):
+  """
+  Returns a cleaned version of the URL.
+
+  Put all permanent and temporary cleaning rules here.
+  """
+  tmp = video_url.split("?")
+  newparas = []
+  if len(tmp) == 2:
+    # query parameters exists
+    newparas.append("?")
+    paras = tmp[1].split("&")
+    for para in paras:
+      if para.startswith("cc1"):
+        # Clean out subtitle parameters for iOS
+        # causing playback issues in xbmc.
+        pass
+      else:
+        newparas.append(para)
+  return tmp[0]+"&".join(newparas)
 
 def getVideoExtension(video_url):
   """
