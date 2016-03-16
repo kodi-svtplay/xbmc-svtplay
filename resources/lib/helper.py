@@ -3,6 +3,7 @@ import datetime
 import json
 import re
 import urllib
+import urlparse
 
 import xbmcaddon
 
@@ -212,17 +213,17 @@ def mp4Handler(jsonObj):
   return url
 
 
-def hlsStrip(videoUrl):
+def hlsStrip(video_url):
     """
     Extracts the stream that supports the
     highest bandwidth and is not using the avc1.77.30 codec.
     """
-    common.log("Stripping file: " + videoUrl)
+    common.log("Stripping file: " + video_url)
 
-    ufile = urllib.urlopen(videoUrl)
+    ufile = urllib.urlopen(video_url)
     lines = ufile.readlines()
 
-    hlsurl = ""
+    hls_url = ""
     bandwidth = 0
     foundhigherquality = False
 
@@ -230,7 +231,7 @@ def hlsStrip(videoUrl):
       if foundhigherquality:
         # The stream url is on the line proceeding the header
         foundhigherquality = False
-        hlsurl = line
+        hls_url = line
       if "EXT-X-STREAM-INF" in line: # The header
         if not "avc1.77.30" in line:
           match = re.match(r'.*BANDWIDTH=(\d+).+', line)
@@ -244,9 +245,10 @@ def hlsStrip(videoUrl):
       return None
 
     ufile.close()
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url : " + hlsurl)
-    return hlsurl
+    hls_url = hls_url.rstrip()
+    return_url = urlparse.urljoin(video_url, hls_url)
+    common.log("Returned stream url : " + return_url)
+    return return_url
 
 
 def getStreamForBW(url):
@@ -260,14 +262,14 @@ def getStreamForBW(url):
   f = urllib.urlopen(url)
   lines = f.readlines()
 
-  hlsurl = ""
+  hls_url = ""
   marker = "#EXT-X-STREAM-INF"
   found = False
 
   for line in lines:
     if found:
       # The stream url is on the line proceeding the header
-      hlsurl = line
+      hls_url = line
       break
     if marker in line: # The header
       match = re.match(r'.*BANDWIDTH=(\d+)000.+', line)
@@ -279,13 +281,14 @@ def getStreamForBW(url):
   f.close()
 
   if found:
-    hlsurl = hlsurl.rstrip()
-    common.log("Returned stream url: " + hlsurl)
-    return (hlsurl, '')
+    hls_url = hls_url.rstrip()
+    return_url = urlparse.urljoin(url, hls_url)
+    common.log("Returned stream url: " + return_url)
+    return (return_url, '')
   else:
-    errormsg = "No stream found for bandwidth setting " + str(low_bandwidth)
-    common.log(errormsg)
-    return (None, errormsg)
+    error_msg = "No stream found for bandwidth setting " + str(low_bandwidth)
+    common.log(error_msg)
+    return (None, error_msg)
 
 
 def getHighBw(low):
