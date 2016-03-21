@@ -56,24 +56,23 @@ def getCategories():
   """
   html = getPage(URL_A_TO_O)
 
-
   container = parseDOM(html,
-                       "ul",
-                       attrs = { "class": "[^\"']*play_categories-link-grid[^\"']*"})
+                       "div",
+                       attrs = { "class": "[^\"']*play_promotion-grid[^\"']*"})
   if not container:
     helper.errorMsg("Could not find container")
     return None
 
   titles = parseDOM(container,
                     "span",
-                    attrs={"class": "[^\"']*play_category-grid__title[^\"']*"})
+                    attrs={"class": "[^\"']*play_promotion-item__caption_inner[^\"']*"})
   if not titles:
     helper.errorMsg("Could not find titles")
     return None
 
   thumbs = parseDOM(container,
                     "img",
-                    attrs = { "class": "[^\"']*play_category-grid__image[^\"']*" },
+                    attrs = { "class": "[^\"']*play_promotion-item__image[^\"']*" },
                     ret = "src")
   if not thumbs:
     helper.errorMsg("Could not find thumbnails")
@@ -81,7 +80,7 @@ def getCategories():
 
   hrefs = parseDOM(container,
                    "a",
-                    attrs={"class": "[^\"']*play_category-grid__link[^\"']*"},
+                    attrs={"class": "[^\"']*play_promotion-item__link[^\"']*"},
                     ret="href")
   if not hrefs:
     helper.errorMsg("Could not find hrefs")
@@ -97,6 +96,8 @@ def getCategories():
       # Skip the "Oppetarkiv" category
       continue
 
+    # One ugly hack for the React generated HTML
+    title = parseDOM(title, "span")[0]
     category["title"] = common.replaceHTMLCodes(title)
     category["thumbnail"] = helper.prepareThumb(thumbs[index], baseUrl=BASE_URL)
     categories.append(category)
