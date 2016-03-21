@@ -288,28 +288,15 @@ def getChannels():
   """
   Returns the live channels from the page "Kanaler".
   """
-  anchor_class = "[^\"']*play_zapper__menu-item-link[^\"']*"
-  html = getPage(URL_TO_CHANNELS)
-
-  container = parseDOM(html, "ul", attrs = { "data-play_tabarea" : "ta-schedule"})
-  if not container:
-    helper.errorMsg("No container found for channels")
-    return None
-
-  channels = []
-  ch_boxes = parseDOM(container, "li")
-  for box in ch_boxes:
-    title = parseDOM(box, "a", attrs = {"class" : anchor_class}, ret = "data-channel")[0]
-    url = parseDOM(box, "a", attrs = {"class" : anchor_class}, ret = "href")[0]
-    plot = parseDOM(box, "span", attrs = {"class" : "[^\"']*play_zapper__menu-item-title[^\"']*"})[0]
-    thumbnail = parseDOM(box, "a", attrs = {"class" : anchor_class}, ret = "data-thumbnail")[0]
-    channels.append({
-      "title" : title.title(),
-      "url" : url,
-      "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
-      "info" : { "title" : common.replaceHTMLCodes(plot), "plot" : common.replaceHTMLCodes(plot)}
-    })
-
+  # Parsing this since React is way too complicated.
+  # Results are hard coded instead
+  channels = [
+    {"title" : "SVT1", "url" : "/kanaler/svt1", "thumbnail" : ""},
+    {"title" : "SVT2", "url" : "/kanaler/svt2", "thumbnail" : ""},
+    {"title" : "Barnkanalen", "url" : "/kanaler/barnkanalen", "thumbnail" : ""},
+    {"title" : "SVT24", "url" : "/kanaler/svt24", "thumbnail" : ""},
+    {"title" : "Kunskapskanalen", "url" : "/kanaler/kunskapskanalen", "thumbnail" : ""},
+  ]
   return channels
 
 def getEpisodes(url):
