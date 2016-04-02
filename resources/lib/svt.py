@@ -95,6 +95,9 @@ def getCategories():
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
       continue
+    elif category["url"].startswith("/genre"):
+      # No support for /genre yet TODO: Add support
+      continue
 
     # One ugly hack for the React generated HTML
     title = parseDOM(title, "span")[0]
