@@ -202,7 +202,7 @@ def getProgramsByLetter(letter):
 
   html = getPage(URL_A_TO_O)
 
-  letterboxes = parseDOM(html, "li", attrs = { "class": "[^\"']*play_alphabetic-list__letter-container[^\"']*" })
+  letterboxes = parseDOM(html, "div", attrs = { "class": "[^\"']*play_alphabetic-list__letter-container[^\"']*" })
   if not letterboxes:
     helper.errorMsg("No containers found for letter '%s'" % letter)
     return None
@@ -211,12 +211,12 @@ def getProgramsByLetter(letter):
 
   for letterbox in letterboxes:
 
-    heading = parseDOM(letterbox, "h3")[0]
+    heading = parseDOM(letterbox, "a", attrs = { "class": "[^\"']*play_alphabetic-list__letter[^\"']*"})[0]
 
-    if heading == letter:
+    if heading.encode("utf-8") == letter:
       break
 
-  lis = parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_js-filterable-item[^\"']*" })
+  lis = parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_alphabetic-list__item[^\"']*" })
   if not lis:
     helper.errorMsg("No items found for letter '"+letter+"'")
     return None
