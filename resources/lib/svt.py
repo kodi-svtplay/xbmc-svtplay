@@ -171,13 +171,13 @@ def getAlphas():
   Returns a list of all letters in the alphabet that has programs.
   """
   html = getPage(URL_A_TO_O)
-  container = parseDOM(html, "ul", attrs = { "class" : "[^\"']*play_alphabetic-list[^\"']*" })
+  container = parseDOM(html, "ul", attrs = { "class" : "[^\"']*play_alphabetic-skiplinks[^\"']*" })
 
   if not container:
     helper.errorMsg("No container found!")
     return None
 
-  letters = parseDOM(container[0], "h3", attrs = { "class" : "[^\"']*play_alphabetic-list__letter[^\"']*" })
+  letters = parseDOM(container[0], "a", attrs = { "class" : "[^\"']*play_alphabetic-skiplinks__link[^\"']*" })
 
   if not letters:
     helper.errorMsg("Could not find any letters!")
@@ -187,8 +187,8 @@ def getAlphas():
 
   for letter in letters:
     alpha = {}
-    alpha["title"] = helper.convertChar(letter)
-    alpha["char"] =  letter
+    alpha["title"] = common.replaceHTMLCodes(letter).encode("utf-8")
+    alpha["char"] =  letter.encode("utf-8")
     alphas.append(alpha)
 
   return alphas
