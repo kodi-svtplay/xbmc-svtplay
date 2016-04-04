@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import urllib
+import requests
 
 import helper
 import CommonFunctions as common
 
 BASE_URL = "http://svtplay.se"
+API_URL = "http://svtplay.se/api/"
 
 URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
@@ -314,74 +316,6 @@ def getClips(url):
   """
   return getProgramItems(SECTION_LATEST_CLIPS, url)
 
-def getItems(section, page):
-  """
-  TODO Update py-doc!
-  """
-  if not section:
-    print "Missing parameter section!"
-    return None
-
-  container = getPage("/"+section+"?embed=true"+"&sida="+str(page))
-
-  article_class = "[^\"']*play_videolist-element[^\"']*"
-  articles = parseDOM(container, "article", attrs = { "class" : article_class })
-  titles = parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-title")
-  plots = parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-description")
-  airtimes = parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-broadcasted")
-  if section == SECTION_LATEST_CLIPS:
-    airtimes = parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-published")
-  durations = parseDOM(container, "article", attrs = { "class" : article_class }, ret = "data-length")
-
-  if not articles:
-    helper.errorMsg("No articles found for section '"+section+"' !")
-    return None
-  
-  # Check if "Nästa sida" exists, assume it is
-  next_page_exists = True
-  next_page_elem = parseDOM( container, 
-                          "div",
-                          attrs={ "class" : "[^\"']*play_gridpage__pagination[^\"']*"})
-  if not next_page_elem:
-    next_page_exists = False
-
-  new_articles = []
-  for index, article in enumerate(articles):
-    info = {}
-    new_article = {}
-    plot = plots[index]
-    aired = airtimes[index]
-    duration = durations[index]
-    title = titles[index]
-    new_article["url"] = parseDOM(article, "a",
-                            attrs = { "class": "[^\"']*play_videolist-element__link[^\"']*" },
-                            ret = "href")[0]
-    thumbnail = parseDOM(article,
-                                "img",
-                                attrs = { "class": "[^\"']*play_videolist-element__thumbnail-image[^\"']*" },
-                                ret = "data-imagename")[0]
-    new_article["thumbnail"] = helper.prepareThumb(thumbnail, baseUrl=None)
-    if section == SECTION_LIVE_PROGRAMS:
-      notlive = parseDOM(article,
-                                "span",
-                                attrs = {"class": "[^\"']*play_graphics-live[^\"']*is-inactive[^\"']*"})
-      if notlive:
-        new_article["live"] = False
-      else:
-        new_article["live"] = True
-    title = common.replaceHTMLCodes(title)
-    plot = common.replaceHTMLCodes(plot)
-    new_article["title"] = title
-    info["title"] = title
-    info["plot"] = plot
-    info["aired"] = helper.convertDate(aired)
-    info["duration"] = helper.convertDuration(duration)
-    info["fanart"] = helper.prepareFanart(thumbnail, baseUrl=BASE_URL)
-    new_article["info"] = info
-    new_articles.append(new_article)
-
-  return (new_articles, next_page_exists)
-
 def getProgramItems(section_name, url=None):
   """
   Returns a list of program items for a show.
@@ -448,6 +382,43 @@ def getProgramItems(section_name, url=None):
 
   return new_articles
 
+def getItems(section_name, page):
+  if not page:
+    page = 1
+  url = API_URL+section_name+"_page"+";sida="+str(page)
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Did not get any response for: "+url)
+
+  returned_items = []
+  contents = r.json()
+  for video in contents["videos"]:
+    item = {}
+    item["title"] = video["programTitle"]
+    item["url"] = video["contentUrl"]
+    item["thumbnail"] = helper.prepareThumb(video["thumbnailLarge"], baseUrl=BASE_URL)
+    info = {}
+    info["title"] = item["title"]
+    try:
+      info["plot"] = video["description"]
+    except KeyError:
+      # Some videos do not have description (Rapport etc)
+      info["plot"] = ""
+    info["aired"] = video["broadcastDate"]
+    try:
+      info["duration"] = video["materialLength"]
+    except KeyError:
+      # Some programs are missing duration, default to 0
+      info["duration"] = 0
+    try:
+      info["fanart"] = helper.prepareFanart(video["posterXL"], baseUrl=BASE_URL)
+    except KeyError:
+      # Some programs do not have posters
+      info["fanart"] = ""
+    item["info"] = info
+    returned_items.append(item)
+
+  return (returned_items, contents["hasNextPage"])
 
 def getPage(url):
   """
