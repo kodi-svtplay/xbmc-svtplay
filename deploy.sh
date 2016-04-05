@@ -15,6 +15,7 @@ set -e
 DEPLOY_DIR=$1
 
 EXCLUDE_FILES="deploy.sh \
+              DEPLOY.md \
               ISSUE_TEMPLATE.md \
               CONTRIBUTING.md \
               tests/.gitignore \
