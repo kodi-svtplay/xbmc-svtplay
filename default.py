@@ -116,7 +116,7 @@ def viewProgramsByLetter(letter):
   programs = svt.getProgramsByLetter(letter)
 
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
+    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] }, thumbnail=program["thumbnail"])
 
 def viewSection(section, page):
   (items, moreItems) = svt.getItems(section, page)

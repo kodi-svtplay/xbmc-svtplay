@@ -58,7 +58,7 @@ class TestSvtModule(unittest.TestCase):
 
     self.assertHasContent(alphas)
 
-  def test_programs_by_letter(self):
+  def test_get_programs_by_letter(self):
 
     letter = u'A' # "A" should always have programs...
 

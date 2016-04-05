@@ -204,38 +204,31 @@ def getProgramsByLetter(letter):
   Returns a list of all program starting with the supplied letter.
   """
   letter = urllib.unquote(letter)
-
-  html = getPage(URL_A_TO_O)
-
-  letterboxes = parseDOM(html, "div", attrs = { "class": "[^\"']*play_alphabetic-list__letter-container[^\"']*" })
-  if not letterboxes:
-    helper.errorMsg("No containers found for letter '%s'" % letter)
+  url = API_URL+"programs_page"
+ 
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Did not get any response for: "+url)
     return None
 
-  letterbox = None
-
-  for letterbox in letterboxes:
-
-    heading = parseDOM(letterbox, "a", attrs = { "class": "[^\"']*play_alphabetic-list__letter[^\"']*"})[0]
-
-    if heading.encode("utf-8") == letter:
-      break
-
-  lis = parseDOM(letterbox, "li", attrs = { "class": "[^\"']*play_alphabetic-list__item[^\"']*" })
-  if not lis:
-    helper.errorMsg("No items found for letter '"+letter+"'")
-    return None
-
+  contents = r.json()
+  items = []
+  
   programs = []
+  try:
+    programs = contents["letters"][letter]
+  except KeyError:
+    common.log("Could not find letter \""+letter+"\"")
+    return None
 
-  for li in lis:
-    program = {}
-    program["url"] = parseDOM(li, "a", ret = "href")[0]
-    title = parseDOM(li, "a")[0]
-    program["title"] = common.replaceHTMLCodes(title)
-    programs.append(program)
+  for program in programs:
+    item = {}
+    item["url"] = "/"+program["urlFriendlyTitle"]
+    item["title"] = common.replaceHTMLCodes(program["title"])
+    item["thumbnail"] = helper.prepareThumb(program["thumbnailLarge"], baseUrl=BASE_URL)
+    items.append(item)
 
-  return programs
+  return items
 
 
 def getSearchResults(url):
@@ -389,6 +382,7 @@ def getItems(section_name, page):
   r = requests.get(url)
   if r.status_code != 200:
     common.log("Did not get any response for: "+url)
+    return None
 
   returned_items = []
   contents = r.json()
