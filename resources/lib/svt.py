@@ -286,16 +286,34 @@ def getChannels():
   """
   Returns the live channels from the page "Kanaler".
   """
-  # Parsing this since React is way too complicated.
-  # Results are hard coded instead
-  channels = [
-    {"title" : "SVT1", "url" : "/kanaler/svt1", "thumbnail" : ""},
-    {"title" : "SVT2", "url" : "/kanaler/svt2", "thumbnail" : ""},
-    {"title" : "Barnkanalen", "url" : "/kanaler/barnkanalen", "thumbnail" : ""},
-    {"title" : "SVT24", "url" : "/kanaler/svt24", "thumbnail" : ""},
-    {"title" : "Kunskapskanalen", "url" : "/kanaler/kunskapskanalen", "thumbnail" : ""},
-  ]
-  return channels
+  url = API_URL+"channel_page"
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Could not get response for: "+url)
+    return None
+  contents = r.json()
+
+  items = []
+
+  for channel in contents["channels"]:
+    item = {}
+    item["title"] = channel["name"]
+    item["thumbnail"] = \
+      "http://svtplay.se//public/images/channels/posters/%s.png" % channel["title"]
+    item["info"] = {}
+    try:
+      item["info"]["plot"] = channel["schedule"][0]["titlePage"]["description"]
+      item["info"]["fanart"] = channel["schedule"][0]["titlePage"]["thumbnailLarge"]
+      item["info"]["title"] = channel["schedule"][0]["titlePage"]["title"]
+    except KeyError as e:
+      # Some items are missing titlePage, skip them
+      pass
+    for videoRef in channel["videoReferences"]:
+      if videoRef["playerType"] == "ios":
+        item["url"] = videoRef["url"]
+    items.append(item)
+
+  return items
 
 def getEpisodes(url):
   """
