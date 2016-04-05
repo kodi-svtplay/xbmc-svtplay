@@ -64,7 +64,7 @@ def viewStart():
   addDirectoryItem(localize(30000), { "mode": MODE_A_TO_O })
   addDirectoryItem(localize(30001), { "mode": MODE_CATEGORIES })
   addDirectoryItem(localize(30007), { "mode": MODE_BESTOF_CATEGORIES })
-  #addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
+  addDirectoryItem(localize(30006), { "mode": MODE_SEARCH })
   addDirectoryItem(localize(30405), { "mode": MODE_FAVORITES })
   addDirectoryItem(localize(30400), { "mode": MODE_PLAYLIST_MANAGER }, folder=False)
 
@@ -197,9 +197,7 @@ def viewSearch():
 
   keyword = re.sub(r" ", "+", keyword)
 
-  url = svt.URL_TO_SEARCH + keyword
-
-  results = svt.getSearchResults(url)
+  results = svt.getSearchResults(keyword)
   for result in results:
     mode = MODE_VIDEO
     if result["type"] == "program":

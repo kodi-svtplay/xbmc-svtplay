@@ -198,7 +198,6 @@ def getAlphas():
 
   return alphas
 
-
 def getProgramsByLetter(letter):
   """
   Returns a list of all program starting with the supplied letter.
@@ -231,56 +230,57 @@ def getProgramsByLetter(letter):
   return items
 
 
-def getSearchResults(url):
+def getSearchResults(search_term):
   """
   Returns a list of both clips and programs
   for the supplied search URL.
   """
-  html = getPage(url)
-
-  results = []
-
-  for list_id in [SEARCH_LIST_TITLES, SEARCH_LIST_EPISODES, SEARCH_LIST_CLIPS]:
-    items = getSearchResultsForList(html, list_id)
-    if not items:
-      helper.errorMsg("No items in list '"+list_id+"'")
-      continue
-    results.extend(items)
-
-  return results
-
-
-def getSearchResultsForList(html, list_id):
-  """
-  Returns the items in the supplied list.
-
-  Lists are the containers on a program page that contains clips or programs.
-  """
-  container = parseDOM(html, "div", attrs = { "id" : list_id })
-  if not container:
-    helper.errorMsg("No container found for list ID '"+list_id+"'")
+  url = API_URL+"search_page;q="+search_term
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Did not get any response for: "+url)
     return None
 
-  articles = parseDOM(container, "article")
-  if not articles:
-    helper.errorMsg("No articles found for list ID '"+list_id+"'")
-    return None
+  items = []
+  contents = r.json()
 
-  titles = parseDOM(container, "article", ret = "data-title")
+  for program in contents["titles"]["videoItems"]:
+    item = {}
+    item["title"] = common.replaceHTMLCodes(program["title"])
+    item["url"] = program["contentUrl"]
+    item["thumbnail"] = helper.prepareThumb(program["thumbnailLarge"], baseUrl=BASE_URL)
+    item["info"] = {}
+    try:
+      item["info"]["plot"] = program["description"]
+    except KeyError:
+      item["info"]["plot"] = ""
+    items.append({"item": item, "type" : "program"})
 
-  results = []
-  for index, article in enumerate(articles):
-    thumbnail = parseDOM(article, "img", attrs = { "class" : "[^\"']*play_videolist-element__thumbnail-image[^\"']*" }, ret = "src")[0]
-    url = parseDOM(article, "a", ret = "href")[0]
-    title = common.replaceHTMLCodes(titles[index])
-    thumbnail = helper.prepareThumb(thumbnail, baseUrl=BASE_URL)
+  for video in contents["episodes"]["videoItems"]:
+    item = {}
+    item["title"] = common.replaceHTMLCodes(video["title"])
+    item["url"] = video["contentUrl"]
+    item["thumbnail"] = helper.prepareThumb(video["thumbnailLarge"], baseUrl=BASE_URL)
+    item["info"] = {}
+    try:
+      item["info"]["plot"] = video["description"]
+    except KeyError:
+      item["info"]["plot"] = ""
+    items.append({"item": item, "type": "video"})
 
-    item_type = "video"
-    if list_id == SEARCH_LIST_TITLES:
-      item_type = "program"
-    results.append({"item": { "title" : title, "thumbnail" : thumbnail, "url" : url  }, "type" : item_type })
+  for clip in contents["clips"]["videoItems"]:
+    item = {}
+    item["title"] = common.replaceHTMLCodes(clip["title"])
+    item["url"] = clip["contentUrl"]
+    item["thumbnail"] = helper.prepareThumb(clip["thumbnailLarge"], baseUrl=BASE_URL)
+    item["info"] = {}
+    try:
+      item["info"]["plot"] = clip["description"]
+    except KeyError:
+      item["info"]["plot"] = ""
+    items.append({"item": item, "type": "video"})
 
-  return results
+  return items
 
 def getChannels():
   """

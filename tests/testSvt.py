@@ -72,9 +72,8 @@ class TestSvtModule(unittest.TestCase):
 
   def test_search_results(self):
 
-    url = "/sok?q=agenda" # Agenda should have some items
-
-    items = svt.getSearchResults(url)
+    search_term = "xgames"
+    items = svt.getSearchResults(search_term)
 
     self.assertHasContent(items)
 
