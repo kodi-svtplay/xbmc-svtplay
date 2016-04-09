@@ -103,5 +103,11 @@ class TestSvtModule(unittest.TestCase):
 
     self.assertHasContent(articles)
 
+  def test_get_a_to_o(self):
+    items = svt.getAtoO()
+    for item in items:
+      for key in item.keys():
+        self.assertHasContent(item[key])
+
 if __name__ == "__main__":
   unittest.main()

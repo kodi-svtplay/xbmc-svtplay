@@ -97,13 +97,17 @@ def viewAtoO():
   programs = svt.getAtoO()
 
   for program in programs:
-    addDirectoryItem(program["title"], { "mode": MODE_PROGRAM, "url": program["url"] })
+    addDirectoryItem(program["title"],
+                {"mode": MODE_PROGRAM, "url": program["url"]},
+                thumbnail=program["thumbnail"])
 
 def viewCategories():
   categories = svt.getCategories()
 
   for category in categories:
-    addDirectoryItem(category["title"], { "mode": MODE_CATEGORY, "url": category["url"] }, thumbnail=category["thumbnail"])
+    addDirectoryItem(category["title"],
+                {"mode": MODE_CATEGORY, "url": category["url"] },
+                thumbnail=category["thumbnail"])
 
 def viewAlphaDirectories():
   alphas = svt.getAlphas()
