@@ -299,6 +299,8 @@ def getChannels():
   for channel in contents["channels"]:
     item = {}
     item["title"] = channel["name"]
+    program_title = channel["schedule"][0]["title"]
+    item["title"] = channel["name"]+" - "+program_title
     item["thumbnail"] = \
       "http://svtplay.se//public/images/channels/posters/%s.png" % channel["title"]
     item["info"] = {}
