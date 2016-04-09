@@ -298,7 +298,6 @@ def getChannels():
 
   for channel in contents["channels"]:
     item = {}
-    item["title"] = channel["name"]
     program_title = channel["schedule"][0]["title"]
     item["title"] = channel["name"]+" - "+program_title
     item["thumbnail"] = \
