@@ -271,7 +271,12 @@ def startVideo(url):
 
   url = svt.BASE_URL + url + svt.JSON_SUFFIX
 
-  show_obj = helper.resolveShowURL(url)
+  try:
+    show_obj = helper.resolveShowURL(url)
+  except ValueError:
+    common.log("Could not decode JSON for "+url)
+    return
+
   player = xbmc.Player()
   startTime = time.time()
 
