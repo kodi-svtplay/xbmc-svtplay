@@ -96,6 +96,8 @@ class TestSvtModule(unittest.TestCase):
     articles = svt.getEpisodes(url)
 
     self.assertHasContent(articles)
+    for article in articles:
+      print article
 
   def test_get_clips(self):
     url = "/agenda"
@@ -109,5 +111,14 @@ class TestSvtModule(unittest.TestCase):
       for key in item.keys():
         self.assertHasContent(item[key])
 
+  def test_get_episodes_from_a_to_o(self):
+    items = svt.getAtoO()
+    self.assertHasContent(items)
+
+    for item in items:
+      episodes = svt.getEpisodes(item["url"])
+      self.assertHasContent(episodes)
+      break
+    
 if __name__ == "__main__":
   unittest.main()
