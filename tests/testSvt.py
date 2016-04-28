@@ -97,13 +97,17 @@ class TestSvtModule(unittest.TestCase):
 
     self.assertHasContent(articles)
     for article in articles:
-      print article
+      for key in article.keys():
+        self.assertHasContent(article[key])
 
   def test_get_clips(self):
     url = "/agenda"
     articles = svt.getClips(url)
 
     self.assertHasContent(articles)
+    for article in articles:
+      for key in article.keys():
+        self.assertHasContent(article[key])
 
   def test_get_a_to_o(self):
     items = svt.getAtoO()
@@ -118,6 +122,15 @@ class TestSvtModule(unittest.TestCase):
     for item in items:
       episodes = svt.getEpisodes(item["url"])
       self.assertHasContent(episodes)
+      break
+
+  def test_get_clips_from_a_to_o(self):
+    items = svt.getAtoO()
+    self.assertHasContent(items)
+
+    for item in items:
+      clips = svt.getClips(item["url"])
+      self.assertHasContent(clips)
       break
     
 if __name__ == "__main__":
