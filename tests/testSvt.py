@@ -132,6 +132,17 @@ class TestSvtModule(unittest.TestCase):
       clips = svt.getClips(item["url"])
       self.assertHasContent(clips)
       break
+
+  def test_get_popular(self):
+    items = svt.getItems("popular", 1)
+    for item in items:
+      self.assertHasContent(item)
+
+  def test_get_last_chance(self):
+    items = svt.getItems("last_chance", 1)
+    for item in items:
+      print item
+      self.assertHasContent(item)
     
 if __name__ == "__main__":
   unittest.main()
