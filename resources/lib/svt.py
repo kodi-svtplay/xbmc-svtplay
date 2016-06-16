@@ -68,10 +68,12 @@ def getCategories():
     category = {}
     category["url"] = item["url"]
 
-    if category["url"].endswith("oppetarkiv") or not category["url"].startswith("genre/"):
-      # Skip the "Oppetarkiv" category
-      # Skip non-genre
+    if category["url"].endswith("oppetarkiv") or category["url"].endswith("barn"):
+      # Skip the "Oppetarkiv" and "Barn" category
       continue
+
+    if not category["url"].startswith("genre"):
+      category["url"] = "genre/" + category["url"]
 
     # One ugly hack for the React generated HTML
     category["title"] = item["name"]
@@ -118,14 +120,15 @@ def getProgramsForCategory(url):
   Returns a list of programs for a specific category.
   """
   if url.startswith("genre/"):
-    return getProgramsForGenre(url.lstrip("genre/"))
+    return getProgramsForGenre(url.split("/")[1])
   else:
     return None
 
 def getProgramsForGenre(genre):
-  r = requests.get(BASE_URL+API_URL+"cluster_page;cluster="+genre)
+  url = BASE_URL+API_URL+"cluster_page;cluster="+genre
+  r = requests.get(url)
   if r.status_code != 200:
-    common.log("Could not get JSON!")
+    common.log("Could not get JSON for url: "+url)
     return None
 
   programs = []
