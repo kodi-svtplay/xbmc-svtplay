@@ -145,7 +145,6 @@ def getProgramsForGenre(genre):
     programs.append(program)
   return programs
 
-
 def getAlphas():
   """
   Returns a list of all letters in the alphabet that has programs.
@@ -291,17 +290,35 @@ def getChannels():
 
   return items
 
-def getEpisodes(url):
+def getEpisodes(title):
   """
   Returns the episodes for a program URL.
   """
-  return getProgramItems(SECTION_EPISODES, url)
+  url = BASE_URL+API_URL+"video_title_page;title="+title
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Could not get JSON for "+url)
+    return None
+  programs = []
+  for item in r.json()["relatedVideos"]["episodes"]:
+    program = {}
+    program["title"] = item["title"]
+    program["url"] = str(item["id"]) + "/" + item["slug"]
+    program["thumbnail"] = helper.prepareThumb(item["thumbnailMedium"], BASE_URL)
+    info = {}
+    try:
+      info["plot"] = item["description"]
+    except KeyError:
+      info["plot"] = ""
+    program["info"] = info
+    programs.append(program)
+  return programs
 
 def getClips(url):
   """
   Returns the clips for a program URL.
   """
-  return getProgramItems(SECTION_LATEST_CLIPS, url)
+  return None
 
 def getProgramItems(section_name, url=None):
   """
