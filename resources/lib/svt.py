@@ -66,10 +66,11 @@ def getCategories():
 
   for item in r.json()["categories"]:
     category = {}
-    category["url"] = item["urlPart"]
+    category["url"] = item["url"]
 
-    if category["url"].endswith("oppetarkiv"):
+    if category["url"].endswith("oppetarkiv") or not category["url"].startswith("genre/"):
       # Skip the "Oppetarkiv" category
+      # Skip non-genre
       continue
 
     # One ugly hack for the React generated HTML
@@ -114,29 +115,30 @@ def getLatestNews():
 
 def getProgramsForCategory(url):
   """
-  Returns a list of programs for a specific category URL.
+  Returns a list of programs for a specific category.
   """
-  html = getPage(url)
-
-  container = parseDOM(html, "div", attrs = { "id" : "[^\"']*playJs-alphabetic-list[^\"']*" })
-
-  if not container:
-    helper.errorMsg("Could not find container for URL "+url)
+  if url.startswith("genre/"):
+    return getProgramsForGenre(url.lstrip("genre/"))
+  else:
     return None
 
-  articles = parseDOM(container, "article", attrs = { "class" : "[^\"']*play_videolist-element[^\"']*" })
-
-  if not articles:
-    helper.errorMsg("Could not find program links for URL "+url)
+def getProgramsForGenre(genre):
+  r = requests.get(BASE_URL+API_URL+"cluster_page;cluster="+genre)
+  if r.status_code != 200:
+    common.log("Could not get JSON!")
     return None
 
   programs = []
-  for index, article in enumerate(articles):
-    url = parseDOM(article, "a", ret="href")[0]
-    title = parseDOM(article, "span", attrs= { "class" : "play_videolist-element__title-text" })[0]
-    title = common.replaceHTMLCodes(title)
-    thumbnail = parseDOM(article, "img", ret="src")[0]
-    program = { "title": title, "url": url, "thumbnail": helper.prepareThumb(thumbnail, baseUrl=BASE_URL)}
+  for item in r.json()["contents"]:
+    url = item["contentUrl"]
+    title = item["title"]
+    plot = ""
+    try:
+      plot = item["description"]
+    except KeyError:
+      pass
+    info = {"plot": plot}
+    program = { "title": title, "url": url, "thumbnail": helper.prepareThumb(item["thumbnailLarge"], baseUrl=BASE_URL), "info": info}
     programs.append(program)
   return programs
 
