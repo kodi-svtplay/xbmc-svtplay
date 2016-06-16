@@ -30,7 +30,7 @@ class TestSvtModule(unittest.TestCase):
       for key in program.keys():
         self.assertIsNotNone(program[key])
 
-  def test_categories(self):
+  def test_get_categories(self):
 
     categories = svt.getCategories()
 
@@ -40,7 +40,7 @@ class TestSvtModule(unittest.TestCase):
       for key in category.keys():
         self.assertIsNotNone(category[key])
 
-  def test_programs_for_category(self):
+  def test_get_programs_for_category(self):
 
     categories = svt.getCategories()
     for category in categories:
@@ -141,7 +141,6 @@ class TestSvtModule(unittest.TestCase):
   def test_get_last_chance(self):
     items = svt.getItems("last_chance", 1)
     for item in items:
-      print item
       self.assertHasContent(item)
     
 if __name__ == "__main__":

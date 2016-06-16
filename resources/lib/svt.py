@@ -57,55 +57,24 @@ def getCategories():
   """
   Returns a list of all categories.
   """
-  html = getPage(URL_A_TO_O)
-
-  container = parseDOM(html,
-                       "div",
-                       attrs = { "class": "[^\"']*play_promotion-grid[^\"']*"})
-  if not container:
-    helper.errorMsg("Could not find container")
-    return None
-
-  titles = parseDOM(container,
-                    "span",
-                    attrs={"class": "[^\"']*play_promotion-item__caption_inner[^\"']*"})
-  if not titles:
-    helper.errorMsg("Could not find titles")
-    return None
-
-  thumbs = parseDOM(container,
-                    "img",
-                    attrs = { "class": "[^\"']*play_promotion-item__image[^\"']*" },
-                    ret = "src")
-  if not thumbs:
-    helper.errorMsg("Could not find thumbnails")
-    return None
-
-  hrefs = parseDOM(container,
-                   "a",
-                    attrs={"class": "[^\"']*play_promotion-item__link[^\"']*"},
-                    ret="href")
-  if not hrefs:
-    helper.errorMsg("Could not find hrefs")
+  r = requests.get(BASE_URL+API_URL+"programs_page")
+  if r.status_code != 200:
+    common.log("Could not fetch JSON!")
     return None
 
   categories = []
 
-  for index, title in enumerate(titles):
+  for item in r.json()["categories"]:
     category = {}
-    category["url"] = hrefs[index]
+    category["url"] = item["urlPart"]
 
     if category["url"].endswith("oppetarkiv"):
       # Skip the "Oppetarkiv" category
       continue
-    elif category["url"].startswith("/genre"):
-      # No support for /genre yet TODO: Add support
-      continue
 
     # One ugly hack for the React generated HTML
-    title = parseDOM(title, "span")[0]
-    category["title"] = common.replaceHTMLCodes(title)
-    category["thumbnail"] = helper.prepareThumb(thumbs[index], baseUrl=BASE_URL)
+    category["title"] = item["name"]
+    category["thumbnail"] = item["posterImageUrl"]
     categories.append(category)
 
   return categories
