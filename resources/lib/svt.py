@@ -303,7 +303,7 @@ def getEpisodes(title):
   for item in r.json()["relatedVideos"]["episodes"]:
     program = {}
     program["title"] = item["title"]
-    program["url"] = str(item["id"]) + "/" + item["slug"]
+    program["url"] = "video/" + str(item["id"])
     program["thumbnail"] = helper.prepareThumb(item["thumbnailMedium"], BASE_URL)
     info = {}
     try:
@@ -314,11 +314,40 @@ def getEpisodes(title):
     programs.append(program)
   return programs
 
-def getClips(url):
+def getClips(title):
   """
   Returns the clips for a program URL.
   """
-  return None
+  url = BASE_URL+API_URL+"video_title_page;title="+title
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Could not get JSON for "+url)
+    return None
+  clips = []
+  for item in r.json()["relatedVideos"]["clipsResult"]["entries"]:
+    clip = {}
+    clip["title"] = item["title"]
+    clip["url"] = "klipp/" + str(item["id"])
+    try:
+      clip["thumbnail"] = helper.prepareThumb(item["thumbnailMedium"], BASE_URL)
+    except KeyError:
+      clip["thumbnail"] = ""
+    info = {}
+    try:
+      info["plot"] = item["description"]
+    except KeyError:
+      info["plot"] = ""
+    clip["info"] = info
+    clips.append(clip)
+  return clips
+
+def getVideoJSON(video_url):
+  url = BASE_URL + API_URL + "title_page;title=" + video_url
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Failed to get JSON for "+url)
+    return None
+  return r.json()
 
 def getProgramItems(section_name, url=None):
   """

@@ -142,6 +142,18 @@ class TestSvtModule(unittest.TestCase):
     items = svt.getItems("last_chance", 1)
     for item in items:
       self.assertHasContent(item)
+
+  def test_get_video_json(self):
+    items = svt.getAtoO()
+    self.assertHasContent(items)
+    for item in items:
+      videos = svt.getEpisodes(item["url"])
+      self.assertHasContent(videos)
+      for video in videos:
+        json_obj = svt.getVideoJSON(video["url"])
+        self.assertHasContent(json_obj)
+        break
+      break
     
 if __name__ == "__main__":
   unittest.main()
