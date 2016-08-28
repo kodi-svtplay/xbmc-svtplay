@@ -115,15 +115,6 @@ class TestSvtModule(unittest.TestCase):
       for key in item.keys():
         self.assertHasContent(item[key])
 
-  def test_get_episodes_from_a_to_o(self):
-    items = svt.getAtoO()
-    self.assertHasContent(items)
-
-    for item in items:
-      episodes = svt.getEpisodes(item["url"])
-      self.assertHasContent(episodes)
-      break
-
   def test_get_popular(self):
     items = svt.getItems("popular", 1)
     for item in items:
