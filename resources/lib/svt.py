@@ -85,34 +85,30 @@ def getLatestNews():
   """
   Returns a list of latest news programs.
   """
-  html = getPage("/nyheter")
-
-  container = parseDOM(html, "section", attrs = { "class" : "[^\"']*play_category__latest-list[^\"']*" })
-  if not container:
-    helper.errorMsg("Could not find container!")
+  url = BASE_URL+API_URL+"cluster_latest;cluster=nyheter"
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Could not get JSON for url: "+url)
     return None
 
-  articles = parseDOM(container, "article")
-  if not articles:
-    helper.errorMsg("Could not find articles!")
-    return None
-
-  titles = parseDOM(container, "article", ret = "data-title")
-  airtimes = parseDOM(container, "article", ret = "data-broadcasted")
-  durations = parseDOM(container, "article", ret = "data-length")
-  urls = parseDOM(container, "a", attrs = { "class" : "[^\"']*play_js-videolist-element-link[^\"']*"}, ret = "href")
-  thumbnails = parseDOM(container, "img", attrs = { "class" : "[^\"']*play_videolist-element__thumbnail-image[^\"']*"}, ret = "src")
-
-  items = []
-  for index, article in enumerate(articles):
-     item = {
-        "title" : common.replaceHTMLCodes(titles[index]),
-        "thumbnail" : helper.prepareThumb(thumbnails[index], baseUrl=BASE_URL),
-        "url" : urls[index]
+  programs = []
+  for item in r.json()["data"]:
+    item = item["attributes"]
+    live_str = ""
+    thumbnail = ""
+    if item["images"]["thumbnail"]:
+      thumbnail = item["images"]["thumbnail"]["attributes"]["alternates"]["small"]["href"]
+    if item["images"]["poster"]:
+      thumbnail = item["images"]["poster"]["attributes"]["alternates"]["small"]["href"]
+    if item["live"]["liveNow"]:
+      live_str = " " + "[COLOR red](Live)[/COLOR]"
+    program = {
+        "title" : common.replaceHTMLCodes(item["officialProgramTitle"] + " " + item["legacyEpisodeTitle"] + live_str),
+        "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
+        "url" : "video/" + str(item["articleId"])
         }
-     items.append(item)
-
-  return items
+    programs.append(program)
+  return programs
 
 def getProgramsForCategory(url):
   """
