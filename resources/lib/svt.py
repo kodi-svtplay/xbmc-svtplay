@@ -24,9 +24,6 @@ SECTION_LATEST_CLIPS = "play_js-tabpanel-more-clips"
 SECTION_EPISODES = "play_js-tabpanel-more-episodes"
 SECTION_LIVE_PROGRAMS = "live-channels"
 
-# Using Python magic to create shortcut
-parseDOM = common.parseDOM 
-
 def getAtoO():
   """
   Returns a list of all programs, sorted A-Z.
@@ -141,28 +138,20 @@ def getAlphas():
   """
   Returns a list of all letters in the alphabet that has programs.
   """
-  html = getPage(URL_A_TO_O)
-  container = parseDOM(html, "ul", attrs = { "class" : "[^\"']*play_alphabetic-skiplinks[^\"']*" })
-
-  if not container:
-    helper.errorMsg("No container found!")
-    return None
-
-  letters = parseDOM(container[0], "a", attrs = { "class" : "[^\"']*play_alphabetic-skiplinks__link[^\"']*" })
-
-  if not letters:
-    helper.errorMsg("Could not find any letters!")
+  url = BASE_URL+API_URL+"programs_page"
+  r = requests.get(url)
+  if r.status_code != 200:
+    common.log("Could not get JSON for url: "+url)
     return None
 
   alphas = []
-
-  for letter in letters:
+  for letter in r.json()["letters"]:
     alpha = {}
     alpha["title"] = common.replaceHTMLCodes(letter).encode("utf-8")
     alpha["char"] =  letter.encode("utf-8")
     alphas.append(alpha)
 
-  return alphas
+  return sorted(alphas, key=lambda letter: letter["char"])
 
 def getProgramsByLetter(letter):
   """
