@@ -60,21 +60,33 @@ def getCategories():
     return None
 
   categories = []
+  all_clusters = r.json()["allClusters"]
 
-  for item in r.json()["categories"]:
-    category = {}
-    category["url"] = item["url"]
+  for letters in all_clusters.itervalues():
+    for letter_list in letters:
+      for item in letter_list:
+        category = {}
+        try:
+          category["url"] = item["metaData"]["contentUrl"]
+        except KeyError as e:
+          if "metaData" in e.message:
+            category["url"] = "genre/" + item["term"]
+          else:
+            continue
 
-    if category["url"].endswith("oppetarkiv") or category["url"].endswith("barn"):
-      # Skip the "Oppetarkiv" and "Barn" category
-      continue
+        if category["url"].endswith("oppetarkiv") or category["url"].endswith("barn"):
+          # Skip the "Oppetarkiv" and "Barn" category
+          continue
 
-    if not category["url"].startswith("genre"):
-      category["url"] = "genre/" + category["url"]
+        if not category["url"].startswith("genre"):
+          category["url"] = "genre/" + category["url"]
 
-    category["title"] = item["name"]
-    category["thumbnail"] = item.get("posterImageUrl", "")
-    categories.append(category)
+        category["title"] = item["name"]
+        try:
+          category["thumbnail"] = helper.prepareThumb(item["metaData"].get("thumbnail", ""), BASE_URL)
+        except KeyError as e:
+          category["thumbnail"] = ""
+        categories.append(category)
 
   return categories
 
@@ -145,7 +157,8 @@ def getAlphas():
     return None
 
   alphas = []
-  for letter in r.json()["letters"]:
+  for item in r.json()["alphabeticList"]:
+    letter = item["letter"]
     alpha = {}
     alpha["title"] = common.replaceHTMLCodes(letter).encode("utf-8")
     alpha["char"] =  letter.encode("utf-8")
@@ -169,9 +182,11 @@ def getProgramsByLetter(letter):
   items = []
   
   programs = []
-  try:
-    programs = contents["letters"][letter]
-  except KeyError:
+  for item in contents["alphabeticList"]:
+    if item["letter"] == letter:
+      programs = item["titles"]
+
+  if not programs:
     common.log("Could not find letter \""+letter+"\"")
     return None
 
