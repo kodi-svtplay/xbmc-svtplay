@@ -18,9 +18,6 @@ class TestSvtModule(unittest.TestCase):
     if list == None:
       self.fail("List is None")
 
-    if list == []:
-      self.fail("List is empty")
-
   def test_alphabetic(self):
     programs = svt.getAtoO()
 
@@ -44,7 +41,7 @@ class TestSvtModule(unittest.TestCase):
 
     categories = svt.getCategories()
     for category in categories:
-      programs = svt.getProgramsForCategory(category["url"])
+      programs = svt.getProgramsForGenre(category["genre"])
 
       self.assertHasContent(programs)
 
