@@ -274,6 +274,11 @@ def getEpisodes(title):
   for item in r.json()["relatedVideos"]["episodes"]:
     program = {}
     program["title"] = item["title"]
+    try:
+      program["title"] = program["title"] + "[COLOR green] (S%sE%s)[/COLOR]" % (str(item["season"]), str(item["episodeNumber"]))
+    except KeyError as e:
+      # Supress
+      pass
     program["url"] = "video/" + str(item["id"])
     program["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
     info = {}
