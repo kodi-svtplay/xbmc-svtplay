@@ -1,0 +1,15 @@
+language:
+  python
+
+branches:
+  only:
+    - gotham
+
+python:
+  - "2.7"
+
+install:
+  - pip install requests
+script:
+  - cd tests
+  - python -m unittest testSvt
