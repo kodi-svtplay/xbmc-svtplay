@@ -67,8 +67,8 @@ def get_all():
       "title": FAVORITES[key]["title"],
       "url": FAVORITES[key]["url"]
     })
-  return favorites
-
+  return sorted(favorites, key=lambda favorite: favorite['title'])
+  
 def __load_from_disk():
   global FAVORITES
   FAVORITES = {}
