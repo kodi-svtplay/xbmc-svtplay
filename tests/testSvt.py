@@ -18,6 +18,12 @@ class TestSvtModule(unittest.TestCase):
     if list == None:
       self.fail("List is None")
 
+  def assertHasContentStrict(self, list):
+    if list == None:
+      self.fail("List is None")
+    if len(list) < 1:
+      self.fail("List is empty")
+
   def test_alphabetic(self):
     programs = svt.getAtoO()
 
@@ -31,7 +37,7 @@ class TestSvtModule(unittest.TestCase):
 
     categories = svt.getCategories()
 
-    self.assertHasContent(categories)
+    self.assertHasContentStrict(categories)
 
     for category in categories:
       for key in category.keys():
@@ -53,7 +59,7 @@ class TestSvtModule(unittest.TestCase):
 
     alphas = svt.getAlphas()
 
-    self.assertHasContent(alphas)
+    self.assertHasContentStrict(alphas)
 
   def test_get_programs_by_letter(self):
 
@@ -61,7 +67,7 @@ class TestSvtModule(unittest.TestCase):
 
     programs = svt.getProgramsByLetter(letter)
 
-    self.assertHasContent(programs)
+    self.assertHasContentStrict(programs)
 
     for program in programs:
       for key in program.keys():
@@ -81,7 +87,7 @@ class TestSvtModule(unittest.TestCase):
   def test_get_channels(self):
     items = svt.getChannels()
 
-    self.assertHasContent(items)
+    self.assertHasContentStrict(items)
 
   def test_get_latest_news(self):
     items = svt.getLatestNews()
@@ -92,7 +98,8 @@ class TestSvtModule(unittest.TestCase):
     url = "/agenda"
     articles = svt.getEpisodes(url)
 
-    self.assertHasContent(articles)
+    self.assertHasContentStrict(articles)
+
     for article in articles:
       for key in article.keys():
         self.assertHasContent(article[key])
@@ -101,7 +108,8 @@ class TestSvtModule(unittest.TestCase):
     url = "/agenda"
     articles = svt.getClips(url)
 
-    self.assertHasContent(articles)
+    self.assertHasContentStrict(articles)
+
     for article in articles:
       for key in article.keys():
         self.assertHasContent(article[key])
