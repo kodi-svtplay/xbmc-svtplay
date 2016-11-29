@@ -155,20 +155,20 @@ def getProgramsByLetter(letter):
   Returns a list of all program starting with the supplied letter.
   """
   letter = urllib.unquote(letter)
-  url = BASE_URL+API_URL+"programs_page"
+  url = BASE_URL+API_URL+"all_titles"
  
   r = requests.get(url)
   if r.status_code != 200:
     common.log("Did not get any response for: "+url)
     return None
 
-  contents = r.json()
+  titles = r.json()
   items = []
   
   programs = []
-  for item in contents["alphabeticList"]:
-    if item["letter"] == letter:
-      programs = item["titles"]
+  for title in titles:
+    if title["title"][0] == letter:
+      programs.append(title)
 
   if not programs:
     common.log("Could not find letter \""+letter+"\"")
@@ -176,9 +176,9 @@ def getProgramsByLetter(letter):
 
   for program in programs:
     item = {}
-    item["url"] = "/"+program["urlFriendlyTitle"]
+    item["url"] = "/"+program["contentUrl"]
     item["title"] = common.replaceHTMLCodes(program["title"])
-    item["thumbnail"] = helper.prepareThumb(program.get("thumbnail", ""), baseUrl=BASE_URL)
+    item["thumbnail"] = ""
     items.append(item)
 
   return items
