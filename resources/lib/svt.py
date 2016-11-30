@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib
+import re
 import requests
 
 import helper
@@ -133,22 +134,41 @@ def getProgramsForGenre(genre):
 def getAlphas():
   """
   Returns a list of all letters in the alphabet that has programs.
+
+  Hard coded as the API can't return a list.
   """
-  url = BASE_URL+API_URL+"programs_page"
-  r = requests.get(url)
-  if r.status_code != 200:
-    common.log("Could not get JSON for url: "+url)
-    return None
-
   alphas = []
-  for item in r.json()["alphabeticList"]:
-    letter = item["letter"]
-    alpha = {}
-    alpha["title"] = common.replaceHTMLCodes(letter).encode("utf-8")
-    alpha["char"] =  letter.encode("utf-8")
-    alphas.append(alpha)
-
-  return sorted(alphas, key=lambda letter: letter["char"])
+  alphas.append("A")
+  alphas.append("B")
+  alphas.append("C")
+  alphas.append("D")
+  alphas.append("E")
+  alphas.append("F")
+  alphas.append("G")
+  alphas.append("H")
+  alphas.append("I")
+  alphas.append("J")
+  alphas.append("K")
+  alphas.append("L")
+  alphas.append("M")
+  alphas.append("N")
+  alphas.append("O")
+  alphas.append("P")
+  alphas.append("Q")
+  alphas.append("R")
+  alphas.append("S")
+  alphas.append("T")
+  alphas.append("U")
+  alphas.append("V")
+  alphas.append("W")
+  alphas.append("X")
+  alphas.append("Y")
+  alphas.append("Z")
+  alphas.append("Å")
+  alphas.append("Ä")
+  alphas.append("Ö")
+  alphas.append("0-9")
+  return alphas
 
 def getProgramsByLetter(letter):
   """
@@ -162,12 +182,15 @@ def getProgramsByLetter(letter):
     common.log("Did not get any response for: "+url)
     return None
 
+  letter = letter.decode("utf-8")
+  pattern = "[%s]" % letter.upper()
+
   titles = r.json()
   items = []
   
   programs = []
   for title in titles:
-    if title["title"][0] == letter:
+    if re.search(pattern, title["title"][0].upper()):
       programs.append(title)
 
   if not programs:
