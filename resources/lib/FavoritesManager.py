@@ -75,7 +75,8 @@ def __load_from_disk():
   FAVORITES = {}
   if os.path.exists(FILE_PATH) and os.stat(FILE_PATH).st_size != 0:
     with open(FILE_PATH, "r") as file_handle:
-        FAVORITES = json.load(file_handle, object_pairs_hook=OrderedDict)  
+        FAVORITES = json.load(file_handle, object_pairs_hook=OrderedDict)
+  helper.infoMsg("Load from disk: "+str(FAVORITES))
 
 def __save_to_disk():
   helper.infoMsg("Save to disk: "+str(FAVORITES))
