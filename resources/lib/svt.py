@@ -8,7 +8,6 @@ import CommonFunctions as common
 
 BASE_URL = "http://svtplay.se"
 API_URL = "/api/"
-JSON_URL = "/ajax/sok/forslag.json"
 
 URL_A_TO_O = "/program"
 URL_TO_SEARCH = "/sok?q="
@@ -27,29 +26,23 @@ SECTION_LIVE_PROGRAMS = "live-channels"
 
 def getAtoO():
   """
-  Returns a list of all programs, sorted A-Z.
+  Returns a list of all items, sorted A-Z.
   """
-  r = requests.get(BASE_URL+JSON_URL)
+  r = requests.get(BASE_URL+API_URL+"all_titles")
   if r.status_code != 200:
-    common.log("Could not fetch forslag JSON!")
+    common.log("Could not fetch JSON!")
     return None
   
   items = []
-  programs = []
-  for json_item in r.json():
-    if json_item["isGenre"] != "genre":
-      programs.append(json_item)
 
-  programs = sorted(programs, key=lambda program: program["title"])
-
-  for program in programs:
+  for program in r.json():
     item = {}
     item["title"] = common.replaceHTMLCodes(program["title"])
-    item["thumbnail"] = helper.prepareThumb(program.get("thumbnail", ""), baseUrl=BASE_URL)
-    item["url"] = program["url"].replace("/senaste","")
+    item["thumbnail"] = ""
+    item["url"] = program["contentUrl"]
     items.append(item)
 
-  return items
+  return sorted(items, key=lambda item: item["title"])
 
 def getCategories():
   """
