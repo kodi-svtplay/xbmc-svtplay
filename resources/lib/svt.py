@@ -92,7 +92,9 @@ def getLatestNews():
   programs = []
   for item in r.json():
     live_str = ""
-    thumbnail = item["imageMedium"]
+    thumbnail = item.get("poster", "")
+    if not thumbnail:
+      thumbnail = item.get("thumbnail", "")
     if item["broadcastedNow"]:
       live_str = " " + "[COLOR red](Live)[/COLOR]"
     program = {
