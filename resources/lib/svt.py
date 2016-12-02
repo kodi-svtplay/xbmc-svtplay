@@ -37,7 +37,7 @@ def getAtoO():
 
   for program in r.json():
     item = {}
-    item["title"] = common.replaceHTMLCodes(program["title"])
+    item["title"] = common.replaceHTMLCodes(program["programTitle"])
     item["thumbnail"] = ""
     item["url"] = program["contentUrl"]
     items.append(item)
@@ -109,14 +109,14 @@ def getProgramsForGenre(genre):
   """
   Returns a list of all programs for a genre.
   """
-  url = BASE_URL+API_URL+"cluster_page;cluster="+genre
+  url = BASE_URL+API_URL+"cluster_titles_and_episodes/?cluster="+genre
   r = requests.get(url)
   if r.status_code != 200:
     common.log("Could not get JSON for url: "+url)
     return None
 
   programs = []
-  for item in r.json()["contents"]:
+  for item in r.json():
     url = item["contentUrl"]
     title = item["programTitle"]
     plot = item.get("description", "")
@@ -185,19 +185,12 @@ def getProgramsByLetter(letter):
   
   programs = []
   for title in titles:
-    if re.search(pattern, title["title"][0].upper()):
-      programs.append(title)
-
-  if not programs:
-    common.log("Could not find letter \""+letter+"\"")
-    return None
-
-  for program in programs:
-    item = {}
-    item["url"] = "/"+program["contentUrl"]
-    item["title"] = common.replaceHTMLCodes(program["title"])
-    item["thumbnail"] = ""
-    items.append(item)
+    if re.search(pattern, title["programTitle"][0].upper()):
+      item = {}
+      item["url"] = "/" + title["contentUrl"]
+      item["title"] = common.replaceHTMLCodes(title["programTitle"])
+      item["thumbnail"] = ""
+      items.append(item)
 
   return items
 
