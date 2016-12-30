@@ -70,7 +70,7 @@ def getLatestNews():
     if item["broadcastedNow"]:
       live_str = " " + "[COLOR red](Live)[/COLOR]"
     program = {
-        "title" : common.replaceHTMLCodes(item["programTitle"] + " " + item["title"] + live_str),
+        "title" : common.replaceHTMLCodes(item["programTitle"] + " " + (item["title"] or "") + live_str),
         "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
         "url" : "video/" + str(item["versions"][0]["articleId"])
         }
