@@ -109,14 +109,14 @@ def viewCategories():
 
   for category in categories:
     addDirectoryItem(category["title"],
-                {"mode": MODE_CATEGORY, "url": category["genre"] })
+                {"mode": MODE_CATEGORY, "url": category["genre"]})
 
 def viewAlphaDirectories():
   alphas = svt.getAlphas()
   if not alphas:
     return
   for alpha in alphas:
-    addDirectoryItem(alpha, { "mode": MODE_LETTER, "letter": alpha})
+    addDirectoryItem(alpha, {"mode": MODE_LETTER, "letter": alpha})
 
 def viewProgramsByLetter(letter):
   programs = svt.getProgramsByLetter(letter)
