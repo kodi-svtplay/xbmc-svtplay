@@ -46,14 +46,20 @@ class TestSvtModule(unittest.TestCase):
   def test_get_programs_for_category(self):
 
     categories = svt.getCategories()
+    is_failing = False
     for category in categories:
       programs = svt.getProgramsForGenre(category["genre"])
 
-      self.assertHasContent(programs)
+      if programs is None:
+        is_failing = True
+        continue
 
       for program in programs:
         for key in program.keys():
           self.assertIsNotNone(program[key])
+
+    if is_failing:
+      self.fail("Test failed due to fetch issues. See log above.")
 
   def test_get_alphas(self):
 
