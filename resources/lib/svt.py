@@ -15,7 +15,7 @@ def getAtoO():
   """
   Returns a list of all items, sorted A-Z.
   """
-  json_data = __get_json("all_titles")
+  json_data = __get_json("all_titles_and_singles")
   if json_data is None:
     return None
 
@@ -137,7 +137,7 @@ def getProgramsByLetter(letter):
   Returns a list of all program starting with the supplied letter.
   """
   letter = urllib.unquote(letter)
-  json_data = __get_json("all_titles")
+  json_data = __get_json("all_titles_and_singles")
   if json_data is None:
     return None
 
