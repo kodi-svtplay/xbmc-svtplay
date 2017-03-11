@@ -129,7 +129,10 @@ def viewSection(section, page):
   if not items:
     return
   for item in items:
-    createDirItem(item, MODE_VIDEO)
+    mode = MODE_VIDEO
+    if item["type"] == "program":
+      mode = MODE_PROGRAM
+    createDirItem(item, mode)
   if more_items:
     addNextPageItem(page+1, section)
 
@@ -152,14 +155,17 @@ def viewCategory(genre):
   if not programs:
     return
   for program in programs:
-    addDirectoryItem(program["title"], {"mode" : MODE_PROGRAM, "url" : program["url"]}, thumbnail=program["thumbnail"], info=program["info"])
+    mode = MODE_PROGRAM
+    if program["type"] == "video":
+      mode = MODE_VIDEO
+    createDirItem(program, mode)
 
 def viewEpisodes(url):
   """
   Displays the episodes for a program with URL 'url'.
   """
   episodes = svt.getEpisodes(url)
-  if not episodes:
+  if episodes is None:
     helper.errorMsg("No episodes found!")
     return
 
@@ -260,6 +266,9 @@ def addNextPageItem(next_page, section):
 def startVideo(url):
   if "m3u8" not in url:
     video_json = svt.getVideoJSON(url)
+    if video_json is None:
+      common.log("ERROR: Could not get video JSON")
+      return
     try:
       show_obj = helper.resolveShowJSON(video_json)
     except ValueError:
@@ -267,7 +276,6 @@ def startVideo(url):
       return
   else:
     show_obj = {"videoUrl": url, "subtitleUrl": ""}
-
   if show_obj["videoUrl"]:
     playVideo(show_obj)
   else:
