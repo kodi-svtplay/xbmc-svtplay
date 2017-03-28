@@ -54,7 +54,7 @@ def getLatestNews():
   """
   Returns a list of latest news programs.
   """
-  json_data = __get_json("cluster_latest;cluster=nyheter")
+  json_data = __get_json("cluster_latest?cluster=nyheter")
   if json_data is None:
     return None
 
