@@ -83,7 +83,7 @@ def getProgramsForGenre(genre):
 
   programs = []
   for item in json_data:
-    if item.get("titleType", "") == "MOVIE":
+    if item.get("titleType", "") == "MOVIE" or item.get("titleType", "") == "SERIES_OR_TV_SHOW":
       url = "video/" + item["id"]
       content_type = "video"
     else:
@@ -184,7 +184,7 @@ def getSearchResults(search_term):
   for video in json_data["episodes"]:
     item = {}
     item["title"] = video["programTitle"] + " - " + common.replaceHTMLCodes(video["title"])
-    item["url"] = video["contentUrl"]
+    item["url"] = "video/" + video["id"]
     item["thumbnail"] = helper.prepareThumb(video.get("imageMedium", ""), baseUrl=BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = video.get("description", "")
@@ -193,7 +193,7 @@ def getSearchResults(search_term):
   for clip in json_data["clips"]:
     item = {}
     item["title"] = common.replaceHTMLCodes(clip["title"])
-    item["url"] = clip["contentUrl"]
+    item["url"] = "klipp/" + clip["id"]
     item["thumbnail"] = helper.prepareThumb(clip.get("imageMedium", ""), baseUrl=BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = clip.get("description", "")
