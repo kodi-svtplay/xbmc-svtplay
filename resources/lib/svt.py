@@ -27,6 +27,9 @@ def getAtoO():
     item["title"] = common.replaceHTMLCodes(program["programTitle"])
     item["thumbnail"] = ""
     item["url"] = program["contentUrl"]
+    item["type"] = program
+    if "/video/" in item["url"]:
+      item["type"] = "video"
     items.append(item)
 
   return sorted(items, key=lambda item: item["title"])
@@ -289,11 +292,16 @@ def getClips(title):
 def getVideoJSON(video_url):
   video_id = ""
   if "video" in video_url:
+    if len(video_url.split("/")) > 1:
+      # This is a content url with episode ID
+      # "/video/12345/some-text/moar-text" 1234 is the episode ID
+      video_id = __get_video_id_for_episode_id(video_url.split("/")[2])
+    else:
+      video_id = video_url.replace("video/", "")
     # ID should end with "A" for primary video source.
     # That is, not texted or sign interpreted.
-    if not video_url.endswith("A"):
-      video_url = video_url + "A"
-    video_id = video_url.replace("video/", "")
+    if not video_id.endswith("A"):
+      video_id = video_id + "A"
   if "klipp" in video_url:
     video_id = video_url.replace("klipp/", "")
   return __get_video_json_for_video_id(video_id)
@@ -347,6 +355,14 @@ def __get_article_id_for_title(title):
     return None
   else:
     return json_data["articleId"]
+
+def __get_video_id_for_episode_id(episode_id):
+  url = "episode?id=" + episode_id
+  json_data = __get_json(url)
+  if json_data is None:
+    return None
+  else:
+    return json_data["id"]
 
 def __get_video_json_for_video_id(video_id):
   url = VIDEO_API_URL + str(video_id)
