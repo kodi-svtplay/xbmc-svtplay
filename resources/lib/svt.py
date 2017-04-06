@@ -290,9 +290,10 @@ def getClips(title):
   return clips
 
 def getVideoJSON(video_url):
+  common.log("Getting video JSON for URL " + video_url)
   video_id = ""
   if "video" in video_url:
-    if len(video_url.split("/")) > 1:
+    if len(video_url.split("/")) > 2:
       # This is a content url with episode ID
       # "/video/12345/some-text/moar-text" 1234 is the episode ID
       video_id = __get_video_id_for_episode_id(video_url.split("/")[2])
