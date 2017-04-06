@@ -226,9 +226,11 @@ def hlsStrip(video_url):
     Extracts the stream that supports the
     highest bandwidth and is not using the avc1.77.30 codec.
     """
-    common.log("Stripping file: " + video_url)
 
     ufile = urllib.urlopen(video_url)
+    resolved_video_url = ufile.geturl()
+    common.log("Stripping file: " + resolved_video_url)
+
     lines = ufile.readlines()
 
     hls_url = ""
@@ -254,7 +256,7 @@ def hlsStrip(video_url):
 
     ufile.close()
     hls_url = hls_url.rstrip()
-    return_url = urlparse.urljoin(video_url, hls_url)
+    return_url = urlparse.urljoin(resolved_video_url, hls_url)
     common.log("Returned stream url : " + return_url)
     return return_url
 
@@ -323,9 +325,22 @@ def getVideoURL(json_obj):
   video_url = None
   for video in json_obj["videoReferences"]:
     if video["format"] == "hls":
-      video_url = video["url"]
+      alt = getAltUrl(video["url"])
+      if alt is None:
+        video_url = video["url"]
+      else:
+        video_url = alt
 
   return video_url
+
+def getAltUrl(video_url):
+  o = urlparse.urlparse(video_url)
+  query = urlparse.parse_qs(o.query)
+  try:
+    alt = query["alt"][0]
+  except KeyError, e:
+    alt = None
+  return alt
 
 def getSubtitleUrl(json_obj):
   """
