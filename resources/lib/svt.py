@@ -7,7 +7,7 @@ import time
 import helper
 import CommonFunctions as common
 
-BASE_URL = "http://svtplay.se"
+BASE_URL = "https://www.svtplay.se"
 API_URL = "/api/"
 VIDEO_API_URL="http://api.svt.se/videoplayer-api/video/"
 
