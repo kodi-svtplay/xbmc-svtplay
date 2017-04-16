@@ -12,7 +12,6 @@ import CommonFunctions as common
 import resources.lib.bestofsvt as bestof
 import resources.lib.helper as helper
 import resources.lib.svt as svt
-import resources.lib.FavoritesManager as FavoritesManager
 
 MODE_CHANNELS = "kanaler"
 MODE_A_TO_O = "a-o"
@@ -33,7 +32,6 @@ MODE_BESTOF_CATEGORY = "bestofcategory"
 MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
-MODE_FAVORITES = "favorites"
 
 S_DEBUG = "debug"
 S_HIDE_SIGN_LANGUAGE = "hidesignlanguage"
@@ -66,27 +64,6 @@ def viewStart():
   addDirectoryItem(localize(30001), {"mode": MODE_CATEGORIES})
   #addDirectoryItem(localize(30007), {"mode": MODE_BESTOF_CATEGORIES})
   addDirectoryItem(localize(30006), {"mode": MODE_SEARCH})
-  addDirectoryItem(localize(30405), {"mode": MODE_FAVORITES})
-
-def viewFavorites():
-  favorites = FavoritesManager.get_all()
-
-  for item in favorites:
-    list_item = xbmcgui.ListItem(item["title"])
-    fm_script = "special://home/addons/plugin.video.svtplay/resources/lib/FavoritesManager.py"
-    fm_action = "remove"
-    list_item.addContextMenuItems(
-      [
-        (
-          localize(30407),
-          "XBMC.RunScript("+fm_script+", "+fm_action+", "+item["id"]+")"
-         )
-      ], replaceItems=True)
-    params = {}
-    params["url"] = item["url"]
-    params["mode"] = MODE_PROGRAM
-    xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urllib.urlencode(params), list_item, True)
-
 
 def viewAtoO():
   programs = svt.getAtoO()
@@ -310,17 +287,6 @@ def addDirectoryItem(title, params, thumbnail=None, folder=True, live=False, inf
       list_item.setProperty("IsPlayable", "true")
       if not thumbnail:
         thumbnail = ""
-  if params["mode"] == MODE_PROGRAM:
-    # Add context menu item for adding programs as favorites
-    fm_script = "special://home/addons/plugin.video.svtplay/resources/lib/FavoritesManager.py"
-    fm_action = "add"
-    list_item.addContextMenuItems(
-      [
-        (
-          localize(30406),
-          "XBMC.RunScript("+fm_script+", "+fm_action+", "+title+", "+params["url"]+")"
-         )
-      ], replaceItems=True)
 
   fanart = DEFAULT_FANART
   if info:
@@ -375,7 +341,5 @@ elif ARG_MODE == MODE_BESTOF_CATEGORIES:
   viewBestOfCategories()
 elif ARG_MODE == MODE_BESTOF_CATEGORY:
   viewBestOfCategory(ARG_URL)
-elif ARG_MODE == MODE_FAVORITES:
-  viewFavorites()
 
 xbmcplugin.endOfDirectory(PLUGIN_HANDLE)

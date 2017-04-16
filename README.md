@@ -5,15 +5,6 @@ The plugin fetches the video URL from the SVT Play website and feeds it to the X
 
 It requires XBMC 13.0 (Gotham) to function.
 
-To open the **context menu**, press "c" on a keyboard or long press "Menu" on Apple TV 2 (ATV2).
-
-## Favorites
-TV programs in the A-Ö and category listings can be added as favorites. To add a program as a favorite, open the context menu, when a program is highlighted in the menu, and then click on "Add to favorites".
-
-Favorites can be accessed from the top-level menu item "Favorites".
-
-To remove a favorite, open the context menu, when a favorite is highlighted in the "Favorites" menu, and then clock on "Remove from favorites".
-
 ## Explaination of Settings
 
 * (General) Show subtitles
