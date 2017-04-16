@@ -7,18 +7,6 @@ It requires XBMC 13.0 (Gotham) to function.
 
 To open the **context menu**, press "c" on a keyboard or long press "Menu" on Apple TV 2 (ATV2).
 
-## Using the Playlist
-The plugin includes a feature for adding videos to XBMC's playlist.
-
-### Add to Playlist
-Open the context menu (keyboard key "c") and click on "Add to playlist".
-
-### Remove from Playlist
-Open the playlist from the plugin's top menu. Highlight a video and then press on the context menu key ("c").
-
-### Start Playing the Playlist
-Open the playlist from the plugin's top menu. Click on "Play".
-
 ## Favorites
 TV programs in the A-Ö and category listings can be added as favorites. To add a program as a favorite, open the context menu, when a program is highlighted in the menu, and then click on "Add to favorites".
 
