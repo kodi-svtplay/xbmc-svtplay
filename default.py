@@ -9,7 +9,6 @@ import xbmcgui
 import xbmcaddon
 import xbmcplugin
 import CommonFunctions as common
-import resources.lib.bestofsvt as bestof
 import resources.lib.helper as helper
 import resources.lib.svt as svt
 
@@ -27,8 +26,6 @@ MODE_CATEGORIES = "categories"
 MODE_CATEGORY = "ti"
 MODE_LETTER = "letter"
 MODE_SEARCH = "search"
-MODE_BESTOF_CATEGORIES = "bestofcategories"
-MODE_BESTOF_CATEGORY = "bestofcategory"
 MODE_VIEW_TITLES = "view_titles"
 MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
@@ -62,7 +59,6 @@ def viewStart():
   addDirectoryItem(localize(30008), {"mode": MODE_CHANNELS})
   addDirectoryItem(localize(30000), {"mode": MODE_A_TO_O})
   addDirectoryItem(localize(30001), {"mode": MODE_CATEGORIES})
-  #addDirectoryItem(localize(30007), {"mode": MODE_BESTOF_CATEGORIES})
   addDirectoryItem(localize(30006), {"mode": MODE_SEARCH})
 
 def viewAtoO():
@@ -183,35 +179,6 @@ def viewSearch():
     if result["type"] == "program":
       mode = MODE_PROGRAM
     createDirItem(result["item"], mode)
-
-
-def viewBestOfCategories():
-  """
-  Creates a directory displaying each of the
-  categories from the bestofsvt page
-  """
-  categories = bestof.getCategories()
-  params = {}
-  params["mode"] = MODE_BESTOF_CATEGORY
-
-  for category in categories:
-    params["url"] = category["url"]
-    addDirectoryItem(category["title"], params)
-
-
-def viewBestOfCategory(url):
-  """
-  Creates a directory containing all shows displayed
-  for a category
-  """
-  shows = bestof.getShows(url)
-  params = {}
-  params["mode"] = MODE_VIDEO
-
-  for show in shows:
-    params["url"] = show["url"]
-    addDirectoryItem(show["title"], params, show["thumbnail"], False, False, show["info"])
-
 
 def createDirItem(article, mode):
   """
@@ -337,9 +304,5 @@ elif ARG_MODE == MODE_LETTER:
   viewProgramsByLetter(ARG_PARAMS.get("letter"))
 elif ARG_MODE == MODE_SEARCH:
   viewSearch()
-elif ARG_MODE == MODE_BESTOF_CATEGORIES:
-  viewBestOfCategories()
-elif ARG_MODE == MODE_BESTOF_CATEGORY:
-  viewBestOfCategory(ARG_URL)
 
 xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
