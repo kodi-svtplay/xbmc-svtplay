@@ -11,10 +11,8 @@ It requires XBMC 13.0 (Gotham) to function.
   * Force programs to start with subtitles enabled. Subtitles can till be toggled on/off by using XBMC's controller shortcuts.
 * (Advanced) Display icon as fanart
   * Uses the thumbnail as the fanart as well. The fanart is used by XBMC skins in different ways. However, the most common way is to have the fanart as some kind of background.
-* (Advanced) Don't use avc1.77.30 streams
-  * Forces the addon to choose the stream that supports the highest bandwidth but does not use the avc1.77.30 profile.
 * (Advanced) Set bandwidth manually
-  * Forces the addon to choose stream according to the set bandwidth. This option can be used to force lower resolution streams on devices with lower bandwidth capacity (i.e mobile devices). This option can only be used if "Don't use avc1.77.30 streams" is disabled.
+  * Forces the addon to choose stream according to the set bandwidth. This option can be used to force lower resolution streams on devices with lower bandwidth capacity (i.e mobile devices).
 
 ## Known Issues
 ### Live broadcasts does not work on iOS, ATV2, OSX and Android
