@@ -220,47 +220,6 @@ def mp4Handler(jsonObj):
   common.log("Info: bitrate="+str(bitrate)+" url="+url)
   return url
 
-
-def hlsStrip(video_url):
-    """
-    Extracts the stream that supports the
-    highest bandwidth and is not using the avc1.77.30 codec.
-    """
-
-    ufile = urllib.urlopen(video_url)
-    resolved_video_url = ufile.geturl()
-    common.log("Stripping file: " + resolved_video_url)
-
-    lines = ufile.readlines()
-
-    hls_url = ""
-    bandwidth = 0
-    foundhigherquality = False
-
-    for line in lines:
-      if foundhigherquality:
-        # The stream url is on the line proceeding the header
-        foundhigherquality = False
-        hls_url = line
-      if "EXT-X-STREAM-INF" in line: # The header
-        if not "avc1.77.30" in line:
-          match = re.match(r'.*BANDWIDTH=(\d+).+', line)
-          if match:
-            if bandwidth < int(match.group(1)):
-              foundhigherquality = True
-              bandwidth = int(match.group(1))
-          continue
-
-    if bandwidth == 0:
-      return None
-
-    ufile.close()
-    hls_url = hls_url.rstrip()
-    return_url = urlparse.urljoin(resolved_video_url, hls_url)
-    common.log("Returned stream url : " + return_url)
-    return return_url
-
-
 def getStreamForBW(url):
   """
   Returns a stream URL for the set bandwidth,
@@ -373,9 +332,7 @@ def resolveShowJSON(json_obj):
     errormsg = None
 
     if extension == "HLS":
-      if getSetting("hlsstrip"):
-        video_url = hlsStrip(video_url)
-      elif getSetting("bwselect"):
+      if getSetting("bwselect"):
         (video_url, errormsg) = getStreamForBW(video_url)
     video_url = cleanUrl(video_url)
   return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
