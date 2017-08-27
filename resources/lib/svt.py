@@ -260,7 +260,7 @@ def getEpisodes(title):
         # This is the preferred stream
         program["url"] = "video/" + str(version["id"])
         break
-    if not program["url"]:
+    if not "url" in program:
       program["url"] = "video/" + str(item["id"])
     program["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
     info = {}
