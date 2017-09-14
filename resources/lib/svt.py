@@ -28,7 +28,8 @@ def getAtoO():
     item["title"] = common.replaceHTMLCodes(program["programTitle"])
     item["thumbnail"] = ""
     item["url"] = program["contentUrl"]
-    item["type"] = program
+    item["type"] = "program"
+    item["onlyAvailableInSweden"] = program.get("onlyAvailableInSweden", False)
     if "/video/" in item["url"]:
       item["type"] = "video"
     items.append(item)
@@ -160,6 +161,7 @@ def getProgramsByLetter(letter):
       item["url"] = title["contentUrl"]
       item["title"] = common.replaceHTMLCodes(title["programTitle"])
       item["thumbnail"] = ""
+      item["onlyAvailableInSweden"] = title.get("onlyAvailableInSweden", False)
       items.append(item)
 
   return items
