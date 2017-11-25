@@ -323,7 +323,7 @@ def getVideoJSON(video_url):
 def getItems(section_name, page):
   if not page:
     page = 1
-  json_data = __get_json(section_name+"?page="+str(page))
+  json_data = __get_json(section_name+"?page="+str(page)+"&excludedTagsString=lokalt&accessServiceFilters=")
   if json_data is None:
     return None
 
