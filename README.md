@@ -8,10 +8,6 @@ HLS (m3u8) is the preferred video format by the plugin.
 
 It requires Kodi (XBMC) 13.0 (Gotham) to function.
 
-## Known Issues
-### Live broadcasts does not work on iOS, ATV2, OSX and Android
-This is due to encrypted HLS streams not being supported. See this issue ticket for more info [#98](https://github.com/nilzen/xbmc-svtplay/issues/98).
-
 ## Development
 
 ### Running tests
