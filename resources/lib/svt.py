@@ -362,7 +362,6 @@ def getItems(section_name, page):
 
 def __get_article_id_for_title(title):
   # Convert contentUrl to slug
-  common.log("Getting article id for " + title)
   title = title.strip("/")
   url = "title?slug="+title
   json_data = __get_json(url)
