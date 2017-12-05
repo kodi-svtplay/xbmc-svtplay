@@ -283,7 +283,8 @@ def getClips(title):
   if article_id is None:
     return None
 
-  json_data = __get_json("title_clips_by_title_article_id?articleId=%s" % (str(article_id)))
+  url = "title_clips_by_title_article_id?articleId=%s" % (str(article_id))
+  json_data = __get_json(url)
   if json_data is None:
     return None
 
