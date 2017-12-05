@@ -111,7 +111,7 @@ class TestSvtModule(unittest.TestCase):
         self.assertHasContent(article[key])
 
   def test_get_clips(self):
-    url = "/agenda"
+    url = "/sportnytt"
     articles = svt.getClips(url)
 
     self.assertHasContentStrict(articles)
