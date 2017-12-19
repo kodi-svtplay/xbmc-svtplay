@@ -315,8 +315,8 @@ def getVideoJSON(video_url):
       video_id = video_url.replace("video/", "")
     # ID should end with "A" for primary video source.
     # That is, not texted or sign interpreted.
-    if not video_id.endswith("A"):
-      video_id = video_id + "A"
+    #if not video_id.endswith("A"):
+    #  video_id = video_id + "A"
   elif "klipp" in video_url:
     video_id = video_url.replace("klipp/", "")
   return __get_video_json_for_video_id(video_id)
@@ -333,15 +333,15 @@ def getItems(section_name, page):
 
   returned_items = []
   for video in json_data["data"]:
-    is_program = video.get("hasEpisodes", False)
+    is_program = video.get("episodic", False)
     item = {}
     item["title"] = video["programTitle"]
-    if is_program:
-      item["url"] = video["contentUrl"]
-      item["type"] = "program"
-    else:
-      item["url"] = "video/" + str(video["id"])
-      item["type"] = "video"
+    #if is_program:
+    #  item["url"] = video["contentUrl"]
+    #  item["type"] = "program"
+    #else:
+    item["url"] = "video/" + str(video["versions"][0]["id"])
+    item["type"] = "video"
     item["thumbnail"] = helper.prepareThumb(video.get("thumbnail", ""), baseUrl=BASE_URL)
     info = {}
     info["title"] = item["title"]
