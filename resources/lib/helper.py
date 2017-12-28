@@ -15,22 +15,6 @@ THUMB_SIZE = "extralarge"
 # Available bandwidths
 BANDWIDTH = [300, 500, 900, 1600, 2500, 5000]
 
-def getPage(url):
-  if not url.startswith("/") and not url.startswith("http://"):
-    url = "/" + url
-
-  result = common.fetchPage({ "link": url })
-
-  if result["status"] == 200:
-    return result["content"]
-
-  if result["status"] == 500:
-    common.log("redirect url: %s" %result["new_url"])
-    common.log("header: %s" %result["header"])
-    common.log("content: %s" %result["content"])
-    return None
-
-
 def convertChar(char):
   if char == "&Aring;":
     return "Å"
@@ -132,23 +116,6 @@ def getUrlParameters(arguments):
           params[split[0]] = split[1]
 
   return params
-
-
-def tabExists(html, tabname):
-  """
-  Check if a specific tab exists in the DOM.
-  """
-  return elementExists(html, "div", { "data-tabname": tabname})
-
-
-def elementExists(html, etype, attrs):
-  """
-  Check if a specific element exists in the DOM.
-  """
-
-  htmlelement = common.parseDOM(html, etype, attrs = attrs)
-
-  return len(htmlelement) > 0
 
 
 def prepareImgUrl(url, baseUrl):
