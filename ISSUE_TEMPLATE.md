@@ -1,6 +1,8 @@
 <!-- Make sure the issue Title contains a short description -->
 <!-- There is no need for you to edit anything within comment tags below. -->
 <!-- Just add the information requested -->
+# Problem description
+<!-- What is the problem you have encountered? -->
 # Steps to reproduce
 <!-- Please specify all steps needed to reproduce the issue -->
 <!-- Example:
