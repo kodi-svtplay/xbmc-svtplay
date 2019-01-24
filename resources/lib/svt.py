@@ -4,6 +4,8 @@ import urllib
 import re
 import requests
 import time
+from datetime import datetime, timedelta
+
 # own imports
 import helper
 import CommonFunctions as common
@@ -247,6 +249,31 @@ def getEpisodes(slug):
     return None
   programs = []
   for item in json_data:
+    if item.get("validFrom") is not None:
+      try:
+        timestr_without_timezone = item["validFrom"][:19]
+        timezone = item["validFrom"][19:]
+        # The *(...[:6]) thing below is because things crash for some reason
+        # if we use datetime.strptime() more than once -- see https://forum.kodi.tv/showthread.php?tid=112916
+        valid_from = datetime(*(time.strptime(timestr_without_timezone, '%Y-%m-%dT%H:%M:%S')[:6]))
+
+        timezone_match = re.match('([\+\-])(\d+):(\d+)', timezone)
+        if timezone_match is not None:
+          sign, hours, minutes = timezone_match.group(1, 2, 3)
+          sign = 1 if sign == '+' else -1
+          timezone_delta = sign * timedelta(hours=int(hours), minutes=int(minutes))
+          valid_from += timezone_delta
+          now = datetime.utcnow() + timezone_delta
+        else:
+          now = datetime.now()
+
+        if valid_from > now:
+          common.log("Video for '%s' is not available yet. Skipping item!" % item["title"])
+          continue
+      except IndexError:
+        # Suppress
+        pass
+
     program = {}
     program["title"] = item["title"]
     try:
@@ -269,7 +296,7 @@ def getEpisodes(slug):
     info["tagline"] = item.get("shortDescription", "")
     info["season"] = item.get("season", "")
     info["episode"] = item.get("episode", "")
-    info["playcount"] = 0;
+    info["playcount"] = 0
     info["onlyAvailableInSweden"] = item.get("onlyAvailableInSweden", False)
     program["info"] = info
     programs.append(program)
