@@ -101,40 +101,9 @@ def getProgramsForGenre(genre):
 def getAlphas():
   """
   Returns a list of all letters in the alphabet that has programs.
-
-  Hard coded as the API can't return a list.
   """
-  alphas = []
-  alphas.append("A")
-  alphas.append("B")
-  alphas.append("C")
-  alphas.append("D")
-  alphas.append("E")
-  alphas.append("F")
-  alphas.append("G")
-  alphas.append("H")
-  alphas.append("I")
-  alphas.append("J")
-  alphas.append("K")
-  alphas.append("L")
-  alphas.append("M")
-  alphas.append("N")
-  alphas.append("O")
-  alphas.append("P")
-  alphas.append("Q")
-  alphas.append("R")
-  alphas.append("S")
-  alphas.append("T")
-  alphas.append("U")
-  alphas.append("V")
-  alphas.append("W")
-  alphas.append("X")
-  alphas.append("Y")
-  alphas.append("Z")
-  alphas.append("Å")
-  alphas.append("Ä")
-  alphas.append("Ö")
-  alphas.append("0-9")
+  alphas = list("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ")
+  alphas.append ("0-9")
   return alphas
 
 def getProgramsByLetter(letter):
