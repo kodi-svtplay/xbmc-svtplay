@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 # system imports
-import urllib
+from __future__ import absolute_import
 import re
 import requests
 import time
 # own imports
-import helper
-import CommonFunctions as common
+from . import logging
+from . import helper
+
+try:
+  # Python 2
+  import HTMLParser as parser
+  from urllib import unquote
+except ImportError:
+  # Python 3
+  import html.parser as parser
+  from urllib.parse import unquote
 
 BASE_URL = "https://www.svtplay.se"
 API_URL = "/api/"
@@ -59,7 +68,7 @@ def getLatestNews():
     if versions:
       url = __get_video_version(versions)
     program = {
-        "title" : common.replaceHTMLCodes(item["programTitle"] + " " + (item["title"] or "") + live_str),
+        "title" : parser.unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
         "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
         "url" : url,
         "info" : { "duration" : item.get("materialLength", 0), "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=BASE_URL) }
@@ -141,7 +150,7 @@ def getProgramsByLetter(letter):
   """
   Returns a list of all program starting with the supplied letter.
   """
-  letter = urllib.unquote(letter)
+  letter = unquote(letter)
   json_data = __get_json("all_titles_and_singles")
   if json_data is None:
     return None
@@ -156,7 +165,7 @@ def getProgramsByLetter(letter):
 def __create_item_by_title(title):
   item = {}
   item["url"] = title["contentUrl"]
-  item["title"] = common.replaceHTMLCodes(title["programTitle"])
+  item["title"] = parser.unescape(title["programTitle"])
   item["thumbnail"] = ""
   item["type"] = "program"
   item["onlyAvailableInSweden"] = title.get("onlyAvailableInSweden", False)
@@ -189,16 +198,16 @@ def getSearchResults(search_term):
     if result_type == "CLIP":
       item_type = "video"
       item["url"] = result["id"]
-      item["title"] = common.replaceHTMLCodes(result["title"])
+      item["title"] = parser.unescape(result["title"])
       item["thumbnail"] = helper.prepareThumb(result.get("thumbnail", ""), baseUrl=BASE_URL)
     elif result_type == "SERIES_OR_TV_SHOW":
-      item["title"] = common.replaceHTMLCodes(result["programTitle"] + " - " + result["title"])
+      item["title"] = parser.unescape(result["programTitle"] + " - " + result["title"])
       item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
       item["info"] = {}
       item["info"]["plot"] = result.get("description", "")
     else:
       # MOVIE and folder
-      item["title"] = common.replaceHTMLCodes(result["programTitle"])
+      item["title"] = parser.unescape(result["programTitle"])
       item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = result.get("description", "")
@@ -258,7 +267,7 @@ def getEpisodes(slug):
     if versions:
       program["url"] = __get_video_version(versions)
     if program["url"] is None or not versions:
-      common.log("No video versions found for %s, skipping item!" % item["title"])
+      logging.log("No video versions found for %s, skipping item!" % item["title"])
       continue
     program["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
     info = {}
@@ -269,7 +278,7 @@ def getEpisodes(slug):
     info["tagline"] = item.get("shortDescription", "")
     info["season"] = item.get("season", "")
     info["episode"] = item.get("episode", "")
-    info["playcount"] = 0;
+    info["playcount"] = 0
     info["onlyAvailableInSweden"] = item.get("onlyAvailableInSweden", False)
     program["info"] = info
     programs.append(program)
@@ -327,7 +336,7 @@ def getItems(section_name, page):
       item["url"] = __get_video_version(versions)
       item["type"] = "video"
     else:
-      common.log("No video versions found for %s, skipping item!" % item["title"])
+      logging.log("No video versions found for %s, skipping item!" % item["title"])
       continue
     item["thumbnail"] = helper.prepareThumb(video.get("thumbnail", ""), baseUrl=BASE_URL)
     info = {}
@@ -378,7 +387,7 @@ def __get_video_version(versions):
 
 def __get_video_json_for_video_id(video_id):
   url = VIDEO_API_URL + str(video_id)
-  common.log("Getting video JSON for %s" % url)
+  logging.log("Getting video JSON for %s" % url)
   response = requests.get(url)
   if response.status_code != 200:
     helper.errorMsg("Could not fetch video data for %s" % url)
@@ -393,7 +402,7 @@ def __get_json(api_action):
   the function returns None.
   """
   url = BASE_URL+API_URL+api_action
-  common.log("Requesting JSON for %s" % url)
+  logging.log("Requesting JSON for %s" % url)
   response = requests.get(url)
   if response.status_code != 200:
     helper.errorMsg("Failed to get JSON for %s" % url)

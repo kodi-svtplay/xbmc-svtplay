@@ -2,11 +2,23 @@
 import datetime
 import json
 import re
-import urllib
-import urlparse
-import xbmcaddon
+import xbmcaddon # pylint: disable=import-error
+import xbmc # pylint: disable=import-error
 
-import CommonFunctions as common
+from . import logging
+
+try:
+  # Python 2
+  from urlparse import parse_qs
+  from urlparse import urlparse
+  from urlparse import urljoin
+  from urllib import urlopen
+except ImportError:
+  # Python 3
+  from urllib.parse import parse_qs
+  from urllib.parse import urlparse
+  from urllib.parse import urljoin
+  from urllib.request import urlopen
 
 addon = xbmcaddon.Addon("plugin.video.svtplay")
 THUMB_SIZE = "extralarge"
@@ -65,7 +77,7 @@ def getStreamForBW(url):
   """
   low_bandwidth  = int(float(addon.getSetting("bandwidth")))
   high_bandwidth = getHighBw(low_bandwidth)
-  f = urllib.urlopen(url)
+  f = urlopen(url)
   lines = f.readlines()
   hls_url = ""
   marker = "#EXT-X-STREAM-INF"
@@ -79,13 +91,13 @@ def getStreamForBW(url):
       match = re.match(r'.*BANDWIDTH=(\d+)000.+', line)
       if match:
         if low_bandwidth < int(match.group(1)) < high_bandwidth:
-          common.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(low_bandwidth))
+          logging.log("Found stream with bandwidth " + match.group(1) + " for selected bandwidth " + str(low_bandwidth))
           found = True
   f.close()
   if found:
     hls_url = hls_url.rstrip()
-    return_url = urlparse.urljoin(url, hls_url)
-    common.log("Returned stream url: " + return_url)
+    return_url = urljoin(url, hls_url)
+    logging.log("Returned stream url: " + return_url)
     return (return_url, '')
   error_msg = "No stream found for bandwidth setting " + str(low_bandwidth)
   errorMsg(error_msg)
@@ -113,13 +125,13 @@ def getVideoURL(json_obj):
   return video_url
 
 def getAltUrl(video_url):
-  o = urlparse.urlparse(video_url)
-  query = urlparse.parse_qs(o.query)
+  o = urlparse(video_url)
+  query = parse_qs(o.query)
   try:
     alt = query["alt"][0]
-    ufile = urllib.urlopen(alt)
+    ufile = urlopen(alt)
     alt = ufile.geturl()
-  except KeyError, e:
+  except KeyError:
     alt = None
   return alt
 
@@ -134,8 +146,8 @@ def getSubtitleUrl(json_obj):
         url = subtitle["url"]
       else:
         if len(subtitle["url"]) > 0:
-          common.log("Skipping unknown subtitle: " + subtitle["url"])
-  except KeyError as e:
+          logging.log("Skipping unknown subtitle: " + subtitle["url"])
+  except KeyError:
     pass
   return url
 
@@ -150,10 +162,9 @@ def resolveShowJSON(json_obj):
   if video_url:
     subtitle_url = getSubtitleUrl(json_obj)
     extension = getVideoExtension(video_url)
-    errormsg = None
     if extension == "HLS":
       if getSetting("bwselect"):
-        (video_url, errormsg) = getStreamForBW(video_url)
+        (video_url, _) = getStreamForBW(video_url)
     video_url = cleanUrl(video_url)
   return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
 
@@ -198,7 +209,7 @@ def getSetting(setting):
   return True if addon.getSetting(setting) == "true" else False
 
 def errorMsg(msg):
-  common.log("ERROR: "+msg)
+  logging.log("ERROR: "+msg)
 
 def infoMsg(msg):
-  common.log("INFO: "+msg)
+  logging.log("INFO: "+msg)
