@@ -5,14 +5,21 @@ import os
 import sys
 import time
 import urllib
-import xbmc
-import xbmcgui
-import xbmcaddon
-import xbmcplugin
+import xbmc # pylint: disable=import-error
+import xbmcgui # pylint: disable=import-error
+import xbmcaddon # pylint: disable=import-error
+import xbmcplugin # pylint: disable=import-error
 # own imports
-import CommonFunctions as common
-import resources.lib.helper as helper
-import resources.lib.svt as svt
+from resources.lib import helper
+from resources.lib import svt
+from resources.lib import logging
+
+try:
+  # Python 2
+  from urllib import quote, urlencode, unquote_plus
+except ImportError:
+  # Python 3
+  from urllib.parse import quote, urlencode, unquote_plus
 
 MODE_CHANNELS = "kanaler"
 MODE_A_TO_O = "a-o"
@@ -48,11 +55,8 @@ xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_UNSORTED)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_LABEL)
 
 DEFAULT_FANART = os.path.join(
-  xbmc.translatePath(addon.getAddonInfo("path")+"/resources/images/").decode("utf-8"),
+  xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
   "background.png")
-
-common.plugin = "%s %s" % (addon.getAddonInfo('name'), addon.getAddonInfo('version'))
-common.dbg = helper.getSetting(S_DEBUG)
 
 def view_start():
   __add_directory_item(localize(30009), {"mode": MODE_POPULAR})
@@ -140,7 +144,7 @@ def view_episodes(url):
   """
   Displays the episodes for a program
   """
-  common.log("View episodes for %s" % url)
+  logging.log("View episodes for %s" % url)
   episodes = svt.getEpisodes(url.split("/")[-1])
   if episodes is None:
     helper.errorMsg("No episodes found!")
@@ -161,7 +165,7 @@ def view_clips(url):
   """
   Displays the latest clips for a program
   """
-  common.log("View clips for %s" % url)
+  logging.log("View clips for %s" % url)
   clips = svt.getClips(url.split("/")[-1])
   if not clips:
     helper.errorMsg("No clips found!")
@@ -170,11 +174,11 @@ def view_clips(url):
     __create_dir_item(clip, MODE_VIDEO)
 
 def view_search():
-  keyword = common.getUserInput(localize(30102))
+  keyword = helper.getInputFromKeyboard(localize(30102))
   if keyword == "" or not keyword:
     view_start()
     return
-  keyword = urllib.quote(keyword)
+  keyword = quote(keyword)
   helper.infoMsg("Search string: " + keyword)
   keyword = re.sub(r" ", "+", keyword)
   keyword = keyword.strip()
@@ -217,12 +221,12 @@ def __add_next_page_item(next_page, section):
 def start_video(video_id):
   video_json = svt.getVideoJSON(video_id)
   if video_json is None:
-    common.log("ERROR: Could not get video JSON")
+    logging.log("ERROR: Could not get video JSON")
     return
   try:
     show_obj = helper.resolveShowJSON(video_json)
   except ValueError:
-    common.log("Could not decode JSON for "+video_id)
+    logging.log("Could not decode JSON for "+video_id)
     return
   if show_obj["videoUrl"]:
     play_video(show_obj)
@@ -243,8 +247,6 @@ def play_video(show_obj):
 
 def __add_directory_item(title, params, thumbnail="", folder=True, live=False, info=None):
   list_item = xbmcgui.ListItem(title)
-  if thumbnail:
-    list_item.setThumbnailImage(thumbnail)
   if live:
     list_item.setProperty("IsLive", "true")
   if not folder and params["mode"] == MODE_VIDEO:
@@ -252,19 +254,23 @@ def __add_directory_item(title, params, thumbnail="", folder=True, live=False, i
   fanart = info.get("fanart", "") if info else DEFAULT_FANART
   poster = info.get("poster", "") if info else ""
   if info:
+    if "fanart" in info:
+      del info["fanart"] # Unsupported by ListItem
+    if "poster" in info:
+      del info["poster"] # Unsupported by ListItem
     list_item.setInfo("Video", info)
   list_item.setArt({
     "fanart": fanart,
-    "poster": poster,
-    "thumbnail": thumbnail
+    "poster": poster if poster else thumbnail,
+    "thumb": thumbnail
   })
-  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urllib.urlencode(params), list_item, folder)
+  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urlencode(params), list_item, folder)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
-common.log("params: " + str(ARG_PARAMS))
+logging.log("params: " + str(ARG_PARAMS))
 ARG_MODE = ARG_PARAMS.get("mode")
-ARG_URL = urllib.unquote_plus(ARG_PARAMS.get("url", ""))
+ARG_URL = unquote_plus(ARG_PARAMS.get("url", ""))
 ARG_PAGE = ARG_PARAMS.get("page")
 if not ARG_PAGE:
   ARG_PAGE = "1"
