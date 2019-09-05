@@ -60,6 +60,15 @@ def prepareThumb(thumbUrl, baseUrl):
   thumbUrl = re.sub(r"\{format\}|small|medium|large|extralarge", THUMB_SIZE, thumbUrl)
   return thumbUrl
 
+def getInputFromKeyboard(heading):
+    keyboard = xbmc.Keyboard(heading=heading)
+    keyboard.doModal()
+
+    if keyboard.isConfirmed():
+        text = keyboard.getText()
+
+    return text
+
 def prepareFanart(fanartUrl, baseUrl):
   """
   Returns a fanart image URL.
