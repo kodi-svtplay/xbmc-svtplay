@@ -1,6 +1,6 @@
 <addon id="plugin.video.svtplay" name="SVT Play" provider-name="nilzen" version="5.0.0">
   <requires>
-    <import addon="script.module.requests" version="2.9.1" />
+    <import addon="script.module.requests" version="2.22.0" />
     <import addon="xbmc.python" version="2.25.0" />
   </requires>
   <extension library="default.py" point="xbmc.python.pluginsource">
