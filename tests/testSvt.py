@@ -6,11 +6,6 @@ sys.path.append("../")
 sys.path.append("./lib")
 
 import resources.lib.svt as svt
-import CommonFunctions as common
-
-# Set up the CommonFunctions module
-common.plugin = "TestSvt"
-common.dbg = True
 
 class TestSvtModule(unittest.TestCase):
 
