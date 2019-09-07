@@ -18,7 +18,7 @@ def translatePath(path):
 
 class Player:
 
-  def play(item=None, listitem=None, windowed=None, startpos=None):
+  def play(self, item=None, listitem=None, windowed=None, startpos=None):
     if item:
       log("Player is playing "+str(item))
 
