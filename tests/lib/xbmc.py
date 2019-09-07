@@ -5,6 +5,7 @@ Stub for module 'xbmc'
 LOGNOTICE = 10
 PLAYLIST_MUSIC = 0
 PLAYLIST_VIDEO = 1
+LOGDEBUG = 1
 
 def log(msg, level=None):
   print(msg)
