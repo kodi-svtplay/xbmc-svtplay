@@ -7,7 +7,7 @@ class ListItem:
   def __init__(self, label=None):
     self.__label = label
 
-  def getLabel():
+  def getLabel(self):
     return self.__label
 
   def setThumbnailImage(self, path):
