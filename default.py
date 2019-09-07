@@ -147,7 +147,7 @@ def view_episodes(url):
   logging.log("View episodes for %s" % url)
   episodes = svt.getEpisodes(url.split("/")[-1])
   if episodes is None:
-    helper.errorMsg("No episodes found!")
+    logging.log("No episodes found")
     return
   for episode in episodes:
     __create_dir_item(episode, MODE_VIDEO)
@@ -168,7 +168,7 @@ def view_clips(url):
   logging.log("View clips for %s" % url)
   clips = svt.getClips(url.split("/")[-1])
   if not clips:
-    helper.errorMsg("No clips found!")
+    logging.log("No clips found")
     return
   for clip in clips:
     __create_dir_item(clip, MODE_VIDEO)
@@ -179,7 +179,7 @@ def view_search():
     view_start()
     return
   keyword = quote(keyword)
-  helper.infoMsg("Search string: " + keyword)
+  logging.log("Search string: " + keyword)
   keyword = re.sub(r" ", "+", keyword)
   keyword = keyword.strip()
   results = svt.getSearchResults(keyword)

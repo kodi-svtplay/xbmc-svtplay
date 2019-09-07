@@ -109,7 +109,7 @@ def getStreamForBW(url):
     logging.log("Returned stream url: " + return_url)
     return (return_url, '')
   error_msg = "No stream found for bandwidth setting " + str(low_bandwidth)
-  errorMsg(error_msg)
+  __errorMsg(error_msg)
   return (None, error_msg)
 
 def getHighBw(low):
@@ -217,8 +217,8 @@ def getVideoExtension(video_url):
 def getSetting(setting):
   return True if addon.getSetting(setting) == "true" else False
 
-def errorMsg(msg):
-  logging.log("ERROR: "+msg)
+def __errorMsg(msg):
+  logging.error(msg)
 
-def infoMsg(msg):
-  logging.log("INFO: "+msg)
+def _infoMsg(msg):
+  logging.log(msg)

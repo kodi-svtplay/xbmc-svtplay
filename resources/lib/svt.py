@@ -390,7 +390,7 @@ def __get_video_json_for_video_id(video_id):
   logging.log("Getting video JSON for %s" % url)
   response = requests.get(url)
   if response.status_code != 200:
-    helper.errorMsg("Could not fetch video data for %s" % url)
+    logging.error("Could not fetch video data for %s" % url)
     return None
   return response.json()
 
@@ -405,7 +405,7 @@ def __get_json(api_action):
   logging.log("Requesting JSON for %s" % url)
   response = requests.get(url)
   if response.status_code != 200:
-    helper.errorMsg("Failed to get JSON for %s" % url)
+    logging.error("Failed to get JSON for %s" % url)
     return None
   else:
     return response.json()
