@@ -165,11 +165,12 @@ def getProgramsByLetter(letter):
 
 def __create_item_by_title(title):
   item = {}
+  item["title"] = title["programTitle"]
   item["url"] = title["contentUrl"]
-  item["title"] = parser.unescape(title["programTitle"])
   item["thumbnail"] = ""
   item["type"] = "program"
   item["onlyAvailableInSweden"] = title.get("onlyAvailableInSweden", False)
+  logging.log("Created item: %s" % item)
   if "/video/" in item["url"]:
     item["type"] = "video"
   return item
