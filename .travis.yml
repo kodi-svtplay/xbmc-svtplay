@@ -4,6 +4,7 @@ language:
 branches:
   only:
     - gotham
+    - krypton
 
 python:
   - "2.7"
