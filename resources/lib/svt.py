@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # system imports
-from __future__ import absolute_import
+from __future__ import absolute_import,unicode_literals
 import re
 import requests
 import time
@@ -152,11 +152,10 @@ def getProgramsByLetter(letter):
   """
   Returns a list of all program starting with the supplied letter.
   """
-  letter = unquote(letter)
+  logging.log("getProgramsByLetter: {}".format(letter))
   json_data = __get_json("all_titles_and_singles")
   if json_data is None:
     return None
-  letter = letter.decode("utf-8")
   pattern = "^[%s]" % letter.upper()
   items = []
   for title in json_data:
