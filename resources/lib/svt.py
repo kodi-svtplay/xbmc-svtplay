@@ -10,17 +10,19 @@ from . import helper
 
 try:
   # Python 2
-  import HTMLParser as parser
+  from HTMLParser import HTMLParser
   from urllib import unquote
 except ImportError:
   # Python 3
-  import html.parser as parser
+  from html.parser import HTMLParser
   from urllib.parse import unquote
 
 BASE_URL = "https://www.svtplay.se"
 API_URL = "/api/"
 VIDEO_API_URL="https://api.svt.se/videoplayer-api/video/"
 WANTED_AS = "none" # wanted accessibility service
+
+parser = HTMLParser()
 
 def getAtoO():
   """
