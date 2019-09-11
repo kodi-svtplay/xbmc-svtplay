@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import,unicode_literals
 import datetime
 import json
 import re
@@ -13,11 +14,13 @@ try:
   from urlparse import urlparse
   from urlparse import urljoin
   from urllib import urlopen
+  from urllib import unquote
 except ImportError:
   # Python 3
   from urllib.parse import parse_qs
   from urllib.parse import urlparse
   from urllib.parse import urljoin
+  from urllib.parse import unquote
   from urllib.request import urlopen
 
 addon = xbmcaddon.Addon("plugin.video.svtplay")
@@ -30,14 +33,23 @@ def getUrlParameters(arguments):
   """
   Return URL parameters as a dict from a query string
   """
+  arguments = unquote(arguments)
+  try:
+    # Python 2 arguments is a byte string and needs to be decoded
+    arguments = arguments.decode("utf-8")
+  except AttributeError:
+    # Python 3 str is already unicode and needs no decode
+    pass
+  logging.log("getUrlParameters: {}".format(arguments))
+  if not arguments:
+    return {}
   params = {}
-  if arguments:
-      start = arguments.find("?") + 1
-      pairs = arguments[start:].split("&")
-      for pair in pairs:
-        split = pair.split("=")
-        if len(split) == 2:
-          params[split[0]] = split[1]
+  start = arguments.find("?") + 1
+  pairs = arguments[start:].split("&")
+  for pair in pairs:
+    split = pair.split("=")
+    if len(split) == 2:
+      params[split[0]] = split[1]
   return params
 
 def prepareImgUrl(url, baseUrl):

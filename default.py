@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # system imports
+from __future__ import absolute_import,unicode_literals
 import re
 import os
 import sys
@@ -74,11 +75,11 @@ def view_a_to_z():
   __program_listing(programs)
 
 def view_alpha_directories():
-  alphas = svt.getAlphas()
-  if not alphas:
+  letters = svt.getAlphas()
+  if not letters:
     return
-  for alpha in alphas:
-    __add_directory_item(alpha, {"mode": MODE_LETTER, "letter": alpha})
+  for letter in letters:
+    __add_directory_item(letter, {"mode": MODE_LETTER, "letter": letter.encode("utf-8")})
 
 def view_programs_by_letter(letter):
   programs = svt.getProgramsByLetter(letter)
@@ -264,11 +265,12 @@ def __add_directory_item(title, params, thumbnail="", folder=True, live=False, i
     "poster": poster if poster else thumbnail,
     "thumb": thumbnail
   })
-  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, sys.argv[0] + '?' + urlencode(params), list_item, folder)
+  url = sys.argv[0] + '?' + urlencode(params)
+  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, url, list_item, folder)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
-logging.log("params: " + str(ARG_PARAMS))
+logging.log("params: {}".format(ARG_PARAMS))
 ARG_MODE = ARG_PARAMS.get("mode")
 ARG_URL = unquote_plus(ARG_PARAMS.get("url", ""))
 ARG_PAGE = ARG_PARAMS.get("page")
