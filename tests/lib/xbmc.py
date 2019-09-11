@@ -6,6 +6,7 @@ LOGNOTICE = 10
 PLAYLIST_MUSIC = 0
 PLAYLIST_VIDEO = 1
 LOGDEBUG = 1
+LOGERROR = 2
 
 def log(msg, level=None):
   print(msg)
