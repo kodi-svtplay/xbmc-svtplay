@@ -157,7 +157,7 @@ def getProgramsByLetter(letter):
   json_data = __get_json("all_titles_and_singles")
   if json_data is None:
     return None
-  pattern = "^[%s]" % letter.upper()
+  pattern = "^[{}]".format(letter.upper())
   items = []
   for title in json_data:
     if re.search(pattern, title["programTitle"]):
@@ -252,7 +252,7 @@ def getEpisodes(slug):
     return None
   article_id = title_data["articleId"]
   fanart = helper.prepareFanart(title_data.get("poster", ""), BASE_URL)
-  api_action = "title_episodes_by_article_id?articleId=%s" % str(article_id)
+  api_action = "title_episodes_by_article_id?articleId={}".format(str(article_id))
   json_data = __get_json(api_action)
   if json_data is None:
     return None
@@ -261,7 +261,7 @@ def getEpisodes(slug):
     program = {}
     program["title"] = item["title"]
     try:
-      program["title"] = program["title"] + "[COLOR gray] (S%sE%s)[/COLOR]" % (str(item["season"]), str(item["episodeNumber"]))
+      program["title"] = program["title"] + "[COLOR gray] (S{season}E{episode})[/COLOR]".format(season=str(item["season"]), episode=str(item["episodeNumber"]))
     except KeyError:
       # Suppress
       pass
@@ -269,7 +269,7 @@ def getEpisodes(slug):
     if versions:
       program["url"] = __get_video_version(versions)
     if program["url"] is None or not versions:
-      logging.log("No video versions found for %s, skipping item!" % item["title"])
+      logging.log("No video versions found for {}, skipping item!".format(item["title"]))
       continue
     program["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
     info = {}
@@ -294,7 +294,7 @@ def getClips(slug):
   if title_data is None:
     return None
   article_id = title_data["articleId"]
-  url = "title_clips_by_title_article_id?articleId=%s" % (str(article_id))
+  url = "title_clips_by_title_article_id?articleId={}".format(str(article_id))
   json_data = __get_json(url)
   if json_data is None:
     return None
@@ -338,7 +338,7 @@ def getItems(section_name, page):
       item["url"] = __get_video_version(versions)
       item["type"] = "video"
     else:
-      logging.log("No video versions found for %s, skipping item!" % item["title"])
+      logging.log("No video versions found for {}, skipping item!".format(item["title"]))
       continue
     item["thumbnail"] = helper.prepareThumb(video.get("thumbnail", ""), baseUrl=BASE_URL)
     info = {}
@@ -389,10 +389,10 @@ def __get_video_version(versions):
 
 def __get_video_json_for_video_id(video_id):
   url = VIDEO_API_URL + str(video_id)
-  logging.log("Getting video JSON for %s" % url)
+  logging.log("Getting video JSON for {}".format(url))
   response = requests.get(url)
   if response.status_code != 200:
-    logging.error("Could not fetch video data for %s" % url)
+    logging.error("Could not fetch video data for {}".format(url))
     return None
   return response.json()
 
@@ -404,10 +404,10 @@ def __get_json(api_action):
   the function returns None.
   """
   url = BASE_URL+API_URL+api_action
-  logging.log("Requesting JSON for %s" % url)
+  logging.log("Requesting JSON for {}".format(url))
   response = requests.get(url)
   if response.status_code != 200:
-    logging.error("Failed to get JSON for %s" % url)
+    logging.error("Failed to get JSON for {}".format(url))
     return None
   else:
     return response.json()

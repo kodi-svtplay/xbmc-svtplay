@@ -144,7 +144,7 @@ def view_episodes(url):
   """
   Displays the episodes for a program
   """
-  logging.log("View episodes for %s" % url)
+  logging.log("View episodes for {}".format(url))
   episodes = svt.getEpisodes(url.split("/")[-1])
   if episodes is None:
     logging.log("No episodes found")
@@ -165,7 +165,7 @@ def view_clips(url):
   """
   Displays the latest clips for a program
   """
-  logging.log("View clips for %s" % url)
+  logging.log("View clips for {}".format(url))
   clips = svt.getClips(url.split("/")[-1])
   if not clips:
     logging.log("No clips found")
