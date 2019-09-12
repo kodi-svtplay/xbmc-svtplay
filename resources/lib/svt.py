@@ -12,9 +12,11 @@ try:
   # Python 2
   from HTMLParser import HTMLParser
   from urllib import unquote
+  parser = HTMLParser()
+  unescape = parser.unescape
 except ImportError:
   # Python 3
-  from html.parser import HTMLParser
+  from html import unescape
   from urllib.parse import unquote
 
 BASE_URL = "https://www.svtplay.se"
@@ -22,7 +24,6 @@ API_URL = "/api/"
 VIDEO_API_URL="https://api.svt.se/videoplayer-api/video/"
 WANTED_AS = "none" # wanted accessibility service
 
-parser = HTMLParser()
 
 def getAtoO():
   """
@@ -70,7 +71,7 @@ def getLatestNews():
     if versions:
       url = __get_video_version(versions)
     program = {
-        "title" : parser.unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
+        "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
         "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
         "url" : url,
         "info" : { "duration" : item.get("materialLength", 0), "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=BASE_URL) }
@@ -199,16 +200,16 @@ def getSearchResults(search_term):
     if result_type == "CLIP":
       item_type = "video"
       item["url"] = result["id"]
-      item["title"] = parser.unescape(result["title"])
+      item["title"] = unescape(result["title"])
       item["thumbnail"] = helper.prepareThumb(result.get("thumbnail", ""), baseUrl=BASE_URL)
     elif result_type == "SERIES_OR_TV_SHOW":
-      item["title"] = parser.unescape(result["programTitle"] + " - " + result["title"])
+      item["title"] = unescape(result["programTitle"] + " - " + result["title"])
       item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
       item["info"] = {}
       item["info"]["plot"] = result.get("description", "")
     else:
       # MOVIE and folder
-      item["title"] = parser.unescape(result["programTitle"])
+      item["title"] = unescape(result["programTitle"])
       item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = result.get("description", "")
