@@ -11,5 +11,6 @@ python:
 
 install:
   - pip install requests
+  - pip install future
 script:
   - python -m unittest tests.testSvt
