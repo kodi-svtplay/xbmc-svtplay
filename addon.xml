@@ -22,5 +22,9 @@
 - Fixed broken channel listing.
 - Major under-the-hood changes, please report any issues in the Github tracker
     </news>
+    <assets>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
+    </assets>
   </extension>
 </addon>
