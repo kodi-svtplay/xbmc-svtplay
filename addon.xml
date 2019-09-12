@@ -17,7 +17,7 @@
     <license> GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <website>https://github.com/nilzen/xbmc-svtplay</website>
     <source>https://github.com/nilzen/xbmc-svtplay</source>
-    <forum>http://forum.xbmc.org/showthread.php?tid=67110</forum>
+    <forum>https://forum.xbmc.org/showthread.php?tid=67110</forum>
     <news>
 - Fixed broken channel listing.
 - Major under-the-hood changes, please report any issues in the Github tracker
