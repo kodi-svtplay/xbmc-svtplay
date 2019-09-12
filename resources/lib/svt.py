@@ -170,7 +170,6 @@ def __create_item_by_title(title):
   item["thumbnail"] = ""
   item["type"] = "program"
   item["onlyAvailableInSweden"] = title.get("onlyAvailableInSweden", False)
-  logging.log("Created item: %s" % item)
   if "/video/" in item["url"]:
     item["type"] = "video"
   return item
