@@ -1,9 +1,9 @@
 import inspect
+import os
 import sys
 import unittest
-# Manipulate path first
-sys.path.append("../")
-sys.path.append("./lib")
+# Manipulate path first to add stubs
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "./lib")
 
 import resources.lib.svt as svt
 

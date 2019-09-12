@@ -12,5 +12,4 @@ python:
 install:
   - pip install requests
 script:
-  - cd tests
-  - python -m unittest testSvt
+  - python -m unittest tests.testSvt
