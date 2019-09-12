@@ -124,10 +124,6 @@ msgctxt "#30503"
 msgid "Number of programs per page"
 msgstr ""
 
-msgctxt "#30504"
-msgid "Hide sign language interpreted programs"
-msgstr ""
-
 msgctxt "#30505"
 msgid "Hide programs that are restricted to Sweden"
 msgstr ""
