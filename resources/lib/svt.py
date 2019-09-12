@@ -20,6 +20,7 @@ except ImportError:
   from urllib.parse import unquote
 
 BASE_URL = "https://www.svtplay.se"
+SVT_BASE_URL = "https://api.svt.se/"
 API_URL = "/api/"
 VIDEO_API_URL="https://api.svt.se/videoplayer-api/video/"
 WANTED_AS = "none" # wanted accessibility service
@@ -221,7 +222,8 @@ def getChannels():
   Returns the live channels from the page "Kanaler".
   """
   time_str = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
-  json_data = __get_json("channel_page?now=" + time_str)
+  url = "program-guide/programs?channel=svt1,svt2,svt24,svtb,svtk&includePartiallyOverlapping=true&from={timestamp}&to={timestamp}".format(timestamp=time_str)
+  json_data = __get_svt_json(url)
   if json_data is None:
     return None
   items = []
@@ -234,6 +236,8 @@ def getChannels():
     elif channel["channel"] == "SVTB":
       ch_id="barnkanalen"
     item["title"] = ch_id.upper() + " - " + program_title
+    if channel["live"]:
+      item["title"] = item["title"] + " [COLOR red]Live[/COLOR]"
     item["info"] = {}
     item["info"]["plot"] = channel.get("longDescription", "No description")
     item["info"]["title"] = item["title"]
@@ -404,10 +408,25 @@ def __get_json(api_action):
   the function returns None.
   """
   url = BASE_URL+API_URL+api_action
-  logging.log("Requesting JSON for {}".format(url))
+  return __do_api_request(url)
+
+def __get_svt_json(api_action):
+  """
+  Calls the SVT api endpoint instead of the SVTPlay
+  endpoint.
+  """
+  url = SVT_BASE_URL + api_action
+  return __do_api_request(url)
+
+def __do_api_request(url):
+  """
+  Performs an API request. Returns None if
+  HTTP response code is != 200.
+  """
+  logging.log("Requesting {}".format(url))
   response = requests.get(url)
   if response.status_code != 200:
-    logging.error("Failed to get JSON for {}".format(url))
+    logging.error("Failed to reach {url}, response code {code}".format(url=url, code=response.status_code))
     return None
   else:
     return response.json()
