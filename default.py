@@ -201,7 +201,7 @@ def __create_dir_item(article, mode):
   if mode == MODE_PROGRAM:
     folder = True
   info = None
-  if "info" in article.keys():
+  if "info" in list(article.keys()):
     if "onlyAvailableInSweden" in article["info"] and \
         article["info"]["onlyAvailableInSweden"] and \
         helper.getSetting(S_HIDE_RESTRICTED_TO_SWEDEN):
