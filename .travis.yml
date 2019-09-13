@@ -10,5 +10,7 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install kodi-addon-checker
 script:
+  - kodi-addon-checker --branch krypton --allow-folder-id-mismatch ../xbmc-svtplay
   - python -m unittest tests.testSvt
