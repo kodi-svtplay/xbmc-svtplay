@@ -9,19 +9,30 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
+if [ ! -d "$1" ]; then
+  echo "Directory $1 does not exist!"
+  exit 1
+fi
+
 # Exit on error
 set -e
 
+echo "Deploying to $1"
 DEPLOY_DIR=$1
 
 EXCLUDE_FILES="deploy.sh \
+              .gitignore \
+              __pycache__ \
+              .vscode \
+              .travis.yml \
+              requirements.txt \
               DEPLOY.md \
               ISSUE_TEMPLATE.md \
               CONTRIBUTING.md \
+              tests/__init__.py \
               tests/.gitignore \
-              tests/testFM.py \
-              tests/testHelper.py \
               tests/testSvt.py \
+              tests/lib/__init__.py
               tests/lib/CommonFunctions.py \
               tests/lib/xbmc.py \
               tests/lib/xbmcaddon.py \
