@@ -350,6 +350,7 @@ def getItems(section_name, page):
     info["plot"] = video.get("description", "")
     info["aired"] = video.get("broadcastDate", "")
     info["duration"] = video.get("materialLength", 0)
+    info["onlyAvailableInSweden"] = video.get("onlyAvailableInSweden", False)
     try:
       info["fanart"] = helper.prepareFanart(video["poster"], baseUrl=BASE_URL)
     except KeyError:
