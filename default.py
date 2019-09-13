@@ -41,7 +41,6 @@ MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
 
 # settings keys
-S_DEBUG = "debug"
 S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
 S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"

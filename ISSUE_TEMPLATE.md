@@ -21,9 +21,7 @@ Plugin version: <!-- The version of the SVT Play plugin -->
 
 # Log
 <!--
-If possible, please enable Debug in the add-on's settings and
-capture a Kodi log.
-More information about capturing logs: http://kodi.wiki/view/Log_file/Easy
+Information about capturing logs: http://kodi.wiki/view/Log_file/Easy
 Use https://paste.ubuntu.com/ for uploading logs.
 If you have a log, paste the URL to it here.
 -->
