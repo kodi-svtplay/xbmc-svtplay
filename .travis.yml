@@ -3,7 +3,6 @@ language:
 
 branches:
   only:
-    - gotham
     - krypton
 
 python:
