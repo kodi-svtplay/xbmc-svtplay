@@ -14,7 +14,7 @@
     <description lang="sv_SE">Med denna addon kan du strömma innehåll från SVT Play (svtplay.se).</description>
     <disclaimer lang="en_GB">This is an unofficial addon and it is not supported or maintained by SVT. Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing.</disclaimer>
     <platform>all</platform>
-    <license> GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+    <license>GPL-3.0-only</license>
     <website>https://github.com/nilzen/xbmc-svtplay</website>
     <source>https://github.com/nilzen/xbmc-svtplay</source>
     <forum>https://forum.kodi.tv/showthread.php?tid=67110</forum>
