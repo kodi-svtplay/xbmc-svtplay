@@ -285,7 +285,7 @@ def getEpisodes(slug):
     info["season"] = item.get("season", "")
     info["episode"] = item.get("episode", "")
     info["playcount"] = 0
-    info["onlyAvailableInSweden"] = item.get("onlyAvailableInSweden", False)
+    program["onlyAvailableInSweden"] = item.get("onlyAvailableInSweden", False)
     program["info"] = info
     programs.append(program)
   return programs
@@ -350,7 +350,7 @@ def getItems(section_name, page):
     info["plot"] = video.get("description", "")
     info["aired"] = video.get("broadcastDate", "")
     info["duration"] = video.get("materialLength", 0)
-    info["onlyAvailableInSweden"] = video.get("onlyAvailableInSweden", False)
+    item["onlyAvailableInSweden"] = video.get("onlyAvailableInSweden", False)
     try:
       info["fanart"] = helper.prepareFanart(video["poster"], baseUrl=BASE_URL)
     except KeyError:

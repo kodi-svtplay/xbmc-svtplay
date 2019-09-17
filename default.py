@@ -85,8 +85,7 @@ def view_programs_by_letter(letter):
 
 def __program_listing(programs):
   for program in programs:
-    if program["onlyAvailableInSweden"] and \
-        helper.getSetting(S_HIDE_RESTRICTED_TO_SWEDEN):
+    if __is_geo_restricted(program):
       logging.log("Not showing {} as it is restricted to Sweden and geo setting is on".format(program["title"]))
       continue
     folder = True
@@ -201,20 +200,14 @@ def __create_dir_item(article, mode):
   if mode == MODE_PROGRAM:
     folder = True
   info = None
-  if __geo_restriction_is_on(article):
-      # Do not show geo restricted items
+  if __is_geo_restricted(article):
       logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
       return
   info = article["info"]
-  # Remove custom info labels
-  if "onlyAvailableInSweden" in article["info"]:
-    del article["info"]["onlyAvailableInSweden"]
   __add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
 
-def __geo_restriction_is_on(article):
-  if "info" in article and \
-    "onlyAvailableInSweden" in article["info"] and \
-    article["info"]["onlyAvailableInSweden"] and \
+def __is_geo_restricted(program):
+  if program["onlyAvailableInSweden"] and \
     helper.getSettingBool(S_HIDE_RESTRICTED_TO_SWEDEN):
       return True
   return False
