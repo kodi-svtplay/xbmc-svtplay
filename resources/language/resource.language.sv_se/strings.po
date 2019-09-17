@@ -128,14 +128,6 @@ msgctxt "#30506"
 msgid "Show both clips and episodes for programs"
 msgstr "Visa både klipp och avsnitt för program"
 
-msgctxt "#30507"
-msgid "Set bandwidth manually"
-msgstr "Ställ in bandbredd manuellt"
-
-msgctxt "#30508"
-msgid "Bandwidth"
-msgstr "Bandbredd"
-
 msgctxt "#30601"
 msgid "General"
 msgstr "Allmänt"

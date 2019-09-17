@@ -128,14 +128,6 @@ msgctxt "#30506"
 msgid "Show both clips and episodes for programs"
 msgstr ""
 
-msgctxt "#30507"
-msgid "Set bandwidth manually"
-msgstr ""
-
-msgctxt "#30508"
-msgid "Bandwidth"
-msgstr ""
-
 msgctxt "#30601"
 msgid "General"
 msgstr ""
