@@ -39,16 +39,18 @@ class TestSvtModule(unittest.TestCase):
   def test_get_programs_for_category(self):
     categories = svt.getCategories()
     has_failed = False
+    failed_categories = []
     for category in categories:
       programs = svt.getProgramsForGenre(category["genre"])
       if programs is None:
         has_failed = True
+        failed_categories.append(category["genre"])
         continue
       for program in programs:
         for key in program.keys():
           self.assertIsNotNone(program[key])
     if has_failed:
-      self.fail("Test failed due to fetch issues. See log above.")
+      self.fail("The following categories failed {}.".format(failed_categories))
 
   def test_get_alphas(self):
     alphas = svt.getAlphas()
