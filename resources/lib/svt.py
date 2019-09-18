@@ -76,7 +76,9 @@ def getLatestNews():
       "info" : { 
         "duration" : item.get("materialLength", 0), 
         "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=PLAY_BASE_URL)
-      }
+      },
+      "onlyAvailableInSweden": item.get("onlyAvailableInSweden", False),
+      "inappropriateForChildren": item.get("inappropriateForChildren", False),
     }
     programs.append(program)
   return programs
