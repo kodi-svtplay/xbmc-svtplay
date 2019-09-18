@@ -23,8 +23,6 @@ PLAY_BASE_URL = "https://www.svtplay.se"
 PLAY_API_URL = PLAY_BASE_URL+"/api/"
 SVT_API_BASE_URL = "https://api.svt.se/"
 VIDEO_API_URL= SVT_API_BASE_URL+"videoplayer-api/video/"
-WANTED_AS = "none" # wanted accessibility service
-
 
 def getAtoO():
   """
@@ -383,7 +381,7 @@ def __get_video_version(versions):
     # 2. If no version matching AS is found, fallback to use the first stream
     for version in versions:
       # ungraceful access so we detect API changes
-      if version["accessService"] == WANTED_AS:
+      if version["accessService"] == "none":
         return version["id"]
     return versions[0]["id"]
   return None
