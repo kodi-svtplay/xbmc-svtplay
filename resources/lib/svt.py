@@ -217,6 +217,8 @@ def getSearchResults(search_term):
       item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = result.get("description", "")
+    item["onlyAvailableInSweden"] = result.get("onlyAvailableInSweden", False)
+    item["inappropriateForChildren"] = result.get("inappropriateForChildren", False)
     items.append({"item": item, "type": item_type})
   return items
 
