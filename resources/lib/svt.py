@@ -349,6 +349,7 @@ def __create_item_from_json(json_item):
   info["episode"] = json_item.get("episodeNumber", "")
   info["playcount"] = 0
   item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
+  item["inappropriateForChildren"] = json_item.get("inappropriateForChildren", False)
   try:
     info["fanart"] = helper.prepareFanart(json_item["poster"], baseUrl=PLAY_BASE_URL)
   except KeyError:

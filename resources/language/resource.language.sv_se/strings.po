@@ -117,8 +117,8 @@ msgid "Group programs in A-Ö by first character"
 msgstr "Gruppera program i A-Ö efter första bokstav"
 
 msgctxt "#30503"
-msgid "Number of programs per page"
-msgstr "Antal program per sida"
+msgid "Dölj innehåll olämpligt för barn"
+msgstr ""
 
 msgctxt "#30505"
 msgid "Hide programs that are restricted to Sweden"

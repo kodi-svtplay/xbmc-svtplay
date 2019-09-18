@@ -117,7 +117,7 @@ msgid "Group programs in A-Ö by first character"
 msgstr ""
 
 msgctxt "#30503"
-msgid "Number of programs per page"
+msgid "Hide content inappropriate for children"
 msgstr ""
 
 msgctxt "#30505"

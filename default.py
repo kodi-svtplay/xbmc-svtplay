@@ -44,6 +44,7 @@ MODE_VIEW_CLIPS = "view_clips"
 S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
 S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"
+S_HIDE_INAPPROPRIATE_FOR_CHILDREN = "inappropriateForChildren"
 
 # plugin setup
 PLUGIN_HANDLE = int(sys.argv[1])
@@ -201,14 +202,23 @@ def __create_dir_item(article, mode):
     folder = True
   info = None
   if __is_geo_restricted(article):
-      logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
-      return
+    logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
+    return
+  if __is_inappropriate_for_children(article):
+    logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
+    return
   info = article["info"]
   __add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
 
 def __is_geo_restricted(program):
   if program["onlyAvailableInSweden"] and \
     helper.getSettingBool(S_HIDE_RESTRICTED_TO_SWEDEN):
+      return True
+  return False
+
+def __is_inappropriate_for_children(program):
+  if program["inappropriateForChildren"] and \
+    helper.getSettingBool(S_HIDE_INAPPROPRIATE_FOR_CHILDREN):
       return True
   return False
 
