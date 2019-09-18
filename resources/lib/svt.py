@@ -248,6 +248,8 @@ def getChannels():
     item["info"]["title"] = item["title"]
     item["url"] = "ch-" + ch_id
     item["thumbnail"] = ""
+    item["onlyAvailableInSweden"] = True # Channels are always geo restricted
+    item["inappropriateForChildren"] = True # No way to guarantee otherwise
     items.append(item)
 
   return items
