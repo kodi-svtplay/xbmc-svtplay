@@ -70,11 +70,14 @@ def getLatestNews():
     if versions:
       url = __get_video_version(versions)
     program = {
-        "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
-        "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=PLAY_BASE_URL),
-        "url" : url,
-        "info" : { "duration" : item.get("materialLength", 0), "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=PLAY_BASE_URL) }
-        }
+      "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
+      "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=PLAY_BASE_URL),
+      "url" : url,
+      "info" : { 
+        "duration" : item.get("materialLength", 0), 
+        "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=PLAY_BASE_URL)
+      }
+    }
     programs.append(program)
   return programs
 
