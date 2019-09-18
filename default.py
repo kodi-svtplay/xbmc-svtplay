@@ -270,7 +270,7 @@ def __add_directory_item(title, params, thumbnail="", folder=True, live=False, i
       del info["fanart"] # Unsupported by ListItem
     if "poster" in info:
       del info["poster"] # Unsupported by ListItem
-    list_item.setInfo("Video", info)
+    list_item.setInfo("video", info)
   list_item.setArt({
     "fanart": fanart,
     "poster": poster if poster else thumbnail,
