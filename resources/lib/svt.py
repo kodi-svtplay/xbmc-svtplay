@@ -19,10 +19,10 @@ except ImportError:
   from html import unescape
   from urllib.parse import unquote
 
-BASE_URL = "https://www.svtplay.se"
-SVT_BASE_URL = "https://api.svt.se/"
-API_URL = "/api/"
-VIDEO_API_URL="https://api.svt.se/videoplayer-api/video/"
+PLAY_BASE_URL = "https://www.svtplay.se"
+PLAY_API_URL = PLAY_BASE_URL+"/api/"
+SVT_API_BASE_URL = "https://api.svt.se/"
+VIDEO_API_URL= SVT_API_BASE_URL+"videoplayer-api/video/"
 WANTED_AS = "none" # wanted accessibility service
 
 
@@ -73,9 +73,9 @@ def getLatestNews():
       url = __get_video_version(versions)
     program = {
         "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
-        "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=BASE_URL),
+        "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=PLAY_BASE_URL),
         "url" : url,
-        "info" : { "duration" : item.get("materialLength", 0), "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=BASE_URL) }
+        "info" : { "duration" : item.get("materialLength", 0), "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=PLAY_BASE_URL) }
         }
     programs.append(program)
   return programs
@@ -98,9 +98,9 @@ def getProgramsForGenre(genre):
       content_type = "program"
     title = item["programTitle"]
     plot = item.get("description", "")
-    thumbnail = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
+    thumbnail = helper.prepareThumb(item.get("thumbnail", ""), PLAY_BASE_URL)
     if not thumbnail:
-      thumbnail = helper.prepareThumb(item.get("poster", ""), BASE_URL)
+      thumbnail = helper.prepareThumb(item.get("poster", ""), PLAY_BASE_URL)
     info = {"plot": plot, "thumbnail": thumbnail, "fanart": thumbnail}
     programs.append({
       "title": title,
@@ -202,16 +202,16 @@ def getSearchResults(search_term):
       item_type = "video"
       item["url"] = result["id"]
       item["title"] = unescape(result["title"])
-      item["thumbnail"] = helper.prepareThumb(result.get("thumbnail", ""), baseUrl=BASE_URL)
+      item["thumbnail"] = helper.prepareThumb(result.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
     elif result_type == "SERIES_OR_TV_SHOW":
       item["title"] = unescape(result["programTitle"] + " - " + result["title"])
-      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
+      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
       item["info"] = {}
       item["info"]["plot"] = result.get("description", "")
     else:
       # MOVIE and folder
       item["title"] = unescape(result["programTitle"])
-      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=BASE_URL)
+      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = result.get("description", "")
     items.append({"item": item, "type": item_type})
@@ -290,7 +290,7 @@ def getClips(slug):
     clip = {}
     clip["title"] = item["title"]
     clip["url"] = str(item["id"])
-    clip["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
+    clip["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), PLAY_BASE_URL)
     info = {}
     info["title"] = clip["title"]
     info["plot"] = item.get("description", "")
@@ -337,10 +337,10 @@ def __create_item_from_json(json_item):
   except KeyError:
     # Suppress
     pass
-  item["thumbnail"] = helper.prepareThumb(json_item.get("thumbnail", ""), baseUrl=BASE_URL)
+  item["thumbnail"] = helper.prepareThumb(json_item.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
   info = {}
   info["title"] = item["title"]
-  info["poster"] = helper.prepareFanart(json_item.get("poster", ""), BASE_URL)
+  info["poster"] = helper.prepareFanart(json_item.get("poster", ""), PLAY_BASE_URL)
   info["plot"] = json_item.get("description", "")
   info["duration"] = json_item.get("materialLength", 0)
   info["tagline"] = json_item.get("shortDescription", "")
@@ -349,7 +349,7 @@ def __create_item_from_json(json_item):
   info["playcount"] = 0
   item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
   try:
-    info["fanart"] = helper.prepareFanart(json_item["poster"], baseUrl=BASE_URL)
+    info["fanart"] = helper.prepareFanart(json_item["poster"], baseUrl=PLAY_BASE_URL)
   except KeyError:
     pass
   item["info"] = info
@@ -400,11 +400,10 @@ def __get_video_json_for_video_id(video_id):
 def __get_json(api_action):
   """
   Returns the JSON for 'api_action'.
-  BASE_URL + API_URL is assumed to be the prefix of 'api_action'.
-  If the server responds with status code != 200
-  the function returns None.
+  PLAY_API_URL is assumed to be the prefix of 'api_action'.
+  Return None if the server responds with status code != 200.
   """
-  url = BASE_URL+API_URL+api_action
+  url = PLAY_API_URL+api_action
   return __do_api_request(url)
 
 def __get_svt_json(api_action):
@@ -412,7 +411,7 @@ def __get_svt_json(api_action):
   Calls the SVT api endpoint instead of the SVTPlay
   endpoint.
   """
-  url = SVT_BASE_URL + api_action
+  url = SVT_API_BASE_URL + api_action
   return __do_api_request(url)
 
 def __do_api_request(url):
