@@ -89,19 +89,19 @@ def getProgramsForGenre(genre):
   if json_data is None:
     return None
   programs = []
-  for item in json_data:
-    versions = item.get("versions", [])
+  for json_item in json_data:
+    versions = json_item.get("versions", [])
     content_type = "video"
     if versions:
       url = __get_video_version(versions)
     else:
-      url = item["contentUrl"]
+      url = json_item["contentUrl"]
       content_type = "program"
-    title = item["programTitle"]
-    plot = item.get("description", "")
-    thumbnail = helper.prepareThumb(item.get("thumbnail", ""), PLAY_BASE_URL)
+    title = json_item["programTitle"]
+    plot = json_item.get("description", "")
+    thumbnail = helper.prepareThumb(json_item.get("thumbnail", ""), PLAY_BASE_URL)
     if not thumbnail:
-      thumbnail = helper.prepareThumb(item.get("poster", ""), PLAY_BASE_URL)
+      thumbnail = helper.prepareThumb(json_item.get("poster", ""), PLAY_BASE_URL)
     info = {"plot": plot, "thumbnail": thumbnail, "fanart": thumbnail}
     programs.append({
       "title": title,
@@ -109,7 +109,8 @@ def getProgramsForGenre(genre):
       "thumbnail": thumbnail,
       "info": info,
       "type" : content_type,
-      "onlyAvailableInSweden" : item["onlyAvailableInSweden"]
+      "onlyAvailableInSweden" : json_item["onlyAvailableInSweden"],
+      "inappropriateForChildren" : json_item.get("inappropriateForChildren", False)
     })
   return programs
 

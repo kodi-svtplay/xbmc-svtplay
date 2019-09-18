@@ -204,7 +204,7 @@ def __create_dir_item(article, mode):
   if __is_geo_restricted(article):
     logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
     return
-  if __is_inappropriate_for_children(article):
+  if not folder and __is_inappropriate_for_children(article):
     logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
     return
   info = article["info"]
@@ -216,8 +216,11 @@ def __is_geo_restricted(program):
       return True
   return False
 
-def __is_inappropriate_for_children(program):
-  if program["inappropriateForChildren"] and \
+def __is_inappropriate_for_children(video_item):
+  """
+  Can only be validated on video list items.
+  """
+  if video_item["inappropriateForChildren"] and \
     helper.getSettingBool(S_HIDE_INAPPROPRIATE_FOR_CHILDREN):
       return True
   return False
