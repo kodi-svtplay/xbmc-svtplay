@@ -108,7 +108,8 @@ def getProgramsForGenre(genre):
       "url": url,
       "thumbnail": thumbnail,
       "info": info,
-      "type" : content_type
+      "type" : content_type,
+      "onlyAvailableInSweden" : item["onlyAvailableInSweden"]
     })
   return programs
 
