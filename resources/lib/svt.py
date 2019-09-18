@@ -255,39 +255,22 @@ def getEpisodes(slug):
   if title_data is None:
     return None
   article_id = title_data["articleId"]
-  fanart = helper.prepareFanart(title_data.get("poster", ""), BASE_URL)
   api_action = "title_episodes_by_article_id?articleId={}".format(str(article_id))
   json_data = __get_json(api_action)
   if json_data is None:
     return None
   programs = []
-  for item in json_data:
-    program = {}
-    program["title"] = item["title"]
-    try:
-      program["title"] = program["title"] + "[COLOR gray] (S{season}E{episode})[/COLOR]".format(season=str(item["season"]), episode=str(item["episodeNumber"]))
-    except KeyError:
-      # Suppress
-      pass
-    versions = item.get("versions", [])
+  for json_item in json_data:
+    versions = json_item.get("versions", [])
+    url = ""
     if versions:
-      program["url"] = __get_video_version(versions)
-    if program["url"] is None or not versions:
-      logging.log("No video versions found for {}, skipping item!".format(item["title"]))
+      url = __get_video_version(versions)
+    if url is None or not versions:
+      logging.log("No video versions found for {}, skipping item!".format(json_item["title"]))
       continue
-    program["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), BASE_URL)
-    info = {}
-    info["plot"] = item.get("description", "")
-    info["poster"] = helper.prepareFanart(item.get("poster", ""), BASE_URL)
-    info["fanart"] = fanart
-    info["duration"] = item.get("materialLength", "")
-    info["tagline"] = item.get("shortDescription", "")
-    info["season"] = item.get("season", "")
-    info["episode"] = item.get("episode", "")
-    info["playcount"] = 0
-    program["onlyAvailableInSweden"] = item.get("onlyAvailableInSweden", False)
-    program["info"] = info
-    programs.append(program)
+    item = __create_item_from_json(json_item)
+    item["url"] = url
+    programs.append(item)
   return programs
 
 def getClips(slug):
@@ -334,34 +317,47 @@ def getItems(section_name, page):
   current_page = json_data["currentPage"]
   total_pages = json_data["totalPages"]
   returned_items = []
-  for video in json_data["data"]:
-    versions = video.get("versions", [])
-    item = {}
-    item["title"] = video["programTitle"]
-    if versions:
-      item["url"] = __get_video_version(versions)
-      item["type"] = "video"
-    else:
+  for json_item in json_data["data"]:
+    versions = json_item.get("versions", [])
+    if not versions:
       logging.log("No video versions found for {}, skipping item!".format(item["title"]))
       continue
-    item["thumbnail"] = helper.prepareThumb(video.get("thumbnail", ""), baseUrl=BASE_URL)
-    info = {}
-    info["title"] = item["title"]
-    info["plot"] = video.get("description", "")
-    info["aired"] = video.get("broadcastDate", "")
-    info["duration"] = video.get("materialLength", 0)
-    item["onlyAvailableInSweden"] = video.get("onlyAvailableInSweden", False)
-    try:
-      info["fanart"] = helper.prepareFanart(video["poster"], baseUrl=BASE_URL)
-    except KeyError:
-      pass
-    item["info"] = info
-    if not item["thumbnail"] and info["fanart"]:
-      item["thumbnail"] = info["fanart"]
-    if video.get("broadcastedNow", False):
-      item["title"] = item["title"] + " [COLOR red](Live)[/COLOR]"
+    url = __get_video_version(versions)
+    item = __create_item_from_json(json_item)
+    item["url"] = url
+    item["type"] = "video"
     returned_items.append(item)
   return (returned_items, total_pages > current_page)
+
+def __create_item_from_json(json_item):
+  item = {}
+  item["title"] = json_item["programTitle"]
+  try:
+    item["title"] = item["title"] + " [COLOR gray](S{season}E{episode})[/COLOR]".format(season=str(json_item["season"]), episode=str(json_item["episodeNumber"]))
+  except KeyError:
+    # Suppress
+    pass
+  item["thumbnail"] = helper.prepareThumb(json_item.get("thumbnail", ""), baseUrl=BASE_URL)
+  info = {}
+  info["title"] = item["title"]
+  info["poster"] = helper.prepareFanart(json_item.get("poster", ""), BASE_URL)
+  info["plot"] = json_item.get("description", "")
+  info["duration"] = json_item.get("materialLength", 0)
+  info["tagline"] = json_item.get("shortDescription", "")
+  info["season"] = json_item.get("season", "")
+  info["episode"] = json_item.get("episodeNumber", "")
+  info["playcount"] = 0
+  item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
+  try:
+    info["fanart"] = helper.prepareFanart(json_item["poster"], baseUrl=BASE_URL)
+  except KeyError:
+    pass
+  item["info"] = info
+  if not item["thumbnail"] and info["fanart"]:
+    item["thumbnail"] = info["fanart"]
+  if json_item.get("broadcastedNow", False):
+    item["title"] = item["title"] + " [COLOR red](Live)[/COLOR]"
+  return item
 
 def __get_title_for_slug(slug):
   url = "title?slug="+slug
