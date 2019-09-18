@@ -342,7 +342,7 @@ def __create_item_from_json(json_item):
   item = {}
   item["title"] = json_item["programTitle"]
   try:
-    item["title"] = item["title"] + " [COLOR gray](S{season}E{episode})[/COLOR]".format(season=str(json_item["season"]), episode=str(json_item["episodeNumber"]))
+    item["title"] = "{title} [COLOR gray](S{season}E{episode})[/COLOR]".format(title=item["title"], season=str(json_item["season"]), episode=str(json_item["episodeNumber"]))
   except KeyError:
     # Suppress
     pass
