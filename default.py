@@ -44,8 +44,6 @@ MODE_VIEW_CLIPS = "view_clips"
 # settings keys
 S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
-S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"
-S_HIDE_INAPPROPRIATE_FOR_CHILDREN = "inappropriateForChildren"
 
 # plugin setup
 PLUGIN_HANDLE = int(sys.argv[1])
@@ -89,13 +87,13 @@ def view_programs_by_letter(letter):
 
 def __program_listing(programs):
   for program in programs:
-    if __is_geo_restricted(program):
+    if common.is_geo_restricted(program):
       logging.log("Not showing {} as it is restricted to Sweden and geo setting is on".format(program["title"]))
       continue
     folder = True
-    mode = MODE_PROGRAM
+    mode = common.MODE_PROGRAM
     if program["type"] == "video":
-      mode = MODE_VIDEO
+      mode = common.MODE_VIDEO
       folder = False
     common.add_directory_item(program["title"],
                 {"mode": mode, "url": program["url"]},
@@ -112,26 +110,26 @@ def view_section(section, page):
   if not items:
     return
   for item in items:
-    mode = MODE_VIDEO
+    mode = common.MODE_VIDEO
     if item["type"] == "program":
-      mode = MODE_PROGRAM
-    __create_dir_item(item, mode)
+      mode = common.MODE_PROGRAM
+    common.create_dir_item(item, mode)
   if more_items:
-    __add_next_page_item(page+1, section)
+    common.add_next_page_item(page+1, section)
 
 def view_channels():
   channels = svt.getChannels()
   if not channels:
     return
   for channel in channels:
-    __create_dir_item(channel, MODE_VIDEO)
+    common.create_dir_item(channel, MODE_VIDEO)
 
 def view_latest_news():
     items = svt.getLatestNews()
     if not items:
       return
     for item in items:
-      __create_dir_item(item, MODE_VIDEO)
+      common.create_dir_item(item, MODE_VIDEO)
 
 def view_category(genre):
   programs = svt.getProgramsForGenre(genre)
@@ -141,7 +139,7 @@ def view_category(genre):
     mode = MODE_PROGRAM
     if program["type"] == "video":
       mode = MODE_VIDEO
-    __create_dir_item(program, mode)
+    common.create_dir_item(program, mode)
 
 def view_episodes(url):
   """
@@ -153,7 +151,7 @@ def view_episodes(url):
     logging.log("No episodes found")
     return
   for episode in episodes:
-    __create_dir_item(episode, MODE_VIDEO)
+    common.create_dir_item(episode, MODE_VIDEO)
 
 def __add_clip_dir_item(url):
   """
@@ -174,7 +172,7 @@ def view_clips(url):
     logging.log("No clips found")
     return
   for clip in clips:
-    __create_dir_item(clip, MODE_VIDEO)
+    common.create_dir_item(clip, MODE_VIDEO)
 
 def view_search():
   keyword = helper.getInputFromKeyboard(localize(30102))
@@ -190,48 +188,7 @@ def view_search():
     mode = MODE_VIDEO
     if result["type"] == "program":
       mode = MODE_PROGRAM
-    __create_dir_item(result["item"], mode)
-
-def __create_dir_item(article, mode):
-  """
-  Given an article and a mode; create directory item
-  for the article.
-  """
-  params = {}
-  params["mode"] = mode
-  params["url"] = article["url"]
-  folder = False
-  if mode == MODE_PROGRAM:
-    folder = True
-  info = None
-  if __is_geo_restricted(article):
-    logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
-    return
-  if not folder and __is_inappropriate_for_children(article):
-    logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
-    return
-  info = article["info"]
-  common.add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
-
-def __is_geo_restricted(program):
-  if program["onlyAvailableInSweden"] and \
-    helper.getSettingBool(S_HIDE_RESTRICTED_TO_SWEDEN):
-      return True
-  return False
-
-def __is_inappropriate_for_children(video_item):
-  """
-  Can only be validated on video list items.
-  """
-  if video_item["inappropriateForChildren"] and \
-    helper.getSettingBool(S_HIDE_INAPPROPRIATE_FOR_CHILDREN):
-      return True
-  return False
-
-def __add_next_page_item(next_page, section):
-  common.add_directory_item("Next page",
-                   {"page": next_page,
-                    "mode": section})
+    common.create_dir_item(result["item"], mode)
 
 def start_video(video_id):
   video_json = svt.getVideoJSON(video_id)

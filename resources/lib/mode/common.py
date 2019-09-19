@@ -1,6 +1,9 @@
 import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
+from resources.lib import helper
+from resources.lib import logging
+
 try:
   # Python 2
   from urllib import urlencode
@@ -9,7 +12,12 @@ except ImportError:
   from urllib.parse import urlencode
 
 class Common:
+    # Item types
     MODE_VIDEO = "video"
+    MODE_PROGRAM = "pr"
+    # Settings
+    S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"
+    S_HIDE_INAPPROPRIATE_FOR_CHILDREN = "inappropriateForChildren"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
         self.addon = addon
@@ -38,3 +46,48 @@ class Common:
         })
         url = self.plugin_url + '?' + urlencode(params)
         xbmcplugin.addDirectoryItem(self.plugin_handle, url, list_item, folder)
+
+    def create_dir_item(self, article, mode):
+        """
+        Given an article and a mode; create directory item
+        for the article.
+        """
+        params = {}
+        params["mode"] = mode
+        params["url"] = article["url"]
+        folder = False
+        if mode == self.MODE_PROGRAM:
+            folder = True
+        info = None
+        if self.is_geo_restricted(article):
+            logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
+            return
+        if not folder and self.is_inappropriate_for_children(article):
+            logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
+            return
+        info = article["info"]
+        self.add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
+
+    def is_geo_restricted(self, program):
+        if program["onlyAvailableInSweden"] and \
+            helper.getSettingBool(self.S_HIDE_RESTRICTED_TO_SWEDEN):
+            return True
+        return False
+
+    def is_inappropriate_for_children(self, video_item):
+        """
+        Can only be validated on video list items.
+        """
+        if video_item["inappropriateForChildren"] and \
+            helper.getSettingBool(self.S_HIDE_INAPPROPRIATE_FOR_CHILDREN):
+            return True
+        return False
+
+    def add_next_page_item(self, next_page, section):
+        self.add_directory_item(
+            "Next page", 
+            {
+                "page": next_page, 
+                "mode": section
+            }
+        )
