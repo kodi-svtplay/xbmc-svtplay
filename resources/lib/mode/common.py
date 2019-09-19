@@ -1,3 +1,4 @@
+from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
