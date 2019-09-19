@@ -14,6 +14,7 @@ import xbmcplugin # pylint: disable=import-error
 from resources.lib import helper
 from resources.lib import svt
 from resources.lib import logging
+from resources.lib.mode.common import Common
 
 try:
   # Python 2
@@ -58,16 +59,18 @@ DEFAULT_FANART = os.path.join(
   xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
   "background.png")
 
+common = Common(addon, sys.argv[0], PLUGIN_HANDLE, DEFAULT_FANART) 
+
 def view_start():
-  __add_directory_item(localize(30009), {"mode": MODE_POPULAR})
-  __add_directory_item(localize(30003), {"mode": MODE_LATEST})
-  __add_directory_item(localize(30004), {"mode": MODE_LATEST_NEWS})
-  __add_directory_item(localize(30010), {"mode": MODE_LAST_CHANCE})
-  __add_directory_item(localize(30002), {"mode": MODE_LIVE_PROGRAMS})
-  __add_directory_item(localize(30008), {"mode": MODE_CHANNELS})
-  __add_directory_item(localize(30000), {"mode": MODE_A_TO_O})
-  __add_directory_item(localize(30001), {"mode": MODE_CATEGORIES})
-  __add_directory_item(localize(30006), {"mode": MODE_SEARCH})
+  common.add_directory_item(localize(30009), {"mode": MODE_POPULAR})
+  common.add_directory_item(localize(30003), {"mode": MODE_LATEST})
+  common.add_directory_item(localize(30004), {"mode": MODE_LATEST_NEWS})
+  common.add_directory_item(localize(30010), {"mode": MODE_LAST_CHANCE})
+  common.add_directory_item(localize(30002), {"mode": MODE_LIVE_PROGRAMS})
+  common.add_directory_item(localize(30008), {"mode": MODE_CHANNELS})
+  common.add_directory_item(localize(30000), {"mode": MODE_A_TO_O})
+  common.add_directory_item(localize(30001), {"mode": MODE_CATEGORIES})
+  common.add_directory_item(localize(30006), {"mode": MODE_SEARCH})
 
 def view_a_to_z():
   programs = svt.getAtoO()
@@ -78,7 +81,7 @@ def view_alpha_directories():
   if not letters:
     return
   for letter in letters:
-    __add_directory_item(letter, {"mode": MODE_LETTER, "letter": letter.encode("utf-8")})
+    common.add_directory_item(letter, {"mode": MODE_LETTER, "letter": letter.encode("utf-8")})
 
 def view_programs_by_letter(letter):
   programs = svt.getProgramsByLetter(letter)
@@ -94,14 +97,14 @@ def __program_listing(programs):
     if program["type"] == "video":
       mode = MODE_VIDEO
       folder = False
-    __add_directory_item(program["title"],
+    common.add_directory_item(program["title"],
                 {"mode": mode, "url": program["url"]},
                 thumbnail=program["thumbnail"], folder=folder)
 
 def view_categories():
   categories = svt.getCategories()
   for category in categories:
-    __add_directory_item(category["title"],
+    common.add_directory_item(category["title"],
                 {"mode": MODE_CATEGORY, "url": category["genre"]})
 
 def view_section(section, page):
@@ -159,7 +162,7 @@ def __add_clip_dir_item(url):
   params = {}
   params["mode"] = MODE_CLIPS
   params["url"] = url
-  __add_directory_item(localize(30108), params)
+  common.add_directory_item(localize(30108), params)
 
 def view_clips(url):
   """
@@ -208,7 +211,7 @@ def __create_dir_item(article, mode):
     logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
     return
   info = article["info"]
-  __add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
+  common.add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
 
 def __is_geo_restricted(program):
   if program["onlyAvailableInSweden"] and \
@@ -226,7 +229,7 @@ def __is_inappropriate_for_children(video_item):
   return False
 
 def __add_next_page_item(next_page, section):
-  __add_directory_item("Next page",
+  common.add_directory_item("Next page",
                    {"page": next_page,
                     "mode": section})
 
@@ -256,28 +259,6 @@ def play_video(show_obj):
     player.setSubtitles(show_obj["subtitleUrl"])
     if not helper.getSetting(S_SHOW_SUBTITLES):
       player.showSubtitles(False)
-
-def __add_directory_item(title, params, thumbnail="", folder=True, live=False, info=None):
-  list_item = xbmcgui.ListItem(title)
-  if live:
-    list_item.setProperty("IsLive", "true")
-  if not folder and params["mode"] == MODE_VIDEO:
-      list_item.setProperty("IsPlayable", "true")
-  fanart = info.get("fanart", "") if info else DEFAULT_FANART
-  poster = info.get("poster", "") if info else ""
-  if info:
-    if "fanart" in info:
-      del info["fanart"] # Unsupported by ListItem
-    if "poster" in info:
-      del info["poster"] # Unsupported by ListItem
-    list_item.setInfo("video", info)
-  list_item.setArt({
-    "fanart": fanart,
-    "poster": poster if poster else thumbnail,
-    "thumb": thumbnail
-  })
-  url = sys.argv[0] + '?' + urlencode(params)
-  xbmcplugin.addDirectoryItem(PLUGIN_HANDLE, url, list_item, folder)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
