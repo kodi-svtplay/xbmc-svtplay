@@ -15,7 +15,7 @@ from resources.lib import helper
 from resources.lib import svt
 from resources.lib import logging
 from resources.lib.mode.common import Common
-
+from resources.lib.playback import Playback
 try:
   # Python 2
   from urllib import quote, urlencode, unquote_plus
@@ -42,7 +42,6 @@ MODE_VIEW_EPISODES = "view_episodes"
 MODE_VIEW_CLIPS = "view_clips"
 
 # settings keys
-S_SHOW_SUBTITLES = "showsubtitles"
 S_USE_ALPHA_CATEGORIES = "alpha"
 
 # plugin setup
@@ -57,7 +56,8 @@ DEFAULT_FANART = os.path.join(
   xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
   "background.png")
 
-common = Common(addon, sys.argv[0], PLUGIN_HANDLE, DEFAULT_FANART) 
+common = Common(addon, sys.argv[0], PLUGIN_HANDLE, DEFAULT_FANART)
+playback = Playback(PLUGIN_HANDLE)
 
 def view_start():
   common.add_directory_item(localize(30009), {"mode": MODE_POPULAR})
@@ -201,21 +201,10 @@ def start_video(video_id):
     logging.log("Could not decode JSON for "+video_id)
     return
   if show_obj["videoUrl"]:
-    play_video(show_obj)
+    playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None))
   else:
     dialog = xbmcgui.Dialog()
     dialog.ok("SVT Play", localize(30100))
-
-def play_video(show_obj):
-  player = xbmc.Player()
-  start_time = time.time()
-  xbmcplugin.setResolvedUrl(PLUGIN_HANDLE, True, xbmcgui.ListItem(path=show_obj["videoUrl"]))
-  if show_obj["subtitleUrl"]:
-    while not player.isPlaying() and time.time() - start_time < 10:
-      time.sleep(1.)
-    player.setSubtitles(show_obj["subtitleUrl"])
-    if not helper.getSetting(S_SHOW_SUBTITLES):
-      player.showSubtitles(False)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
