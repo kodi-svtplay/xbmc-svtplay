@@ -70,19 +70,15 @@ class Common:
         self.add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
 
     def is_geo_restricted(self, program):
-        if program["onlyAvailableInSweden"] and \
-            helper.getSettingBool(self.S_HIDE_RESTRICTED_TO_SWEDEN):
-            return True
-        return False
+        return program["onlyAvailableInSweden"] and \
+            helper.getSettingBool(self.S_HIDE_RESTRICTED_TO_SWEDEN)
 
     def is_inappropriate_for_children(self, video_item):
         """
         Can only be validated on video list items.
         """
-        if video_item["inappropriateForChildren"] and \
-            helper.getSettingBool(self.S_HIDE_INAPPROPRIATE_FOR_CHILDREN):
-            return True
-        return False
+        return video_item["inappropriateForChildren"] and \
+            helper.getSettingBool(self.S_HIDE_INAPPROPRIATE_FOR_CHILDREN)
 
     def add_next_page_item(self, next_page, section):
         self.add_directory_item(
