@@ -355,6 +355,7 @@ def __create_item_from_json(json_item):
   info["tagline"] = json_item.get("shortDescription", "")
   info["season"] = json_item.get("season", "")
   info["episode"] = json_item.get("episodeNumber", "")
+  info["dateadded"] = json_item.get("validFrom","2009-04-05 23:16:04")[:19]
   info["playcount"] = 0
   item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
   item["inappropriateForChildren"] = json_item.get("inappropriateForChildren", False)
