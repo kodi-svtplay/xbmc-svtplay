@@ -340,7 +340,7 @@ def getItems(section_name, page):
 
 def __create_item_from_json(json_item):
   item = {}
-  item["title"] = json_item["programTitle"]
+  item["title"] = json_item["title"]
   try:
     item["title"] = "{title} [COLOR gray](S{season}E{episode})[/COLOR]".format(title=item["title"], season=str(json_item["season"]), episode=str(json_item["episodeNumber"]))
   except KeyError:
