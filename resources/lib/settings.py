@@ -9,6 +9,7 @@ class Settings:
         self.alpha_program_listing = self.__get_setting("alpha")
         self.inappropriate_for_children = self.__get_setting("inappropriateForChildren")
         self.show_subtitles = self.__get_setting("showsubtitles")
+        self.kids_mode = self.__get_setting("kidsmode")
         logging.log("Current settings: {}".format(vars(self)))
 
     def __get_setting(self, setting):

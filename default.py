@@ -10,7 +10,7 @@ import xbmcplugin # pylint: disable=import-error
 # own imports
 from resources.lib import helper
 from resources.lib import logging
-from resources.lib.mode.normallist import NormalList
+from resources.lib.settings import Settings
 try:
   # Python 2
   from urllib import unquote_plus
@@ -26,12 +26,10 @@ xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_UNSORTED)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_LABEL)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_DATEADDED)
-
+settings = Settings(addon)
 DEFAULT_FANART = os.path.join(
   xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
   "background.png")
-
-normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
@@ -42,6 +40,13 @@ ARG_PAGE = ARG_PARAMS.get("page")
 if not ARG_PAGE:
   ARG_PAGE = "1"
 
-normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
+if settings.kids_mode:
+  from resources.lib.mode.kids import Kids
+  kids_mode = Kids(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
+  kids_mode.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
+else:
+  from resources.lib.mode.normallist import NormalList
+  normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
+  normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
 xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
