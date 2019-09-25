@@ -2,7 +2,6 @@ from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import re
 from resources.lib.mode.common import Common
-from resources.lib.playback import Playback
 from resources.lib import svt
 from resources.lib import logging
 from resources.lib import helper
@@ -29,11 +28,9 @@ class NormalList:
     MODE_CATEGORIES = "categories"
     MODE_LETTER = "letter"
     MODE_CATEGORY = "ti"
-    MODE_CLIPS = "clips"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
         self.common = Common(addon, plugin_url, plugin_handle, default_fanart)
-        self.playback = Playback(plugin_handle)
         self.localize = addon.getLocalizedString
 
     def route(self, mode, url, params, page):
@@ -50,8 +47,8 @@ class NormalList:
             self.view_category(url)
         elif mode == self.common.MODE_PROGRAM:
             self.view_episodes(url)
-            self.__add_clip_dir_item(url)
-        elif mode == self.MODE_CLIPS:
+            self.common.add_clip_dir_item(url)
+        elif mode == self.common.MODE_CLIPS:
             self.view_clips(url)
         elif mode == self.common.MODE_VIDEO:
             self.start_video(url)
@@ -169,37 +166,14 @@ class NormalList:
             self.common.create_dir_item(program, mode)
 
     def view_episodes(self, url):
-        """
-        Displays the episodes for a program
-        """
         logging.log("View episodes for {}".format(url))
         episodes = svt.getEpisodes(url.split("/")[-1])
-        if episodes is None:
-            logging.log("No episodes found")
-            return
-        for episode in episodes:
-            self.common.create_dir_item(episode, self.common.MODE_VIDEO)
-
-    def __add_clip_dir_item(self, url):
-        """
-        Adds the "Clips" directory item to a program listing.
-        """
-        params = {}
-        params["mode"] = self.MODE_CLIPS
-        params["url"] = url
-        self.common.add_directory_item(self.localize(30108), params)
+        self.common.view_episodes(episodes)
 
     def view_clips(self, url):
-        """
-        Displays the latest clips for a program
-        """
         logging.log("View clips for {}".format(url))
         clips = svt.getClips(url.split("/")[-1])
-        if not clips:
-            logging.log("No clips found")
-            return
-        for clip in clips:
-            self.common.create_dir_item(clip, self.common.MODE_VIDEO)
+        self.common.view_clips(clips)
 
     def view_search(self):
         keyword = helper.getInputFromKeyboard(self.localize(30102))
@@ -219,16 +193,5 @@ class NormalList:
 
     def start_video(self, video_id):
         video_json = svt.getVideoJSON(video_id)
-        if video_json is None:
-            logging.log("ERROR: Could not get video JSON")
-            return
-        try:
-            show_obj = helper.resolveShowJSON(video_json)
-        except ValueError:
-            logging.log("Could not decode JSON for "+video_id)
-            return
-        if show_obj["videoUrl"]:
-            self.playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None))
-        else:
-            dialog = xbmcgui.Dialog()
-            dialog.ok("SVT Play", self.localize(30100))
+        self.common.start_video(video_json)
+        

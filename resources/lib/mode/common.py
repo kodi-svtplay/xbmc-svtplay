@@ -2,6 +2,7 @@ from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
+from resources.lib.playback import Playback
 from resources.lib import helper
 from resources.lib import logging
 
@@ -16,15 +17,19 @@ class Common:
     # Item types
     MODE_VIDEO = "video"
     MODE_PROGRAM = "pr"
+    # Shared modes
+    MODE_CLIPS = "clips"
     # Settings
     S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"
     S_HIDE_INAPPROPRIATE_FOR_CHILDREN = "inappropriateForChildren"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
         self.addon = addon
+        self.localize = addon.getLocalizedString
         self.plugin_url = plugin_url
         self.plugin_handle = plugin_handle
         self.default_fanart = default_fanart
+        self.playback = Playback(plugin_handle)
 
     def add_directory_item(self, title, params, thumbnail="", folder=True, live=False, info=None):
         list_item = xbmcgui.ListItem(title)
@@ -88,3 +93,47 @@ class Common:
                 "mode": section
             }
         )
+    
+    def start_video(self, video_json):
+        if video_json is None:
+            logging.log("ERROR: Could not get video JSON")
+            return
+        try:
+            show_obj = helper.resolveShowJSON(video_json)
+        except ValueError:
+            logging.log("Could not decode JSON for {}".format(video_json))
+            return
+        if show_obj["videoUrl"]:
+            self.playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None))
+        else:
+            dialog = xbmcgui.Dialog()
+            dialog.ok("SVT Play", self.localize(30100))
+
+    def add_clip_dir_item(self, url):
+        """
+        Adds the "Clips" directory item to a program listing.
+        """
+        params = {}
+        params["mode"] = self.MODE_CLIPS
+        params["url"] = url
+        self.add_directory_item(self.localize(30108), params)
+
+    def view_episodes(self, episodes):
+        """
+        Displays the episodes for a program
+        """
+        if episodes is None:
+            logging.log("No episodes found")
+            return
+        for episode in episodes:
+            self.create_dir_item(episode, self.MODE_VIDEO)
+
+    def view_clips(self, clips):
+        """
+        Displays the latest clips for a program
+        """
+        if not clips:
+            logging.log("No clips found")
+            return
+        for clip in clips:
+            self.create_dir_item(clip, self.MODE_VIDEO)
