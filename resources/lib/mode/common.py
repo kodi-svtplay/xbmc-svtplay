@@ -3,6 +3,7 @@ import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
 from resources.lib.playback import Playback
+from resources.lib.settings import Settings
 from resources.lib import helper
 from resources.lib import logging
 
@@ -19,9 +20,6 @@ class Common:
     MODE_PROGRAM = "pr"
     # Shared modes
     MODE_CLIPS = "clips"
-    # Settings
-    S_HIDE_RESTRICTED_TO_SWEDEN = "hideonlysweden"
-    S_HIDE_INAPPROPRIATE_FOR_CHILDREN = "inappropriateForChildren"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
         self.addon = addon
@@ -30,6 +28,7 @@ class Common:
         self.plugin_handle = plugin_handle
         self.default_fanart = default_fanart
         self.playback = Playback(plugin_handle)
+        self.settings = Settings(addon)
 
     def add_directory_item(self, title, params, thumbnail="", folder=True, live=False, info=None):
         list_item = xbmcgui.ListItem(title)
@@ -76,14 +75,14 @@ class Common:
 
     def is_geo_restricted(self, program):
         return program["onlyAvailableInSweden"] and \
-            helper.getSetting(self.S_HIDE_RESTRICTED_TO_SWEDEN)
+            self.settings.geo_restriction
 
     def is_inappropriate_for_children(self, video_item):
         """
         Can only be validated on video list items.
         """
         return video_item["inappropriateForChildren"] and \
-            helper.getSetting(self.S_HIDE_INAPPROPRIATE_FOR_CHILDREN)
+            self.settings.inappropriate_for_children
 
     def add_next_page_item(self, next_page, section):
         self.add_directory_item(
@@ -104,7 +103,7 @@ class Common:
             logging.log("Could not decode JSON for {}".format(video_json))
             return
         if show_obj["videoUrl"]:
-            self.playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None))
+            self.playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None), self.settings.show_subtitles)
         else:
             dialog = xbmcgui.Dialog()
             dialog.ok("SVT Play", self.localize(30100))

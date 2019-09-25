@@ -2,6 +2,7 @@ from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import re
 from resources.lib.mode.common import Common
+from resources.lib.settings import Settings
 from resources.lib import svt
 from resources.lib import logging
 from resources.lib import helper
@@ -14,8 +15,6 @@ except ImportError:
   from urllib.parse import quote
 
 class NormalList:
-    # Settings
-    S_USE_ALPHA_CATEGORIES = "alpha"
     # List modes
     MODE_LIVE_PROGRAMS = "live"
     MODE_LATEST = "latest"
@@ -32,12 +31,13 @@ class NormalList:
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
         self.common = Common(addon, plugin_url, plugin_handle, default_fanart)
         self.localize = addon.getLocalizedString
+        self.settings = Settings(addon)
 
     def route(self, mode, url, params, page):
         if not mode:
             self.view_start()
         elif mode == self.MODE_A_TO_O:
-            if helper.getSetting(self.S_USE_ALPHA_CATEGORIES):
+            if self.settings.alpha_program_listing:
                 self.view_alpha_directories()
             else:
                 self.view_a_to_z()

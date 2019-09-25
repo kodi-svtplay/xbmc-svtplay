@@ -167,9 +167,6 @@ def cleanUrl(video_url):
         newparas.append(para)
   return tmp[0]+"&".join(newparas).replace("?&", "?")
 
-def getSetting(setting):
-  return addon.getSetting(setting) == "true"
-
 def __errorMsg(msg):
   logging.error(msg)
 
