@@ -25,6 +25,7 @@ addon = xbmcaddon.Addon("plugin.video.svtplay")
 xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_UNSORTED)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_LABEL)
+xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_DATEADDED)
 
 DEFAULT_FANART = os.path.join(
   xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
