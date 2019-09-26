@@ -12,7 +12,7 @@ except ImportError:
   # Python 3
   from urllib.parse import quote
 
-class SvtPlay:
+class Router:
     # List modes
     MODE_LIVE_PROGRAMS = "live"
     MODE_LATEST = "latest"
@@ -32,7 +32,7 @@ class SvtPlay:
         self.localize = addon.getLocalizedString
         self.settings = settings
 
-    def create_directory(self, mode, url, params, page):
+    def route(self, mode, url, params, page):
         if not mode:
             self.view_start()
         elif mode == self.MODE_A_TO_O:

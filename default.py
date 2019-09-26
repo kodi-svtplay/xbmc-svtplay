@@ -8,7 +8,7 @@ import xbmcplugin # pylint: disable=import-error
 
 from resources.lib import helper
 from resources.lib import logging
-from resources.lib.listing.svtplay import SvtPlay
+from resources.lib.listing.router import Router
 from resources.lib.settings import Settings
 
 # plugin setup
@@ -36,11 +36,11 @@ if not ARG_PAGE:
 
 if settings.kids_mode and not ARG_PARAMS:
   logging.log("Kids mode, redirecting to genre Barn")
-  ARG_MODE = SvtPlay.MODE_CATEGORY
+  ARG_MODE = Router.MODE_CATEGORY
   ARG_URL = "barn"
 
-svt_play = SvtPlay(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
-svt_play.create_directory(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
+router = Router(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
+router.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
 cacheToDisc = True
 if not ARG_PARAMS:
