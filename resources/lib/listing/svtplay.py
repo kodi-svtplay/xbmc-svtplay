@@ -1,5 +1,4 @@
 from __future__ import absolute_import,unicode_literals
-import xbmcgui # pylint: disable=import-error
 import re
 from resources.lib.listing.common import Common
 from resources.lib import svt
