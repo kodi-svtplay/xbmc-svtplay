@@ -2,7 +2,6 @@
 from __future__ import absolute_import,unicode_literals
 import os
 import sys
-import urllib
 import xbmc # pylint: disable=import-error
 import xbmcaddon # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
