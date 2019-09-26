@@ -37,9 +37,6 @@ class SvtPlay:
             logging.log("Kids mode, redirecting to genre Barn")
             self.arg_mode = Router.MODE_CATEGORY
             self.arg_url = "barn"
-            # Try set viewtype poster for the default Kodi skin
-            # as it is more fun for the top-level listing.
-            xbmc.executebuiltin("Container.SetViewMode(51)")
 
         router = Router(self.addon, self.plugin_url, self.plugin_handle, self.default_fanart, self.settings)
         router.route(self.arg_mode, self.arg_url, self.arg_params, int(self.arg_page))
