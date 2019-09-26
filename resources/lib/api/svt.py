@@ -5,8 +5,8 @@ import re
 import requests
 import time
 # own imports
-from . import logging
-from . import helper
+from resources.lib import logging
+from resources.lib import helper
 
 try:
   # Python 2

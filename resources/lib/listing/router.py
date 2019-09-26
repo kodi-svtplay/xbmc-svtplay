@@ -1,7 +1,7 @@
 from __future__ import absolute_import,unicode_literals
 import re
 from resources.lib.listing.common import Common
-from resources.lib import svt
+from resources.lib.api import svt
 from resources.lib import logging
 from resources.lib import helper
 
