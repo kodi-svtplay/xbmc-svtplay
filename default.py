@@ -14,6 +14,7 @@ from resources.lib.settings import Settings
 # plugin setup
 PLUGIN_HANDLE = int(sys.argv[1])
 PLUGIN_URL = sys.argv[0]
+PLUGIN_PARAMS = sys.argv[2]
 addon = xbmcaddon.Addon("plugin.video.svtplay")
 settings = Settings(addon)
 xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
@@ -25,7 +26,7 @@ DEFAULT_FANART = os.path.join(
   "background.png")
 
 # Main segment of script
-ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
+ARG_PARAMS = helper.getUrlParameters(PLUGIN_PARAMS)
 logging.log("Addon params: {}".format(ARG_PARAMS))
 ARG_MODE = ARG_PARAMS.get("mode")
 ARG_URL = ARG_PARAMS.get("url", "")
