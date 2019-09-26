@@ -2,7 +2,6 @@ from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import re
 from resources.lib.mode.common import Common
-from resources.lib.settings import Settings
 from resources.lib import svt
 from resources.lib import logging
 from resources.lib import helper
@@ -28,11 +27,11 @@ class NormalList:
     MODE_LETTER = "letter"
     MODE_CATEGORY = "ti"
 
-    def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
+    def __init__(self, addon, plugin_url, plugin_handle, default_fanart, settings):
         logging.log("Starting normal listing mode")
-        self.common = Common(addon, plugin_url, plugin_handle, default_fanart)
+        self.common = Common(addon, plugin_url, plugin_handle, default_fanart, settings)
         self.localize = addon.getLocalizedString
-        self.settings = Settings(addon)
+        self.settings = settings
 
     def route(self, mode, url, params, page):
         if not mode:

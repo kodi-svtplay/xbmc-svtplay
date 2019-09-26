@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# system imports
 from __future__ import absolute_import,unicode_literals
 import os
 import sys
@@ -7,10 +6,11 @@ import urllib
 import xbmc # pylint: disable=import-error
 import xbmcaddon # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
-# own imports
+
 from resources.lib import helper
 from resources.lib import logging
 from resources.lib.settings import Settings
+
 try:
   # Python 2
   from urllib import unquote_plus
@@ -42,11 +42,11 @@ if not ARG_PAGE:
 
 if settings.kids_mode:
   from resources.lib.mode.kids import Kids
-  kids_mode = Kids(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
+  kids_mode = Kids(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
   kids_mode.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 else:
   from resources.lib.mode.normallist import NormalList
-  normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
+  normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
   normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
 cacheToDisc = True

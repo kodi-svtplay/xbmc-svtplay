@@ -3,7 +3,6 @@ import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
 from resources.lib.playback import Playback
-from resources.lib.settings import Settings
 from resources.lib import helper
 from resources.lib import logging
 
@@ -21,14 +20,14 @@ class Common:
     # Shared modes
     MODE_CLIPS = "clips"
 
-    def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
+    def __init__(self, addon, plugin_url, plugin_handle, default_fanart, settings):
         self.addon = addon
         self.localize = addon.getLocalizedString
         self.plugin_url = plugin_url
         self.plugin_handle = plugin_handle
         self.default_fanart = default_fanart
         self.playback = Playback(plugin_handle)
-        self.settings = Settings(addon)
+        self.settings = settings
 
     def add_directory_item(self, title, params, thumbnail="", folder=True, live=False, info=None):
         list_item = xbmcgui.ListItem(title)
