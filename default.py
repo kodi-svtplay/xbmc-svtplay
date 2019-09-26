@@ -9,6 +9,7 @@ import xbmcplugin # pylint: disable=import-error
 
 from resources.lib import helper
 from resources.lib import logging
+from resources.lib.mode.normallist import NormalList
 from resources.lib.settings import Settings
 
 # plugin setup
@@ -33,14 +34,13 @@ ARG_PAGE = ARG_PARAMS.get("page")
 if not ARG_PAGE:
   ARG_PAGE = "1"
 
-if settings.kids_mode:
-  from resources.lib.mode.kids import Kids
-  kids_mode = Kids(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
-  kids_mode.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
-else:
-  from resources.lib.mode.normallist import NormalList
-  normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
-  normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
+if settings.kids_mode and not ARG_PARAMS:
+  ARG_MODE = NormalList.MODE_CATEGORY
+  ARG_URL = "barn"
+  logging.log("Redirect to genre Barn")
+
+normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
+normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
 cacheToDisc = True
 if not ARG_PARAMS:
