@@ -49,4 +49,9 @@ else:
   normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART)
   normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
-xbmcplugin.endOfDirectory(PLUGIN_HANDLE)
+cacheToDisc = True
+if not ARG_PARAMS:
+  # The top-level menu should not be cached as it will prevent
+  # Kids mode to take effect when toggled on.
+  cacheToDisc = False
+xbmcplugin.endOfDirectory(PLUGIN_HANDLE, cacheToDisc=cacheToDisc)
