@@ -6,6 +6,7 @@ from resources.lib.mode.common import Common
 class Kids:
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
+        logging.log("Starting Kids mode")
         self.common = Common(addon, plugin_url, plugin_handle, default_fanart)
 
     def route(self, mode, url, params, page):

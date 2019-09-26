@@ -29,6 +29,7 @@ class NormalList:
     MODE_CATEGORY = "ti"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart):
+        logging.log("Starting normal listing mode")
         self.common = Common(addon, plugin_url, plugin_handle, default_fanart)
         self.localize = addon.getLocalizedString
         self.settings = Settings(addon)
