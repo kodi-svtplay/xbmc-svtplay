@@ -3,8 +3,7 @@ from __future__ import absolute_import,unicode_literals
 import datetime
 import json
 import re
-import xbmcaddon # pylint: disable=import-error
-import xbmc # pylint: disable=import-error
+from xbmc import Keyboard # pylint: disable=import-error
 
 from . import logging
 
@@ -72,7 +71,7 @@ def prepareThumb(thumbUrl, baseUrl):
   return thumbUrl
 
 def getInputFromKeyboard(heading):
-    keyboard = xbmc.Keyboard(heading=heading)
+    keyboard = Keyboard(heading=heading)
     keyboard.doModal()
 
     if keyboard.isConfirmed():
