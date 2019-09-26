@@ -33,7 +33,7 @@ DEFAULT_FANART = os.path.join(
 
 # Main segment of script
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
-logging.log("params: {}".format(ARG_PARAMS))
+logging.log("Addon params: {}".format(ARG_PARAMS))
 ARG_MODE = ARG_PARAMS.get("mode")
 ARG_URL = unquote_plus(ARG_PARAMS.get("url", ""))
 ARG_PAGE = ARG_PARAMS.get("page")
