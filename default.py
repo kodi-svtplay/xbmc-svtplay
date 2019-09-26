@@ -9,18 +9,18 @@ import xbmcplugin # pylint: disable=import-error
 
 from resources.lib import helper
 from resources.lib import logging
-from resources.lib.mode.normallist import NormalList
+from resources.lib.listing.svtplay import SvtPlay
 from resources.lib.settings import Settings
 
 # plugin setup
 PLUGIN_HANDLE = int(sys.argv[1])
 PLUGIN_URL = sys.argv[0]
 addon = xbmcaddon.Addon("plugin.video.svtplay")
+settings = Settings(addon)
 xbmcplugin.setContent(PLUGIN_HANDLE, "tvshows")
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_UNSORTED)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_LABEL)
 xbmcplugin.addSortMethod(PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_DATEADDED)
-settings = Settings(addon)
 DEFAULT_FANART = os.path.join(
   xbmc.translatePath(addon.getAddonInfo("path") + "/resources/images/"),
   "background.png")
@@ -35,12 +35,12 @@ if not ARG_PAGE:
   ARG_PAGE = "1"
 
 if settings.kids_mode and not ARG_PARAMS:
-  ARG_MODE = NormalList.MODE_CATEGORY
+  logging.log("Kids mode, redirecting to genre Barn")
+  ARG_MODE = SvtPlay.MODE_CATEGORY
   ARG_URL = "barn"
-  logging.log("Redirect to genre Barn")
 
-normal_listing = NormalList(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
-normal_listing.route(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
+svt_play = SvtPlay(addon, PLUGIN_URL, PLUGIN_HANDLE, DEFAULT_FANART, settings)
+svt_play.create_directory(ARG_MODE, ARG_URL, ARG_PARAMS, int(ARG_PAGE))
 
 cacheToDisc = True
 if not ARG_PARAMS:

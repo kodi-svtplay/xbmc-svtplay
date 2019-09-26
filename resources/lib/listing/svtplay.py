@@ -1,7 +1,7 @@
 from __future__ import absolute_import,unicode_literals
 import xbmcgui # pylint: disable=import-error
 import re
-from resources.lib.mode.common import Common
+from resources.lib.listing.common import Common
 from resources.lib import svt
 from resources.lib import logging
 from resources.lib import helper
@@ -13,7 +13,7 @@ except ImportError:
   # Python 3
   from urllib.parse import quote
 
-class NormalList:
+class SvtPlay:
     # List modes
     MODE_LIVE_PROGRAMS = "live"
     MODE_LATEST = "latest"
@@ -33,7 +33,7 @@ class NormalList:
         self.localize = addon.getLocalizedString
         self.settings = settings
 
-    def route(self, mode, url, params, page):
+    def create_directory(self, mode, url, params, page):
         if not mode:
             self.view_start()
         elif mode == self.MODE_A_TO_O:
