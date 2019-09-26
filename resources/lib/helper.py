@@ -15,15 +15,16 @@ try:
   from urlparse import urljoin
   from urllib import urlopen
   from urllib import unquote
+  from urllib import unquote_plus
 except ImportError:
   # Python 3
   from urllib.parse import parse_qs
   from urllib.parse import urlparse
   from urllib.parse import urljoin
-  from urllib.parse import unquote
   from urllib.request import urlopen
+  from urllib.parse import unquote
+  from urllib.parse import unquote_plus
 
-addon = xbmcaddon.Addon("plugin.video.svtplay")
 THUMB_SIZE = "extralarge"
 
 def getUrlParameters(arguments):
@@ -46,6 +47,8 @@ def getUrlParameters(arguments):
     split = pair.split("=")
     if len(split) == 2:
       params[split[0]] = split[1]
+  if "url" in params:
+    params["url"] = unquote_plus(params["url"])
   return params
 
 def prepareImgUrl(url, baseUrl):

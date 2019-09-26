@@ -11,13 +11,6 @@ from resources.lib import helper
 from resources.lib import logging
 from resources.lib.settings import Settings
 
-try:
-  # Python 2
-  from urllib import unquote_plus
-except ImportError:
-  # Python 3
-  from urllib.parse import unquote_plus
-
 # plugin setup
 PLUGIN_HANDLE = int(sys.argv[1])
 PLUGIN_URL = sys.argv[0]
@@ -35,7 +28,7 @@ DEFAULT_FANART = os.path.join(
 ARG_PARAMS = helper.getUrlParameters(sys.argv[2])
 logging.log("Addon params: {}".format(ARG_PARAMS))
 ARG_MODE = ARG_PARAMS.get("mode")
-ARG_URL = unquote_plus(ARG_PARAMS.get("url", ""))
+ARG_URL = ARG_PARAMS.get("url", "")
 ARG_PAGE = ARG_PARAMS.get("page")
 if not ARG_PAGE:
   ARG_PAGE = "1"
