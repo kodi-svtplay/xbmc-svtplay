@@ -37,7 +37,6 @@ def getUrlParameters(arguments):
   except AttributeError:
     # Python 3 str is already unicode and needs no decode
     pass
-  logging.log("getUrlParameters: {}".format(arguments))
   if not arguments:
     return {}
   params = {}
