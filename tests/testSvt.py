@@ -6,7 +6,7 @@ import unittest
 # Manipulate path first to add stubs
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/lib")
 
-import resources.lib.svt as svt
+from resources.lib.api import svt
 
 class TestSvtModule(unittest.TestCase):
 

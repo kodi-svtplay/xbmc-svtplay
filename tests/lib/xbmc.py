@@ -37,3 +37,14 @@ class PlayList:
 
   def dump(self):
     return str(self.__items)
+
+class Keyboard:
+
+  def __init__(self, heading):
+    pass
+
+  def doModal(self):
+    pass
+
+  def getText(self):
+    pass
