@@ -71,11 +71,11 @@ def getLatestNews():
       url = __get_video_version(versions)
     program = {
       "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
-      "thumbnail" : helper.prepareThumb(thumbnail, baseUrl=PLAY_BASE_URL),
+      "thumbnail" : helper.get_thumb_url(thumbnail, baseUrl=PLAY_BASE_URL),
       "url" : url,
       "info" : { 
         "duration" : item.get("materialLength", 0), 
-        "fanart" : helper.prepareFanart(item.get("poster", ""), baseUrl=PLAY_BASE_URL)
+        "fanart" : helper.get_fanart_url(item.get("poster", ""), baseUrl=PLAY_BASE_URL)
       },
       "onlyAvailableInSweden": item.get("onlyAvailableInSweden", False),
       "inappropriateForChildren": item.get("inappropriateForChildren", False),
@@ -101,9 +101,9 @@ def getProgramsForGenre(genre):
       content_type = "program"
     title = json_item["programTitle"]
     plot = json_item.get("description", "")
-    thumbnail = helper.prepareThumb(json_item.get("thumbnail", ""), PLAY_BASE_URL)
+    thumbnail = helper.get_thumb_url(json_item.get("thumbnail", ""), PLAY_BASE_URL)
     if not thumbnail:
-      thumbnail = helper.prepareThumb(json_item.get("poster", ""), PLAY_BASE_URL)
+      thumbnail = helper.get_thumb_url(json_item.get("poster", ""), PLAY_BASE_URL)
     info = {"plot": plot, "thumbnail": thumbnail, "fanart": thumbnail}
     programs.append({
       "title": title,
@@ -207,16 +207,16 @@ def getSearchResults(search_term):
       item_type = "video"
       item["url"] = result["id"]
       item["title"] = unescape(result["title"])
-      item["thumbnail"] = helper.prepareThumb(result.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
+      item["thumbnail"] = helper.get_thumb_url(result.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
     elif result_type == "SERIES_OR_TV_SHOW":
       item["title"] = unescape(result["programTitle"] + " - " + result["title"])
-      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
+      item["thumbnail"] = helper.get_thumb_url(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
       item["info"] = {}
       item["info"]["plot"] = result.get("description", "")
     else:
       # MOVIE and folder
       item["title"] = unescape(result["programTitle"])
-      item["thumbnail"] = helper.prepareThumb(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
+      item["thumbnail"] = helper.get_thumb_url(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
     item["info"] = {}
     item["info"]["plot"] = result.get("description", "")
     item["onlyAvailableInSweden"] = result.get("onlyAvailableInSweden", False)
@@ -299,7 +299,7 @@ def getClips(slug):
     clip = {}
     clip["title"] = item["title"]
     clip["url"] = str(item["id"])
-    clip["thumbnail"] = helper.prepareThumb(item.get("thumbnail", ""), PLAY_BASE_URL)
+    clip["thumbnail"] = helper.get_thumb_url(item.get("thumbnail", ""), PLAY_BASE_URL)
     info = {}
     info["title"] = clip["title"]
     info["plot"] = item.get("description", "")
@@ -346,10 +346,10 @@ def __create_item_from_json(json_item):
   except KeyError:
     # Suppress
     pass
-  item["thumbnail"] = helper.prepareThumb(json_item.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
+  item["thumbnail"] = helper.get_thumb_url(json_item.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
   info = {}
   info["title"] = item["title"]
-  info["poster"] = helper.prepareFanart(json_item.get("poster", ""), PLAY_BASE_URL)
+  info["poster"] = helper.get_fanart_url(json_item.get("poster", ""), PLAY_BASE_URL)
   info["plot"] = json_item.get("description", "")
   info["duration"] = json_item.get("materialLength", 0)
   info["tagline"] = json_item.get("shortDescription", "")
@@ -360,7 +360,7 @@ def __create_item_from_json(json_item):
   item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
   item["inappropriateForChildren"] = json_item.get("inappropriateForChildren", False)
   try:
-    info["fanart"] = helper.prepareFanart(json_item["poster"], baseUrl=PLAY_BASE_URL)
+    info["fanart"] = helper.get_fanart_url(json_item["poster"], baseUrl=PLAY_BASE_URL)
   except KeyError:
     pass
   item["info"] = info

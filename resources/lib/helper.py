@@ -24,8 +24,6 @@ except ImportError:
   from urllib.parse import unquote
   from urllib.parse import unquote_plus
 
-THUMB_SIZE = "extralarge"
-
 def getUrlParameters(arguments):
   """
   Return URL parameters as a dict from a query string
@@ -50,7 +48,29 @@ def getUrlParameters(arguments):
     params["url"] = unquote_plus(params["url"])
   return params
 
-def prepareImgUrl(url, baseUrl):
+def getInputFromKeyboard(heading):
+  keyboard = Keyboard(heading=heading)
+  keyboard.doModal()
+
+  if keyboard.isConfirmed():
+      text = keyboard.getText()
+
+  return text
+
+def get_thumb_url(thumbUrl, baseUrl):
+  return __create_image_url(thumbUrl, baseUrl, "extralarge")
+
+def get_fanart_url(fanartUrl, baseUrl):
+  return __create_image_url(fanartUrl, baseUrl, "extralarge_imax")
+
+def __create_image_url(image_url, base_url, image_size):
+  if not image_url:
+    return ""
+  image_url = __clean_image_url(image_url, base_url)
+  image_url = re.sub(r"\{format\}|small|medium|large|extralarge", image_size, image_url)
+  return image_url
+
+def __clean_image_url(url, baseUrl):
   if url.startswith("//"):
     url = url.lstrip("//")
     url = "http://" + url
@@ -59,35 +79,6 @@ def prepareImgUrl(url, baseUrl):
   # Kodi has issues fetching images over SSL
   url = url.replace("https", "http")
   return url
-
-def prepareThumb(thumbUrl, baseUrl):
-  """
-  Returns a thumbnail with size THUMB_SIZE
-  """
-  if not thumbUrl:
-    return ""
-  thumbUrl = prepareImgUrl(thumbUrl, baseUrl)
-  thumbUrl = re.sub(r"\{format\}|small|medium|large|extralarge", THUMB_SIZE, thumbUrl)
-  return thumbUrl
-
-def getInputFromKeyboard(heading):
-    keyboard = Keyboard(heading=heading)
-    keyboard.doModal()
-
-    if keyboard.isConfirmed():
-        text = keyboard.getText()
-
-    return text
-
-def prepareFanart(fanartUrl, baseUrl):
-  """
-  Returns a fanart image URL.
-  """
-  if not fanartUrl:
-    return ""
-  fanartUrl = prepareImgUrl(fanartUrl, baseUrl)
-  fanartUrl = re.sub(r"\{format\}|small|medium|large|extralarge", "extralarge_imax", fanartUrl)
-  return fanartUrl
 
 def getVideoURL(json_obj):
   """
