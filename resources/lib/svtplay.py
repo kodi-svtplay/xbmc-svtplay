@@ -13,7 +13,7 @@ from resources.lib import helper
 class SvtPlay:
 
     def __init__(self, plugin_handle, plugin_url, plugin_params):
-        self.addon = xbmcaddon.Addon("plugin.video.svtplay")
+        self.addon = xbmcaddon.Addon()
         self.settings = Settings(self.addon)
         self.plugin_url = plugin_url
         self.plugin_handle = plugin_handle
