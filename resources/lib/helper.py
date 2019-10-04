@@ -24,7 +24,7 @@ except ImportError:
   from urllib.parse import unquote
   from urllib.parse import unquote_plus
 
-def getUrlParameters(arguments):
+def get_url_parameters(arguments):
   """
   Return URL parameters as a dict from a query string
   """

@@ -23,5 +23,11 @@ class TestHelperModule(unittest.TestCase):
         actual_url = helper.get_fanart_url(input_url, base_url)
         self.assertEqual(actual_url, expected_url)
 
+    def test_get_url_parameters(self):
+        url = "plugin://plugin.video.svtplay?url=http%3A%2F%2Fstream.video%2F%C3%A4.m3u8&mode=video"
+        actual = helper.get_url_parameters(url)
+        expected = { "url" : "http://stream.video/ä.m3u8", "mode" : "video"}
+        self.assertDictEqual(actual, expected)
+
 if __name__ == "__main__":
   unittest.main()

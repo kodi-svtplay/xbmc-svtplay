@@ -24,7 +24,7 @@ class SvtPlay:
         self.default_fanart = os.path.join(
             xbmc.translatePath(self.addon.getAddonInfo("path") + "/resources/images/"),
             "background.png")
-        self.arg_params = helper.getUrlParameters(plugin_params)
+        self.arg_params = helper.get_url_parameters(plugin_params)
         logging.log("Addon params: {}".format(self.arg_params))
         self.arg_mode = self.arg_params.get("mode")
         self.arg_url = self.arg_params.get("url", "")
