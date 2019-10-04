@@ -10,43 +10,29 @@ from . import logging
 try:
   # Python 2
   from urlparse import parse_qs
+  from urlparse import parse_qsl
   from urlparse import urlparse
   from urlparse import urljoin
+  from urlparse import urlsplit
   from urllib import urlopen
   from urllib import unquote
   from urllib import unquote_plus
 except ImportError:
   # Python 3
   from urllib.parse import parse_qs
+  from urllib.parse import parse_qsl
   from urllib.parse import urlparse
   from urllib.parse import urljoin
+  from urllib.parse import urlsplit
   from urllib.request import urlopen
   from urllib.parse import unquote
   from urllib.parse import unquote_plus
 
-def get_url_parameters(arguments):
+def get_url_parameters(url):
   """
   Return URL parameters as a dict from a query string
   """
-  arguments = unquote(arguments)
-  try:
-    # Python 2 arguments is a byte string and needs to be decoded
-    arguments = arguments.decode("utf-8")
-  except AttributeError:
-    # Python 3 str is already unicode and needs no decode
-    pass
-  if not arguments:
-    return {}
-  params = {}
-  start = arguments.find("?") + 1
-  pairs = arguments[start:].split("&")
-  for pair in pairs:
-    split = pair.split("=")
-    if len(split) == 2:
-      params[split[0]] = split[1]
-  if "url" in params:
-    params["url"] = unquote_plus(params["url"])
-  return params
+  return dict(parse_qsl(urlsplit(url).query))
 
 def getInputFromKeyboard(heading):
   keyboard = Keyboard(heading=heading)
