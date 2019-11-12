@@ -2,6 +2,7 @@ from __future__ import absolute_import,unicode_literals
 import re
 from resources.lib.listing.common import Common
 from resources.lib.api import svt
+from resources.lib.api.graphql import GraphQL
 from resources.lib import logging
 from resources.lib import helper
 
@@ -28,6 +29,7 @@ class Router:
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart, settings):
         logging.log("Starting normal listing mode")
+        self.graphql = GraphQL()
         self.common = Common(addon, plugin_url, plugin_handle, default_fanart, settings)
         self.localize = addon.getLocalizedString
         self.settings = settings
@@ -77,7 +79,7 @@ class Router:
         self.common.add_directory_item(self.localize(30006), {"mode": self.MODE_SEARCH})
 
     def view_a_to_z(self):
-        programs = svt.getAtoO()
+        programs = self.graphql.getAtoO()
         self.__program_listing(programs)
 
     def view_alpha_directories(self):
@@ -94,7 +96,7 @@ class Router:
             )
 
     def view_programs_by_letter(self, letter):
-        programs = svt.getProgramsByLetter(letter)
+        programs = self.graphql.getProgramsByLetter(letter)
         self.__program_listing(programs)
 
     def __program_listing(self, programs):
