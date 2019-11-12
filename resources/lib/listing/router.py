@@ -185,12 +185,12 @@ class Router:
         logging.log("Search string: " + keyword)
         keyword = re.sub(r" ", "+", keyword)
         keyword = keyword.strip()
-        results = svt.getSearchResults(keyword)
+        results = self.graphql.getSearchResults(keyword)
         for result in results:
             mode = self.common.MODE_VIDEO
             if result["type"] == "program":
                 mode = self.common.MODE_PROGRAM
-            self.common.create_dir_item(result["item"], mode)
+            self.common.create_dir_item(result, mode)
 
     def start_video(self, video_id):
         video_json = svt.getVideoJSON(video_id)
