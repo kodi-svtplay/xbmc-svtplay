@@ -70,14 +70,6 @@ class TestSvtModule(unittest.TestCase):
     items = svt.getLatestNews()
     self.assertHasContent(items)
 
-  def test_get_episodes(self):
-    slug = "agenda"
-    articles = svt.getEpisodes(slug)
-    self.assertHasContentStrict(articles)
-    for article in articles:
-      for key in article.keys():
-        self.assertHasContent(article[key])
-
   def test_get_clips(self):
     slug = "sportnytt"
     articles = svt.getClips(slug)

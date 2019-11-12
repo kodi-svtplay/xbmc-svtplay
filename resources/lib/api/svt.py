@@ -229,32 +229,6 @@ def getChannels():
 
   return items
 
-def getEpisodes(slug):
-  """
-  Returns the episodes for a slug
-  """
-  title_data = __get_title_for_slug(slug)
-  if title_data is None:
-    return None
-  article_id = title_data["articleId"]
-  api_action = "title_episodes_by_article_id?articleId={}".format(str(article_id))
-  json_data = __get_json(api_action)
-  if json_data is None:
-    return None
-  programs = []
-  for json_item in json_data:
-    versions = json_item.get("versions", [])
-    url = ""
-    if versions:
-      url = __get_video_version(versions)
-    if url is None or not versions:
-      logging.log("No video versions found for {}, skipping item!".format(json_item["title"]))
-      continue
-    item = __create_item_from_json(json_item)
-    item["url"] = url
-    programs.append(item)
-  return programs
-
 def getClips(slug):
   """
   Returns the clips for a slug.
