@@ -22,13 +22,6 @@ class TestSvtModule(unittest.TestCase):
     if len(list) < 1:
       self.fail("List is empty")
 
-  def test_alphabetic(self):
-    programs = svt.getAtoO()
-    self.assertHasContent(programs)
-    for program in programs:
-      for key in program.keys():
-        self.assertIsNotNone(program[key])
-
   def test_get_categories(self):
     categories = svt.getCategories()
     self.assertHasContentStrict(categories)
@@ -55,14 +48,6 @@ class TestSvtModule(unittest.TestCase):
   def test_get_alphas(self):
     alphas = svt.getAlphas()
     self.assertHasContentStrict(alphas)
-
-  def test_get_programs_by_letter(self):
-    letter = u'A' # "A" should always have programs...
-    programs = svt.getProgramsByLetter(letter)
-    self.assertHasContentStrict(programs)
-    for program in programs:
-      for key in program.keys():
-        self.assertIsNotNone(program[key])
 
   def test_search_results(self):
     search_term = "agenda"
@@ -100,12 +85,6 @@ class TestSvtModule(unittest.TestCase):
     for article in articles:
       for key in article.keys():
         self.assertHasContent(article[key])
-
-  def test_get_a_to_o(self):
-    items = svt.getAtoO()
-    for item in items:
-      for key in item.keys():
-        self.assertHasContent(item[key])
 
   def test_get_latest_items(self):
     (items, _) = svt.getItems("latest", 1)

@@ -24,18 +24,6 @@ PLAY_API_URL = PLAY_BASE_URL+"/api/"
 SVT_API_BASE_URL = "https://api.svt.se/"
 VIDEO_API_URL= SVT_API_BASE_URL+"videoplayer-api/video/"
 
-def getAtoO():
-  """
-  Returns a list of all items, sorted A-Z.
-  """
-  json_data = __get_json("all_titles_and_singles")
-  if json_data is None:
-    return None
-  items = []
-  for title in json_data:
-    items.append(__create_item_by_title(title))
-  return sorted(items, key=lambda item: item["title"])
-
 def getCategories():
   """
   Returns a list of all categories.
@@ -154,21 +142,6 @@ def getAlphas():
   alphas.append("Ö")
   alphas.append("0-9")
   return alphas
-
-def getProgramsByLetter(letter):
-  """
-  Returns a list of all program starting with the supplied letter.
-  """
-  logging.log("getProgramsByLetter: {}".format(letter))
-  json_data = __get_json("all_titles_and_singles")
-  if json_data is None:
-    return None
-  pattern = "^[{}]".format(letter.upper())
-  items = []
-  for title in json_data:
-    if re.search(pattern, title["programTitle"]):
-      items.append(__create_item_by_title(title))
-  return items
 
 def __create_item_by_title(title):
   item = {}
