@@ -57,6 +57,20 @@ class GraphQL:
         item["type"] = "video"
       return item
 
+    def getCategories(self):
+      operation_name = "AllGenres"
+      query_hash = "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c"
+      json_data = self.__get(operation_name, query_hash)
+      if not json_data:
+        return None
+      genres = []
+      for item in json_data["data"]["genresSortedByName"]["genres"]:
+        genre = {}
+        genre["title"] = item["name"]
+        genre["genre"] = item["id"]
+        genres.append(genre)
+      return genres
+      
     def __get(self, operation_name, query_hash="", vars = {}):
       base_url = "https://api.svt.se/contento/graphql"
       param_ua = "svtplaywebb-play-render-prod-client"
@@ -69,5 +83,6 @@ class GraphQL:
       logging.log("GraphQL request: {}".format(url))
       response = requests.get(url)
       if response.status_code != 200:
+        logging.error("Request to failed, url: {}".format(url))
         return None
       return response.json()

@@ -10,12 +10,21 @@ from resources.lib.api import graphql
 
 class TestGraphQLModule(unittest.TestCase):
 
+    def assertItems(self, items):
+        self.assertIsNotNone(items)
+        self.assertTrue(items)
+
     def test_getAtoO(self):
         sut = graphql.GraphQL()
         items = sut.getAtoO()
-        self.assertIsNotNone(items)
+        self.assertItems(items)
 
     def test_getProgramsByLetter(self):
         sut = graphql.GraphQL()
         items = sut.getProgramsByLetter("A")
-        self.assertIsNotNone(items)
+        self.assertItems(items)
+
+    def test_getCategories(self):
+        sut = graphql.GraphQL()
+        items = sut.getCategories()
+        self.assertItems(items)
