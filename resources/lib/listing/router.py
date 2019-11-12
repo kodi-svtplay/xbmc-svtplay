@@ -149,7 +149,7 @@ class Router:
             self.common.create_dir_item(channel, self.common.MODE_VIDEO)
 
     def view_latest_news(self ):
-        items = svt.getLatestNews()
+        items = self.graphql.getLatestNews()
         if not items:
             return
         for item in items:
