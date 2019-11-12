@@ -48,7 +48,6 @@ class Router:
             self.view_category(url)
         elif mode == self.common.MODE_PROGRAM:
             self.view_episodes(url)
-            self.common.add_clip_dir_item(url)
         elif mode == self.common.MODE_CLIPS:
             self.view_clips(url)
         elif mode == self.common.MODE_VIDEO:
@@ -167,8 +166,9 @@ class Router:
             self.common.create_dir_item(program, mode)
 
     def view_episodes(self, url):
-        logging.log("View episodes for {}".format(url))
-        episodes = svt.getEpisodes(url.split("/")[-1])
+        slug = url.split("/")[-1]
+        logging.log("View episodes for {}".format(slug))
+        episodes = self.graphql.getEpisodes(slug)
         self.common.view_episodes(episodes)
 
     def view_clips(self, url):
