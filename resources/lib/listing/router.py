@@ -120,7 +120,7 @@ class Router:
             )
 
     def view_categories(self):
-        categories = svt.getCategories()
+        categories = self.graphql.getCategories()
         for category in categories:
             self.common.add_directory_item(
                 category["title"],
