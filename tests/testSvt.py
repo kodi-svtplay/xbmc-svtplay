@@ -22,29 +22,6 @@ class TestSvtModule(unittest.TestCase):
     if len(list) < 1:
       self.fail("List is empty")
 
-  def test_get_categories(self):
-    categories = svt.getCategories()
-    self.assertHasContentStrict(categories)
-    for category in categories:
-      for key in category.keys():
-        self.assertIsNotNone(category[key])
-
-  def test_get_programs_for_category(self):
-    categories = svt.getCategories()
-    has_failed = False
-    failed_categories = []
-    for category in categories:
-      programs = svt.getProgramsForGenre(category["genre"])
-      if programs is None:
-        has_failed = True
-        failed_categories.append(category["genre"])
-        continue
-      for program in programs:
-        for key in program.keys():
-          self.assertIsNotNone(program[key])
-    if has_failed:
-      self.fail("The following categories failed {}.".format(failed_categories))
-
   def test_get_alphas(self):
     alphas = svt.getAlphas()
     self.assertHasContentStrict(alphas)
@@ -69,14 +46,6 @@ class TestSvtModule(unittest.TestCase):
   def test_get_latest_news(self):
     items = svt.getLatestNews()
     self.assertHasContent(items)
-
-  def test_get_clips(self):
-    slug = "sportnytt"
-    articles = svt.getClips(slug)
-    self.assertHasContentStrict(articles)
-    for article in articles:
-      for key in article.keys():
-        self.assertHasContent(article[key])
 
   def test_get_latest_items(self):
     (items, _) = svt.getItems("latest", 1)
