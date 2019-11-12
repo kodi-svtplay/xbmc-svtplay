@@ -26,19 +26,6 @@ class TestSvtModule(unittest.TestCase):
     alphas = svt.getAlphas()
     self.assertHasContentStrict(alphas)
 
-  def test_search_results(self):
-    search_term = "agenda"
-    items = svt.getSearchResults(search_term)
-    self.assertHasContent(items)
-    if len(items) < 1:
-        # the hard coded search term needs
-        # to be changed if it doesn't yield
-        # any results => raise error to alert
-        self.fail("search returned no results")
-    for item in items:
-      for key in item.keys():
-        self.assertIsNotNone(item[key])
-
   def test_get_channels(self):
     items = svt.getChannels()
     self.assertHasContentStrict(items)
