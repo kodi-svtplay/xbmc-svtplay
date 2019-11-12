@@ -120,7 +120,7 @@ class Router:
             )
 
     def view_categories(self):
-        categories = self.graphql.getCategories()
+        categories = self.graphql.getGenres()
         for category in categories:
             self.common.add_directory_item(
                 category["title"],
@@ -157,7 +157,7 @@ class Router:
             self.common.create_dir_item(item, self.common.MODE_VIDEO)
 
     def view_category(self, genre):
-        programs = svt.getProgramsForGenre(genre)
+        programs = self.graphql.getProgramsForGenre(genre)
         if not programs:
             return
         for program in programs:
