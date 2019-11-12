@@ -160,6 +160,38 @@ class GraphQL:
         episode["info"] = info
         latest_news.append(episode)
       return latest_news
+
+    def getSearchResults(self, query_string):
+      operation_name = "SearchPage"
+      query_hash = "bed799b6f3105046779adff02a29028c1847782da4b171e9fe1bcc48622a342d"
+      variables = {"querystring":query_string}
+      json_data = self.__get(operation_name, query_hash, variables=variables)
+      if not json_data:
+        return None
+      results = []
+      for search_hit in json_data["data"]["search"]:
+        item = search_hit["item"]
+        content_type = "video"
+        if item["__typename"] == "TvShow":
+          content_type = "program"
+        elif item["__typename"] in ["Episode", "Clip"]:
+          content_type = "video"
+        else:
+          continue
+        result = {}
+        result["title"] = item["name"]
+        if "parent" in item:
+          result["title"] = "{parent} - {name}".format(name=item["name"], parent=item["parent"]["name"])
+        result["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
+        result["inappropriateForChildren"] = False
+        result["url"] = item["urls"]["svtplay"]
+        result["thumbnail"] = ""
+        result["type"] = content_type
+        info = {}
+        info["plot"] = item["longDescription"]
+        result["info"] = info
+        results.append(result)
+      return results
       
     def __get(self, operation_name, query_hash="", variables = {}):
       base_url = "https://api.svt.se/contento/graphql"
