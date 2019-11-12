@@ -43,10 +43,6 @@ class TestSvtModule(unittest.TestCase):
     items = svt.getChannels()
     self.assertHasContentStrict(items)
 
-  def test_get_latest_news(self):
-    items = svt.getLatestNews()
-    self.assertHasContent(items)
-
   def test_get_latest_items(self):
     (items, _) = svt.getItems("latest", 1)
     for item in items:
