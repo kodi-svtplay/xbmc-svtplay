@@ -99,6 +99,36 @@ class GraphQL:
           "inappropriateForChildren" : False
         })
       return programs
+    
+    def getEpisodes(self, slug):
+      operation_name = "TitlePage"
+      query_hash = "4122efcb63970216e0cfb8abb25b74d1ba2bb7e780f438bbee19d92230d491c5"
+      variables = {"titleSlugs":[slug]}
+      json_data = self.__get(operation_name, query_hash, variables=variables)
+      if not json_data:
+        return None
+      if not json_data["data"]["listablesBySlug"]:
+        return None
+      episodes = []
+      inappropriate_for_children = json_data["data"]["listablesBySlug"][0]
+      for content in json_data["data"]["listablesBySlug"][0]["associatedContent"]:
+        if content["id"] == "upcoming":
+          continue
+        for item in content["items"]:
+          episode = {}
+          item = item["item"]
+          episode["title"] = item["name"]
+          episode["url"] = item["urls"]["svtplay"]
+          episode["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
+          episode["inappropriateForChildren"] = inappropriate_for_children
+          episode["type"] = "video"
+          episode["thumbnail"] = ""
+          info = {}
+          info["plot"] = item["longDescription"]
+          info["duration"] = item.get("duration", 0)
+          episode["info"] = info
+          episodes.append(episode)
+      return episodes
       
     def __get(self, operation_name, query_hash="", variables = {}):
       base_url = "https://api.svt.se/contento/graphql"
