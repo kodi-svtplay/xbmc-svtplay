@@ -129,6 +129,37 @@ class GraphQL:
           episode["info"] = info
           episodes.append(episode)
       return episodes
+
+    def getLatestNews(self):
+      operation_name = "GenreLists"
+      query_hash = "90dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c"
+      variables = {"genre":["nyheter"]}
+      genre = "nyheter"
+      json_data = self.__get(operation_name, query_hash, variables=variables)
+      if not json_data or not json_data["data"]["genres"]:
+        return None
+      raw_items = []
+      if not json_data["data"]["genres"][0]["selectionsForWeb"]:
+        return None
+      for selection in json_data["data"]["genres"][0]["selectionsForWeb"]:
+        if selection["id"] != "latest-{}".format(genre):
+          continue
+        raw_items = selection["items"]
+      latest_news = []
+      for item in raw_items:
+        title = "{heading} - {subHeading}".format(heading=item["heading"], subHeading=item["subHeading"])
+        item = item["item"]
+        episode = {}
+        episode["title"] = title
+        episode["url"] = item["urls"]["svtplay"]
+        episode["thumbnail"] = ""
+        episode["inappropriateForChildren"] = False
+        episode["onlyAvailableInSweden"] = item["restrictions"].get("onlyAvailableInSweden", False)
+        info = {}
+        info["duration"] = item["duration"]
+        episode["info"] = info
+        latest_news.append(episode)
+      return latest_news
       
     def __get(self, operation_name, query_hash="", variables = {}):
       base_url = "https://api.svt.se/contento/graphql"

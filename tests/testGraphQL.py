@@ -39,3 +39,8 @@ class TestGraphQLModule(unittest.TestCase):
         sut = graphql.GraphQL()
         items = sut.getEpisodes(slug)
         self.assertItems(items)
+  
+    def test_get_latest_news(self):
+        sut = graphql.GraphQL()
+        items = sut.getLatestNews()
+        self.assertItems(items)
