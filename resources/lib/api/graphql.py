@@ -86,20 +86,17 @@ class GraphQL:
       programs = []
       for item in raw_items["items"]:
         item = item["item"]
-        content_type = "video" if item["__typename"] == "Single" else "program"
         title = item["name"]
         url = item["urls"]["svtplay"]
-        thumbnail = "" #FIXME
         plot = item["longDescription"]
-        info = {"plot": plot, "thumbnail": thumbnail, "fanart": thumbnail}
         programs.append({
           "title": title,
           "url": url,
-          "thumbnail": thumbnail,
-          "info": info,
-          "type" : content_type,
+          "thumbnail": "",
+          "info": {"plot": plot},
+          "type" : "video" if item["__typename"] == "Single" else "program",
           "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"],
-          "inappropriateForChildren" : False #FIXME
+          "inappropriateForChildren" : False
         })
       return programs
       
