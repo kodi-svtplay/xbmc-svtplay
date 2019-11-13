@@ -46,22 +46,8 @@ class TestSvtModule(unittest.TestCase):
       self.assertHasContent(item)
 
   def test_get_video_json(self):
-    items = svt.getAtoO()
-    self.assertHasContent(items)
-    video_ok = False
-    for item in items:
-      if video_ok:
-        break
-      if item["type"] != "program":
-          continue
-      slug = item["url"].split("/")[-1]
-      episodes = svt.getEpisodes(slug)
-      self.assertHasContent(episodes)
-      for episode in episodes:
-        json_obj = svt.getVideoJSON(episode["url"])
-        if self.assertHasContent(json_obj):
-          video_ok = True
-          break
+    json_obj = svt.getVideoJSON("ch-svt2")
+    self.assertHasContent(json_obj)
   
   def test_get_svt_video_json(self):
     """
