@@ -264,6 +264,9 @@ def getVideoJSON(video_id):
     video_version_id = __get_video_id_for_episode_id(episode_id)
   return __get_video_json_for_video_id(video_version_id)
 
+def getSvtVideoJson(svt_id):
+  return __get_svt_json("/video/{}".format(svt_id))
+
 def getItems(section_name, page):
   if not page:
     page = 1

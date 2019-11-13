@@ -62,6 +62,15 @@ class TestSvtModule(unittest.TestCase):
         if self.assertHasContent(json_obj):
           video_ok = True
           break
+  
+  def test_get_svt_video_json(self):
+    """
+    Uses api.svt.se to get a video JSON for a svtId
+    """
+    svt_id = "KABdbpw"
+    video_json = svt.getSvtVideoJson(svt_id)
+    self.assertIsNotNone(video_json)
+    self.assertTrue(video_json["videoReferences"])
 
 if __name__ == "__main__":
   unittest.main()
