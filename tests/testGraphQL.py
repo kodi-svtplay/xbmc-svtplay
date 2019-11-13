@@ -55,3 +55,14 @@ class TestGraphQLModule(unittest.TestCase):
             # to be changed if it doesn't yield
             # any results => raise error to alert
             self.fail("search returned no results")
+
+    def test_get_svt_id_for_legacy_id(self):
+        """
+        This test is using an actual video ID.
+        Might break in April 2020... 
+        """
+        legacy_id = "24186626"
+        expected_id = "KABdbpw"
+        sut = graphql.GraphQL()
+        actual_id = sut.getSvtIdForlegacyId(legacy_id)
+        self.assertEqual(actual_id, expected_id)

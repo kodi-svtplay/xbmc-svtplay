@@ -192,6 +192,22 @@ class GraphQL:
         result["info"] = info
         results.append(result)
       return results
+
+    def getSvtIdForlegacyId(self, legacy_id):
+      """
+      legacy_id is the integer part of a video URL.
+      24186626 in the case of /video/24186626/filip-och-mona/filip-och-mona-sasong-1-avsnitt-1
+      """
+      operation_name = "VideoPage"
+      query_hash = "ae75c500d4f6f8743f6673f8ade2f8af89fb019d4b23f464ad84658734838c78"
+      variables = {"legacyIds":[legacy_id]}
+      json_data = self.__get(operation_name, query_hash, variables=variables)
+      if not json_data:
+        return None
+      if not json_data["data"]["listablesByEscenicId"]:
+        # TODO Can this happen?
+        return None
+      return json_data["data"]["listablesByEscenicId"][0]["svtId"]
       
     def __get(self, operation_name, query_hash="", variables = {}):
       base_url = "https://api.svt.se/contento/graphql"
