@@ -193,7 +193,9 @@ class Router:
             self.common.create_dir_item(result, mode)
 
     def start_video(self, video_url):
-        if "ch" in video_url:
+        channel_pattern = re.compile(r'^ch\-')
+        logging.log("start video for {}".format(video_url))
+        if channel_pattern.search(video_url):
             video_json = svt.getVideoJSON(video_url)
         else:
             legacy_id = video_url.split("/")[2]
