@@ -192,7 +192,12 @@ class Router:
                 mode = self.common.MODE_PROGRAM
             self.common.create_dir_item(result, mode)
 
-    def start_video(self, video_id):
-        video_json = svt.getVideoJSON(video_id)
+    def start_video(self, video_url):
+        if "ch" in video_url:
+            video_json = svt.getVideoJSON(video_url)
+        else:
+            legacy_id = video_url.split("/")[2]
+            svt_id = self.graphql.getSvtIdForlegacyId(legacy_id)
+            video_json = svt.getSvtVideoJson(svt_id)
         self.common.start_video(video_json)
         
