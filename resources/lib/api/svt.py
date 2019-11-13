@@ -345,8 +345,8 @@ def __get_video_version(versions):
     for version in versions:
       # ungraceful access so we detect API changes
       if version["accessService"] == "none":
-        return version["id"]
-    return versions[0]["id"]
+        return version["contentUrl"]
+    return versions[0]["contentUrl"]
   return None
 
 def __get_video_json_for_video_id(video_id):
