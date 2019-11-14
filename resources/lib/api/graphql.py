@@ -205,7 +205,7 @@ class GraphQL:
       if not json_data:
         return None
       if not json_data["listablesByEscenicId"]:
-        # TODO Can this happen?
+        logging.error("Could not find legacy ID {}".format(legacy_id))
         return None
       return json_data["listablesByEscenicId"][0]["svtId"]
       
