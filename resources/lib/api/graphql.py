@@ -135,7 +135,7 @@ class GraphQL:
         episode["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
         episode["inappropriateForChildren"] = inappropriate_for_children
         episode["type"] = "video"
-        episode["thumbnail"] = ""
+        episode["thumbnail"] = self.get_image_url(item["image"])
         info = {}
         info["plot"] = item["longDescription"]
         info["duration"] = item.get("duration", 0)
@@ -221,6 +221,26 @@ class GraphQL:
       logging.error("Could not find legacy ID {}".format(legacy_id))
       return None
     return json_data["listablesByEscenicId"][0]["svtId"]
+
+  def get_image_url(self, image_id, image_changed, image_type):
+    """
+    image_id is expected to look like "12345/6789"
+    """
+    base_url = "https://www.svtstatic.se/image"
+    ratio = ""
+    size = ""
+    if image_type == "thumbnail":
+      ratio = "medium"
+      size = 800
+    elif image_type == "fanart" :
+        ratio = "wide"
+        size = 1920
+    elif image_type == "poster" :
+        ratio = "large"
+        size = 1080
+    else:
+      raise ValueError("Image type {} is not supported!".format(image_type))
+    return "{base_url}/{ratio}/{size}/{image_id}/{image_changed}".format(base_url=base_url, ratio=ratio, size=size, image_type=image_type, image_id=image_id, image_changed=image_changed)
     
   def __get(self, operation_name, query_hash="", variables = {}):
     base_url = "https://api.svt.se/contento/graphql"
