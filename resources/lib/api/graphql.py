@@ -222,7 +222,16 @@ class GraphQL:
       return None
     return json_data["listablesByEscenicId"][0]["svtId"]
 
-  def get_image_url(self, image_id, image_changed, image_type):
+  def get_thumbnail_url(self, image_id, image_changed):
+    return self.__get_image_url(image_id, image_changed, "thumbnail")
+
+  def get_fanart_url(self, image_id, image_changed):
+    return self.__get_image_url(image_id, image_changed, "fanart")
+  
+  def get_poster_url(self, image_id, image_changed):
+    return self.__get_image_url(image_id, image_changed, "poster")
+  
+  def __get_image_url(self, image_id, image_changed, image_type):
     """
     image_id is expected to look like "12345/6789"
     """
