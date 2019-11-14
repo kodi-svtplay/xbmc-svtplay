@@ -83,6 +83,9 @@ class GraphQL:
         if selection["id"] == "all-{}".format(genre):
           raw_items = selection
           break
+      if not raw_items:
+        logging.error("Could not find content for genre {}".format(genre))
+        return None
       programs = []
       for item in raw_items["items"]:
         item = item["item"]
