@@ -168,7 +168,7 @@ class Router:
     def view_episodes(self, url):
         slug = url.split("/")[-1]
         logging.log("View episodes for {}".format(slug))
-        episodes = self.graphql.getEpisodes(slug)
+        episodes = self.graphql.getVideoContent(slug)
         self.common.view_episodes(episodes)
 
     def view_clips(self, url):
