@@ -105,10 +105,10 @@ class GraphQL:
       programs.append({
         "title": title,
         "url": url,
-        "thumbnail": self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else "",
+        "thumbnail": self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else "",
         "info": {
           "plot": plot, 
-          "fanart": self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else ""
+          "fanart": self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
         },
         "type" : "video" if item["__typename"] == "Single" or item["__typename"] == "Episode" else "program",
         "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"],
@@ -138,11 +138,11 @@ class GraphQL:
         episode["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
         episode["inappropriateForChildren"] = inappropriate_for_children
         episode["type"] = "video"
-        episode["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else ""
+        episode["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
         info = {}
         info["plot"] = item["longDescription"]
         info["duration"] = item.get("duration", 0)
-        info["fanart"] = self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else ""
+        info["fanart"] = self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
         episode["info"] = info
         episodes.append(episode)
     return episodes
@@ -165,16 +165,18 @@ class GraphQL:
     latest_news = []
     for item in raw_items:
       title = "{heading} - {subHeading}".format(heading=item["heading"], subHeading=item["subHeading"])
+      images = item["images"]
       item = item["item"]
       episode = {}
       episode["title"] = title
       episode["url"] = item["urls"]["svtplay"]
-      episode["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else ""
+      episode["thumbnail"] = self.get_thumbnail_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
       episode["inappropriateForChildren"] = False
       episode["onlyAvailableInSweden"] = item["restrictions"].get("onlyAvailableInSweden", False)
-      info = {}
-      info["duration"] = item["duration"]
-      episode["info"] = info
+      episode["info"] = {
+        "duration": item["duration"],
+        "fanart": self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
+      }
       latest_news.append(episode)
     return latest_news
 
@@ -202,7 +204,7 @@ class GraphQL:
       result["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
       result["inappropriateForChildren"] = False
       result["url"] = item["urls"]["svtplay"]
-      result["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if item["image"] else ""
+      result["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
       result["type"] = content_type
       info = {}
       info["plot"] = item["longDescription"]
