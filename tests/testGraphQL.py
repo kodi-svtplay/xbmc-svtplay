@@ -67,10 +67,10 @@ class TestGraphQLModule(unittest.TestCase):
         actual_id = sut.getSvtIdForlegacyId(legacy_id)
         self.assertEqual(actual_id, expected_id)
 
-    def test_get_poster_url(self):
+    def test_get_thumbnail_url(self):
         image_id = "1234"
         image_changed = 5678
-        expected_url = "https://www.svtstatic.se/image/large/1080/1234/5678"
+        expected_url = "https://www.svtstatic.se/image/medium/800/1234/5678"
         sut = graphql.GraphQL()
-        actual_url = sut.get_poster_url(image_id, image_changed)
+        actual_url = sut.get_thumbnail_url(image_id, image_changed)
         self.assertEqual(expected_url, actual_url)
