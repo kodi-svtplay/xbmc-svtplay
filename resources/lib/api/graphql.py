@@ -94,7 +94,7 @@ class GraphQL:
           "url": url,
           "thumbnail": "",
           "info": {"plot": plot},
-          "type" : "video" if item["__typename"] == "Single" else "program",
+          "type" : "video" if item["__typename"] == "Single" or item["__typename"] == "Episode" else "program",
           "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"],
           "inappropriateForChildren" : False
         })
