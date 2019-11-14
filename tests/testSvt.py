@@ -51,7 +51,8 @@ class TestSvtModule(unittest.TestCase):
   
   def test_get_svt_video_json(self):
     """
-    Uses api.svt.se to get a video JSON for a svtId
+    This test is using an actual video ID.
+    Might break in April 2020... 
     """
     svt_id = "KABdbpw"
     video_json = svt.getSvtVideoJson(svt_id)
