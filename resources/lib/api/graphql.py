@@ -18,7 +18,7 @@ class GraphQL:
       if not json_data:
         return None # or throw?
       items = []
-      for raw_item in json_data["data"]["programAtillO"]["flat"]:
+      for raw_item in json_data["programAtillO"]["flat"]:
         if raw_item["oppetArkiv"]:
           continue
         title = raw_item["name"]
@@ -64,7 +64,7 @@ class GraphQL:
       if not json_data:
         return None
       genres = []
-      for item in json_data["data"]["genresSortedByName"]["genres"]:
+      for item in json_data["genresSortedByName"]["genres"]:
         genre = {}
         genre["title"] = item["name"]
         genre["genre"] = item["id"]
@@ -79,7 +79,7 @@ class GraphQL:
       if not json_data:
         return None
       raw_items = []
-      for selection in json_data["data"]["genres"][0]["selectionsForWeb"]:
+      for selection in json_data["genres"][0]["selectionsForWeb"]:
         if selection["id"] == "all-{}".format(genre):
           raw_items = selection
           break
@@ -107,11 +107,11 @@ class GraphQL:
       json_data = self.__get(operation_name, query_hash, variables=variables)
       if not json_data:
         return None
-      if not json_data["data"]["listablesBySlug"]:
+      if not json_data["listablesBySlug"]:
         return None
       episodes = []
-      inappropriate_for_children = json_data["data"]["listablesBySlug"][0]
-      for content in json_data["data"]["listablesBySlug"][0]["associatedContent"]:
+      inappropriate_for_children = json_data["listablesBySlug"][0]
+      for content in json_data["listablesBySlug"][0]["associatedContent"]:
         if content["id"] == "upcoming":
           continue
         for item in content["items"]:
@@ -136,12 +136,12 @@ class GraphQL:
       variables = {"genre":["nyheter"]}
       genre = "nyheter"
       json_data = self.__get(operation_name, query_hash, variables=variables)
-      if not json_data or not json_data["data"]["genres"]:
+      if not json_data or not json_data["genres"]:
         return None
       raw_items = []
-      if not json_data["data"]["genres"][0]["selectionsForWeb"]:
+      if not json_data["genres"][0]["selectionsForWeb"]:
         return None
-      for selection in json_data["data"]["genres"][0]["selectionsForWeb"]:
+      for selection in json_data["genres"][0]["selectionsForWeb"]:
         if selection["id"] != "latest-{}".format(genre):
           continue
         raw_items = selection["items"]
@@ -169,7 +169,7 @@ class GraphQL:
       if not json_data:
         return None
       results = []
-      for search_hit in json_data["data"]["search"]:
+      for search_hit in json_data["search"]:
         item = search_hit["item"]
         content_type = "video"
         if item["__typename"] == "TvShow":
@@ -204,10 +204,10 @@ class GraphQL:
       json_data = self.__get(operation_name, query_hash, variables=variables)
       if not json_data:
         return None
-      if not json_data["data"]["listablesByEscenicId"]:
+      if not json_data["listablesByEscenicId"]:
         # TODO Can this happen?
         return None
-      return json_data["data"]["listablesByEscenicId"][0]["svtId"]
+      return json_data["listablesByEscenicId"][0]["svtId"]
       
     def __get(self, operation_name, query_hash="", variables = {}):
       base_url = "https://api.svt.se/contento/graphql"
@@ -223,4 +223,5 @@ class GraphQL:
       if response.status_code != 200:
         logging.error("Request failed, code: {code} url: {url}".format(code=response.status_code, url=url))
         return None
-      return response.json()
+      json_data = response.json()
+      return json_data["data"]
