@@ -7,6 +7,16 @@ import requests
 from resources.lib import logging
 
 class GraphQL:
+  """
+  The GraphQL module communicates with the Apollo GraphQL server
+  used in the SVT backend.
+
+  THe server uses persisted queries which means that instead of a whole
+  query only a hash is sent to the server indicating what query to execute.
+  The queries may change in the future and the hard coded hashes used here then
+  need to be updated.
+  More info at https://www.apollographql.com/docs/apollo-server/performance/apq/
+  """
     
     def __init__(self):
       pass
