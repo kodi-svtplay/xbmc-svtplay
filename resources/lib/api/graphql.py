@@ -26,7 +26,7 @@ class GraphQL:
       query_hash = "1eeb0fb08078393c17658c1a22e7eea3fbaa34bd2667cec91bbc4db8d778580f"
       json_data = self.__get(operation_name, query_hash)
       if not json_data:
-        return None # or throw?
+        return None
       items = []
       for raw_item in json_data["programAtillO"]["flat"]:
         if raw_item["oppetArkiv"]:

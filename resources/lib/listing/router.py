@@ -194,7 +194,7 @@ class Router:
 
     def start_video(self, video_url):
         channel_pattern = re.compile(r'^ch\-')
-        logging.log("start video for {}".format(video_url))
+        logging.log("Start video for {}".format(video_url))
         if channel_pattern.search(video_url):
             video_json = svt.getVideoJSON(video_url)
         else:
