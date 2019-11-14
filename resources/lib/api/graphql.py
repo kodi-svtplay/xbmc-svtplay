@@ -216,12 +216,17 @@ class GraphQL:
       if query_hash:
           ext["persistedQuery"] = {"version":1,"sha256Hash":query_hash}
       query_params = "ua={ua}&operationName={op}&variables={variables}&extensions={ext}"\
-        .format(ua=param_ua, op=operation_name, variables=json.dumps(variables, separators=(',', ':')), ext=json.dumps(ext, separators=(',', ':')))
+        .format(\
+          ua=param_ua, \
+          op=operation_name, \
+          variables=json.dumps(variables, separators=(',', ':')), \
+          ext=json.dumps(ext, separators=(',', ':'))\
+        )
       url = "{base}?{query_params}".format(base=base_url, query_params=query_params)
       logging.log("GraphQL request: {}".format(url))
       response = requests.get(url)
       if response.status_code != 200:
-        logging.error("Request failed, code: {code} url: {url}".format(code=response.status_code, url=url))
+        logging.error("Request failed, code: {code}, url: {url}".format(code=response.status_code, url=url))
         return None
       json_data = response.json()
       return json_data["data"]
