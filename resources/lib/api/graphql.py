@@ -27,7 +27,18 @@ class GraphQL:
         item = self.__create_item(title, url, geo_restricted)
         items.append(item)
       return sorted(items, key=lambda item: item["title"])
-  
+
+    def __create_item(self, title, url, geo_restricted):
+      item = {}
+      item["title"] = title
+      item["url"] = url
+      item["thumbnail"] = ""
+      item["type"] = "program"
+      item["onlyAvailableInSweden"] = geo_restricted
+      if "/video/" in item["url"]:
+        item["type"] = "video"
+      return item
+    
     def getAtoO(self):
       return self.__get_all_programs()
 
@@ -45,17 +56,6 @@ class GraphQL:
         if re.search(pattern, item["title"]):
           items.append(item)
       return items
-
-    def __create_item(self, title, url, geo_restricted):
-      item = {}
-      item["title"] = title
-      item["url"] = url
-      item["thumbnail"] = ""
-      item["type"] = "program"
-      item["onlyAvailableInSweden"] = geo_restricted
-      if "/video/" in item["url"]:
-        item["type"] = "video"
-      return item
 
     def getGenres(self):
       operation_name = "AllGenres"
