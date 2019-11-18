@@ -13,6 +13,10 @@ except ImportError:
   # Python 3
   from urllib.parse import quote
 
+class BlockedForChildrenException(BaseException):
+    def __init__(self):
+        pass
+
 class Router:
     # List modes
     MODE_LIVE_PROGRAMS = "live"
@@ -200,8 +204,7 @@ class Router:
             legacy_id = video_url.split("/")[2]
             video_data = self.graphql.getVideoDataForLegacyId(legacy_id)
             if self.settings.inappropriate_for_children and video_data["blockedForChildren"]:
-                # Raise some dialog
-                return
+                raise BlockedForChildrenException()
             video_json = svt.getSvtVideoJson(video_data["svtId"])
         self.common.start_video(video_json)
         

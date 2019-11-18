@@ -3,10 +3,11 @@ import os
 import sys
 import xbmc # pylint: disable=import-error
 import xbmcaddon # pylint: disable=import-error
+import xbmcgui # pylint: disable=import-error
 import xbmcplugin # pylint: disable=import-error
 
 from resources.lib.settings import Settings
-from resources.lib.listing.router import Router
+from resources.lib.listing.router import Router, BlockedForChildrenException
 from resources.lib import logging
 from resources.lib import helper
 
@@ -36,7 +37,12 @@ class SvtPlay:
             self.arg_url = "barn"
 
         router = Router(self.addon, self.plugin_url, self.plugin_handle, self.default_fanart, self.settings)
-        router.route(self.arg_mode, self.arg_url, self.arg_params)
+        try:
+            router.route(self.arg_mode, self.arg_url, self.arg_params)
+        except BlockedForChildrenException:
+            dialog = xbmcgui.Dialog()
+            dialog.ok("SVT Play", self.addon.getLocalizedString(30504))
+            return
 
         cacheToDisc = True
         if not self.arg_params:
