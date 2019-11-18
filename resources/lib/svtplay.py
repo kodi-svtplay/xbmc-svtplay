@@ -28,9 +28,6 @@ class SvtPlay:
         logging.log("Addon params: {}".format(self.arg_params))
         self.arg_mode = self.arg_params.get("mode")
         self.arg_url = self.arg_params.get("url", "")
-        self.arg_page = self.arg_params.get("page")
-        if not self.arg_page:
-            self.arg_page = "1"
     
     def run(self):
         if self.settings.kids_mode and not self.arg_params:
@@ -39,7 +36,7 @@ class SvtPlay:
             self.arg_url = "barn"
 
         router = Router(self.addon, self.plugin_url, self.plugin_handle, self.default_fanart, self.settings)
-        router.route(self.arg_mode, self.arg_url, self.arg_params, int(self.arg_page))
+        router.route(self.arg_mode, self.arg_url, self.arg_params)
 
         cacheToDisc = True
         if not self.arg_params:

@@ -34,7 +34,7 @@ class Router:
         self.localize = addon.getLocalizedString
         self.settings = settings
 
-    def route(self, mode, url, params, page):
+    def route(self, mode, url, params):
         if not mode:
             self.view_start()
         elif mode == self.MODE_A_TO_O:
@@ -56,7 +56,7 @@ class Router:
             mode == self.MODE_LATEST or \
             mode == self.MODE_LAST_CHANCE or \
             mode == self.MODE_LIVE_PROGRAMS:
-            self.view_section(mode, page)
+            self.view_start_section(mode)
         elif mode == self.MODE_LATEST_NEWS:
             self.view_latest_news()
         elif mode == self.MODE_CHANNELS:
@@ -129,8 +129,16 @@ class Router:
                 }
             )
 
-    def view_section(self, section, page):
-        (items, more_items) = svt.getItems(section, page)
+    def view_start_section(self, section):
+        items = []
+        if section == self.MODE_POPULAR:
+            items = self.graphql.getPopular()
+        elif section == self.MODE_LATEST:
+            items = self.graphql.getLatest()
+        elif section == self.MODE_LAST_CHANCE:
+            items = self.graphql.getLastChance()
+        else:
+            raise AttributeError("Section {} is not supported!".format(section))
         if not items:
             return
         for item in items:
@@ -138,8 +146,6 @@ class Router:
             if item["type"] == "program":
                 mode = self.common.MODE_PROGRAM
             self.common.create_dir_item(item, mode)
-        if more_items:
-            self.common.add_next_page_item(page+1, section)
 
     def view_channels(self):
         channels = svt.getChannels()
