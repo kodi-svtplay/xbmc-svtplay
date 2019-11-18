@@ -32,6 +32,8 @@ EXCLUDE_FILES="deploy.sh \
               tests/__init__.py \
               tests/.gitignore \
               tests/testSvt.py \
+              tests/testHelper.py \
+              tests/testGraphQL.py \
               tests/lib/__init__.py
               tests/lib/CommonFunctions.py \
               tests/lib/xbmc.py \
