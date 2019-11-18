@@ -246,12 +246,15 @@ class GraphQL:
       video_item ["type"] = "video"
       video_item["title"] = title
       video_item["url"] = item["urls"]["svtplay"]
+      video_item["parent"] = item["parent"]["id"]
+      parent_image_id = item["parent"]["images"]["wide"]["id"]
+      parent_image_changed = item["parent"]["images"]["wide"]["changed"]
       video_item["thumbnail"] = self.get_thumbnail_url(image_id, image_changed)
       video_item["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
       video_item["inappropriateForChildren"] = False
       video_item["info"] = {
         "plot": item["longDescription"],
-        "fanart": self.get_fanart_url(image_id, image_changed)
+        "fanart": self.get_fanart_url(parent_image_id, parent_image_changed)
       }
       video_items.append(video_item)
     return video_items
