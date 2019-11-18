@@ -30,21 +30,6 @@ class TestSvtModule(unittest.TestCase):
     items = svt.getChannels()
     self.assertHasContentStrict(items)
 
-  def test_get_latest_items(self):
-    (items, _) = svt.getItems("latest", 1)
-    for item in items:
-      self.assertHasContent(item)
-
-  def test_get_popular(self):
-    (items, _) = svt.getItems("popular", 1)
-    for item in items:
-      self.assertHasContent(item)
-
-  def test_get_last_chance(self):
-    (items, _) = svt.getItems("last_chance", 1)
-    for item in items:
-      self.assertHasContent(item)
-
   def test_get_video_json(self):
     json_obj = svt.getVideoJSON("ch-svt2")
     self.assertHasContent(json_obj)

@@ -199,27 +199,6 @@ def getVideoJSON(video_id):
 def getSvtVideoJson(svt_id):
   return __get_svt_json("/video/{}".format(svt_id))
 
-def getItems(section_name, page):
-  if not page:
-    page = 1
-  json_data = __get_json(section_name+"?page="+str(page)+"&excludedTagsString=lokalt")
-  if json_data is None:
-    return None
-  current_page = json_data["currentPage"]
-  total_pages = json_data["totalPages"]
-  returned_items = []
-  for json_item in json_data["data"]:
-    versions = json_item.get("versions", [])
-    if not versions:
-      logging.log("No video versions found for {}, skipping item!".format(item["title"]))
-      continue
-    url = __get_video_version(versions)
-    item = __create_item_from_json(json_item)
-    item["url"] = url
-    item["type"] = "video"
-    returned_items.append(item)
-  return (returned_items, total_pages > current_page)
-
 def __create_item_from_json(json_item):
   item = {}
   item["title"] = json_item["programTitle"]
