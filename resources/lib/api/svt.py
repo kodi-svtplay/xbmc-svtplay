@@ -154,49 +154,6 @@ def __create_item_by_title(title):
     item["type"] = "video"
   return item
 
-def getSearchResults(search_term):
-  """
-  Returns a list of both clips and programs
-  for the supplied search URL.
-  """
-  search_term = search_term.strip()
-  json_data = __get_json("search?q="+search_term)
-  if json_data is None:
-    return None
-  items = []
-  for result in json_data["videosAndTitles"]:
-    item = {}
-    versions = result.get("versions", [])
-    result_type = result.get("titleType", "PROGRAM_FOLDER_OR_MOVIE")
-    item_type = "video"
-    if versions:
-      # MOVIE and episode
-      item["url"] = __get_video_version(versions)
-    else:
-      # Folder or clip
-      item["url"] = result["contentUrl"]
-      item_type = "program"
-    if result_type == "CLIP":
-      item_type = "video"
-      item["url"] = result["id"]
-      item["title"] = unescape(result["title"])
-      item["thumbnail"] = helper.get_thumb_url(result.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
-    elif result_type == "SERIES_OR_TV_SHOW":
-      item["title"] = unescape(result["programTitle"] + " - " + result["title"])
-      item["thumbnail"] = helper.get_thumb_url(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
-      item["info"] = {}
-      item["info"]["plot"] = result.get("description", "")
-    else:
-      # MOVIE and folder
-      item["title"] = unescape(result["programTitle"])
-      item["thumbnail"] = helper.get_thumb_url(result.get("poster", ""), baseUrl=PLAY_BASE_URL)
-    item["info"] = {}
-    item["info"]["plot"] = result.get("description", "")
-    item["onlyAvailableInSweden"] = result.get("onlyAvailableInSweden", False)
-    item["inappropriateForChildren"] = result.get("inappropriateForChildren", False)
-    items.append({"item": item, "type": item_type})
-  return items
-
 def getChannels():
   """
   Returns the live channels from the page "Kanaler".
