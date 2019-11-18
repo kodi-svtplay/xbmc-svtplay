@@ -143,17 +143,6 @@ def getAlphas():
   alphas.append("0-9")
   return alphas
 
-def __create_item_by_title(title):
-  item = {}
-  item["title"] = title["programTitle"]
-  item["url"] = title["contentUrl"]
-  item["thumbnail"] = ""
-  item["type"] = "program"
-  item["onlyAvailableInSweden"] = title.get("onlyAvailableInSweden", False)
-  if "/video/" in item["url"]:
-    item["type"] = "video"
-  return item
-
 def getChannels():
   """
   Returns the live channels from the page "Kanaler".
@@ -198,46 +187,6 @@ def getVideoJSON(video_id):
 
 def getSvtVideoJson(svt_id):
   return __get_svt_json("/video/{}".format(svt_id))
-
-def __create_item_from_json(json_item):
-  item = {}
-  item["title"] = json_item["programTitle"]
-  try:
-    item["title"] = "{title} [COLOR gray](S{season}E{episode})[/COLOR]".format(title=item["title"], season=str(json_item["season"]), episode=str(json_item["episodeNumber"]))
-  except KeyError:
-    # Suppress
-    pass
-  item["thumbnail"] = helper.get_thumb_url(json_item.get("thumbnail", ""), baseUrl=PLAY_BASE_URL)
-  info = {}
-  info["title"] = item["title"]
-  info["poster"] = helper.get_fanart_url(json_item.get("poster", ""), PLAY_BASE_URL)
-  info["plot"] = json_item.get("description", "")
-  info["duration"] = json_item.get("materialLength", 0)
-  info["tagline"] = json_item.get("shortDescription", "")
-  info["season"] = json_item.get("season", "")
-  info["episode"] = json_item.get("episodeNumber", "")
-  info["dateadded"] = json_item.get("validFrom","2009-04-05 23:16:04")[:19]
-  info["playcount"] = 0
-  item["onlyAvailableInSweden"] = json_item.get("onlyAvailableInSweden", False)
-  item["inappropriateForChildren"] = json_item.get("inappropriateForChildren", False)
-  try:
-    info["fanart"] = helper.get_fanart_url(json_item["poster"], baseUrl=PLAY_BASE_URL)
-  except KeyError:
-    pass
-  item["info"] = info
-  if not item["thumbnail"] and info["fanart"]:
-    item["thumbnail"] = info["fanart"]
-  if json_item.get("broadcastedNow", False):
-    item["title"] = item["title"] + " [COLOR red](Live)[/COLOR]"
-  return item
-
-def __get_title_for_slug(slug):
-  url = "title?slug="+slug
-  json_data = __get_json(url)
-  if json_data is None:
-    return None
-  else:
-    return json_data
 
 def __get_video_id_for_episode_id(episode_id):
   url = "episode?id=" + episode_id
