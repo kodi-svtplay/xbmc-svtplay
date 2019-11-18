@@ -17,8 +17,6 @@ class Common:
     # Item types
     MODE_VIDEO = "video"
     MODE_PROGRAM = "pr"
-    # Shared modes
-    MODE_CLIPS = "clips"
 
     def __init__(self, addon, plugin_url, plugin_handle, default_fanart, settings):
         self.addon = addon

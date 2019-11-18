@@ -48,8 +48,6 @@ class Router:
             self.view_category(url)
         elif mode == self.common.MODE_PROGRAM:
             self.view_episodes(url)
-        elif mode == self.common.MODE_CLIPS:
-            self.view_clips(url)
         elif mode == self.common.MODE_VIDEO:
             self.start_video(url)
         elif mode == self.MODE_POPULAR or \
@@ -176,11 +174,6 @@ class Router:
         logging.log("View episodes for {}".format(slug))
         episodes = self.graphql.getVideoContent(slug)
         self.common.view_episodes(episodes)
-
-    def view_clips(self, url):
-        logging.log("View clips for {}".format(url))
-        clips = svt.getClips(url.split("/")[-1])
-        self.common.view_clips(clips)
 
     def view_search(self):
         keyword = helper.getInputFromKeyboard(self.localize(30102))
