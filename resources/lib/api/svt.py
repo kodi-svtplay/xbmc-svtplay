@@ -186,31 +186,6 @@ def getChannels():
 
   return items
 
-def getClips(slug):
-  """
-  Returns the clips for a slug.
-  """
-  title_data = __get_title_for_slug(slug)
-  if title_data is None:
-    return None
-  article_id = title_data["articleId"]
-  url = "title_clips_by_title_article_id?articleId={}".format(str(article_id))
-  json_data = __get_json(url)
-  if json_data is None:
-    return None
-  clips = []
-  for item in json_data:
-    clip = {}
-    clip["title"] = item["title"]
-    clip["url"] = str(item["id"])
-    clip["thumbnail"] = helper.get_thumb_url(item.get("thumbnail", ""), PLAY_BASE_URL)
-    info = {}
-    info["title"] = clip["title"]
-    info["plot"] = item.get("description", "")
-    clip["info"] = info
-    clips.append(clip)
-  return clips
-
 def getVideoJSON(video_id):
   video_version_id = video_id
   if video_id.startswith("/video/"):
