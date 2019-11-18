@@ -198,7 +198,10 @@ class Router:
             video_json = svt.getVideoJSON(video_url)
         else:
             legacy_id = video_url.split("/")[2]
-            svt_id = self.graphql.getSvtIdForlegacyId(legacy_id)
-            video_json = svt.getSvtVideoJson(svt_id)
+            video_data = self.graphql.getVideoDataForLegacyId(legacy_id)
+            if self.settings.inappropriate_for_children and video_data["blockedForChildren"]:
+                # Raise some dialog
+                return
+            video_json = svt.getSvtVideoJson(video_data["svtId"])
         self.common.start_video(video_json)
         

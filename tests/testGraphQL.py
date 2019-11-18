@@ -71,7 +71,7 @@ class TestGraphQLModule(unittest.TestCase):
             # any results => raise error to alert
             self.fail("search returned no results")
 
-    def test_get_svt_id_for_legacy_id(self):
+    def test_get_video_data_for_legacy_id(self):
         """
         This test is using an actual video ID.
         Might break in April 2020... 
@@ -79,8 +79,9 @@ class TestGraphQLModule(unittest.TestCase):
         legacy_id = "24186626"
         expected_id = "KABdbpw"
         sut = graphql.GraphQL()
-        actual_id = sut.getSvtIdForlegacyId(legacy_id)
-        self.assertEqual(actual_id, expected_id)
+        video_data = sut.getVideoDataForLegacyId(legacy_id)
+        self.assertEqual(video_data["svtId"], expected_id)
+        self.assertEqual(video_data["blockedForChildren"], False)
 
     def test_get_thumbnail_url(self):
         image_id = "1234"
