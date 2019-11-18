@@ -14,6 +14,21 @@ class TestGraphQLModule(unittest.TestCase):
         self.assertIsNotNone(items)
         self.assertTrue(items)
 
+    def test_getPopular(self):
+        sut = graphql.GraphQL()
+        items = sut.getPopular()
+        self.assertItems(items)
+
+    def test_getLatest(self):
+        sut = graphql.GraphQL()
+        items = sut.getLatest()
+        self.assertItems(items)
+
+    def test_getLastChance(self):
+        sut = graphql.GraphQL()
+        items = sut.getLastChance()
+        self.assertItems(items)
+
     def test_getAtoO(self):
         sut = graphql.GraphQL()
         items = sut.getAtoO()
