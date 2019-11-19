@@ -108,6 +108,9 @@ class GraphQL:
       return None
     episodes = []
     inappropriate_for_children = json_data["listablesBySlug"][0]
+    show_data = json_data["listablesBySlug"][0]
+    show_image_id = show_data["image"]["id"]
+    show_image_changed = show_data["image"]["changed"]
     for content in json_data["listablesBySlug"][0]["associatedContent"]:
       if content["id"] == "upcoming":
         continue
@@ -123,7 +126,7 @@ class GraphQL:
         info = {}
         info["plot"] = item["longDescription"]
         info["duration"] = item.get("duration", 0)
-        info["fanart"] = self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+        info["fanart"] = self.get_fanart_url(show_image_id, show_image_changed) if "image" in item else ""
         episode["info"] = info
         episodes.append(episode)
     return episodes
