@@ -92,9 +92,9 @@ class GraphQL:
           "fanart": self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
         },
         "type" : "video" if item["__typename"] == "Single" or item["__typename"] == "Episode" else "program",
-        "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"],
-        "inappropriateForChildren" : False
-      })
+        "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"]
+        }
+      )
     return programs
   
   def getVideoContent(self, slug):
@@ -107,7 +107,6 @@ class GraphQL:
     if not json_data["listablesBySlug"]:
       return None
     episodes = []
-    inappropriate_for_children = json_data["listablesBySlug"][0]
     show_data = json_data["listablesBySlug"][0]
     show_image_id = show_data["image"]["id"]
     show_image_changed = show_data["image"]["changed"]
@@ -120,7 +119,6 @@ class GraphQL:
         episode["title"] = item["name"]
         episode["url"] = item["urls"]["svtplay"]
         episode["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-        episode["inappropriateForChildren"] = inappropriate_for_children
         episode["type"] = "video"
         episode["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
         info = {}
@@ -157,7 +155,6 @@ class GraphQL:
       episode["title"] = title
       episode["url"] = item["urls"]["svtplay"]
       episode["thumbnail"] = self.get_thumbnail_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
-      episode["inappropriateForChildren"] = False
       episode["onlyAvailableInSweden"] = item["restrictions"].get("onlyAvailableInSweden", False)
       episode["info"] = {
         "duration": item["duration"],
@@ -188,7 +185,6 @@ class GraphQL:
       if "parent" in item:
         result["title"] = "{parent} - {name}".format(name=item["name"], parent=item["parent"]["name"])
       result["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-      result["inappropriateForChildren"] = False
       result["url"] = item["urls"]["svtplay"]
       result["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
       result["type"] = content_type
@@ -259,7 +255,6 @@ class GraphQL:
       parent_image_changed = item["parent"]["images"]["wide"]["changed"]
       video_item["thumbnail"] = self.get_thumbnail_url(image_id, image_changed)
       video_item["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-      video_item["inappropriateForChildren"] = False
       video_item["info"] = {
         "plot": item["longDescription"],
         "fanart": self.get_fanart_url(parent_image_id, parent_image_changed)

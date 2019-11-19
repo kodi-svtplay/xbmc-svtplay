@@ -64,22 +64,12 @@ class Common:
         if self.is_geo_restricted(article):
             logging.log("Hiding geo restricted item {} as setting is on".format(article["title"]))
             return
-        if not folder and self.is_inappropriate_for_children(article):
-            logging.log("Hiding content {} not appropriate for children as setting is on".format(article["title"]))
-            return
         info = article["info"]
         self.add_directory_item(article["title"], params, article["thumbnail"], folder, False, info)
 
     def is_geo_restricted(self, program):
         return program["onlyAvailableInSweden"] and \
             self.settings.geo_restriction
-
-    def is_inappropriate_for_children(self, video_item):
-        """
-        Can only be validated on video list items.
-        """
-        return video_item["inappropriateForChildren"] and \
-            self.settings.inappropriate_for_children
 
     def add_next_page_item(self, next_page, section):
         self.add_directory_item(
