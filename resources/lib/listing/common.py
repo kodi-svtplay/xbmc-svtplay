@@ -70,15 +70,6 @@ class Common:
     def is_geo_restricted(self, program):
         return program["onlyAvailableInSweden"] and \
             self.settings.geo_restriction
-
-    def add_next_page_item(self, next_page, section):
-        self.add_directory_item(
-            "Next page", 
-            {
-                "page": next_page, 
-                "mode": section
-            }
-        )
     
     def start_video(self, video_json):
         if video_json is None:
