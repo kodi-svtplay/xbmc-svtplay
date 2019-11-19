@@ -129,10 +129,12 @@ class GraphQL:
     return episodes
 
   def getLatestNews(self):
+    return self.__get_latest_for_genre("nyheter")
+  
+  def __get_latest_for_genre(self, genre):
     operation_name = "GenreLists"
     query_hash = "90dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c"
-    variables = {"genre":["nyheter"]}
-    genre = "nyheter"
+    variables = {"genre":[genre]}
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data or not json_data["genres"]:
       return None
@@ -143,9 +145,9 @@ class GraphQL:
       if selection["id"] != "latest-{}".format(genre):
         continue
       raw_items = selection["items"]
-    latest_news = []
+    latest_items = []
     for item in raw_items:
-      title = "{heading} - {subHeading}".format(heading=item["heading"], subHeading=item["subHeading"])
+      title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       images = item["images"]
       item = item["item"]
       episode = {}
@@ -158,8 +160,8 @@ class GraphQL:
         "duration": item["duration"],
         "fanart": self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
       }
-      latest_news.append(episode)
-    return latest_news
+      latest_items.append(episode)
+    return latest_items
 
   def getSearchResults(self, query_string):
     operation_name = "SearchPage"
