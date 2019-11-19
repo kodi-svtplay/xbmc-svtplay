@@ -169,7 +169,6 @@ def getChannels():
     item["thumbnail"] = ""
     item["onlyAvailableInSweden"] = True # Channels are always geo restricted
     items.append(item)
-
   return items
 
 def getVideoJSON(video_id):
