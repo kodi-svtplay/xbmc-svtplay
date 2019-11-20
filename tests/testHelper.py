@@ -29,5 +29,11 @@ class TestHelperModule(unittest.TestCase):
         expected = { "url" : "http://stream.video/ä.m3u8", "mode" : "video"}
         self.assertDictEqual(actual, expected)
 
+    def test_episode_url_to_show_url(self):
+        url = "/video/22132986/some-thing-here/abel-och-fant-sasong-2-kupa-pa-rymmen"
+        actual = helper.episodeUrlToShowUrl(url)
+        expected = "/some-thing-here"
+        self.assertEqual(actual, expected)
+
 if __name__ == "__main__":
   unittest.main()
