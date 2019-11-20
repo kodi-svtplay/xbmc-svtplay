@@ -145,6 +145,17 @@ def cleanUrl(video_url):
         newparas.append(para)
   return tmp[0]+"&".join(newparas).replace("?&", "?")
 
+def episodeUrlToShowUrl(url):
+  """
+  Returns the show URL from episode url.
+  Example: "/video/22132986/abel-och-fant/abel-och-fant-sasong-2-kupa-pa-rymmen" > "/abel-och-fant"
+  """
+  new_url = None
+  stub_url = url.split("/")
+  if len(stub_url) >= 3:
+    new_url = "/" + stub_url[3]
+  return new_url
+
 def __errorMsg(msg):
   logging.error(msg)
 
