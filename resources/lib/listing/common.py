@@ -33,11 +33,14 @@ class Common:
             list_item.setProperty("IsLive", "true")
         if not folder and params["mode"] == self.MODE_VIDEO:
             list_item.setProperty("IsPlayable", "true")
-            context_go_to_params = {}
-            context_go_to_params["mode"] = self.MODE_PROGRAM
-            context_go_to_params["url"] = helper.episodeUrlToShowUrl(params["url"])
-            urlToShow = self.plugin_url + '?' + urlencode(context_go_to_params)
-            list_item.addContextMenuItems([(self.localize(30602), 'ActivateWindow(Videos,'+urlToShow+')')])            
+            show_url = helper.episodeUrlToShowUrl(params["url"])
+            if show_url:
+                context_go_to_params = {
+                    "mode" : self.MODE_PROGRAM,
+                    "url" : show_url
+                }
+                urlToShow = self.plugin_url + '?' + urlencode(context_go_to_params)
+                list_item.addContextMenuItems([(self.localize(30602), 'ActivateWindow(Videos,'+urlToShow+')')])            
         fanart = info.get("fanart", "") if info else self.default_fanart
         poster = info.get("poster", "") if info else ""
         if info:
