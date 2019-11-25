@@ -1,6 +1,7 @@
 from __future__ import absolute_import,unicode_literals
 import re
 from resources.lib.listing.common import Common
+from resources.lib.listing.listitem import PlayItem
 from resources.lib.api import svt
 from resources.lib.api.graphql import GraphQL
 from resources.lib import logging
@@ -148,7 +149,7 @@ class Router:
             return
         for item in items:
             mode = self.common.MODE_VIDEO
-            if item["type"] == "program":
+            if item.item_type == PlayItem.SHOW_ITEM:
                 mode = self.common.MODE_PROGRAM
             self.common.create_dir_item(item, mode)
 

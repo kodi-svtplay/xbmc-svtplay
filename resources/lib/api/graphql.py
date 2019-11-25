@@ -5,6 +5,7 @@ import json
 import re
 import requests
 from resources.lib import logging
+from resources.lib.listing.listitem import VideoItem
 
 class GraphQL:
   """
@@ -246,19 +247,16 @@ class GraphQL:
       image_changed = item["images"]["cleanWide"]["changed"]
       title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       item = item["item"]
-      video_item = {}
-      video_item ["type"] = "video"
-      video_item["title"] = title
-      video_item["url"] = item["urls"]["svtplay"]
-      video_item["parent"] = item["parent"]["id"]
+      video_id = item["urls"]["svtplay"]
       parent_image_id = item["parent"]["images"]["wide"]["id"]
       parent_image_changed = item["parent"]["images"]["wide"]["changed"]
-      video_item["thumbnail"] = self.get_thumbnail_url(image_id, image_changed)
-      video_item["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-      video_item["info"] = {
-        "plot": item["longDescription"],
-        "fanart": self.get_fanart_url(parent_image_id, parent_image_changed)
+      thumbnail = self.get_thumbnail_url(image_id, image_changed)
+      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+      video_info = {
+        "plot": item["longDescription"]
       }
+      fanart = self.get_fanart_url(parent_image_id, parent_image_changed)
+      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, video_info, fanart)
       video_items.append(video_item)
     return video_items
 
