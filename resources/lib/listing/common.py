@@ -51,6 +51,10 @@ class Common:
         url = self.plugin_url + '?' + urlencode(params)
         xbmcplugin.addDirectoryItem(self.plugin_handle, url, list_item, folder)
 
+    def create_dir_items(self, play_items, mode):
+        for play_item in play_items:
+            self.create_dir_item(play_item, mode)
+
     def create_dir_item(self, play_item, mode):
         params = {}
         params["mode"] = mode
