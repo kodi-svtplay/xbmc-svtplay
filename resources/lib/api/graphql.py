@@ -109,7 +109,7 @@ class GraphQL:
       return None
     if not json_data["listablesBySlug"]:
       return None
-    episodes = []
+    video_items = []
     show_data = json_data["listablesBySlug"][0]
     show_image_id = show_data["image"]["id"]
     show_image_changed = show_data["image"]["changed"]
@@ -117,20 +117,19 @@ class GraphQL:
       if content["id"] == "upcoming":
         continue
       for item in content["items"]:
-        episode = {}
         item = item["item"]
-        episode["title"] = item["name"]
-        episode["url"] = item["urls"]["svtplay"]
-        episode["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-        episode["type"] = "video"
-        episode["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
-        info = {}
-        info["plot"] = item["longDescription"]
-        info["duration"] = item.get("duration", 0)
-        info["fanart"] = self.get_fanart_url(show_image_id, show_image_changed) if "image" in item else ""
-        episode["info"] = info
-        episodes.append(episode)
-    return episodes
+        title = item["name"]
+        video_id = item["urls"]["svtplay"]
+        geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+        thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+        fanart = self.get_fanart_url(show_image_id, show_image_changed)
+        info = {
+          "plot" : item["longDescription"],
+          "duration" : item.get("duration", 0)
+        }
+        video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
+        video_items.append(video_item)
+    return video_items
 
   def getLatestNews(self):
     return self.__get_latest_for_genre("nyheter")

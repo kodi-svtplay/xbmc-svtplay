@@ -49,7 +49,7 @@ class TestGraphQLModule(unittest.TestCase):
         items = sut.getProgramsForGenre("animerat")
         self.assertItems(items)
     
-    def test_get_episodes(self):
+    def test_get_video_content(self):
         slug = "agenda"
         sut = graphql.GraphQL()
         items = sut.getVideoContent(slug)
