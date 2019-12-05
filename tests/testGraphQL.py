@@ -44,7 +44,7 @@ class TestGraphQLModule(unittest.TestCase):
         items = sut.getGenres()
         self.assertItems(items)
     
-    def test_getProgramsForGenres(self):
+    def test_getProgramsForGenre(self):
         sut = graphql.GraphQL()
         items = sut.getProgramsForGenre("animerat")
         self.assertItems(items)

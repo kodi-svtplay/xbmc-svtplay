@@ -168,14 +168,14 @@ class Router:
             self.common.create_dir_item(item, self.common.MODE_VIDEO)
 
     def view_category(self, genre):
-        programs = self.graphql.getProgramsForGenre(genre)
-        if not programs:
+        play_items = self.graphql.getProgramsForGenre(genre)
+        if not play_items:
             return
-        for program in programs:
+        for play_item in play_items:
             mode = self.common.MODE_PROGRAM
-            if program["type"] == "video":
+            if play_item.item_type == PlayItem.VIDEO_ITEM:
                 mode = self.common.MODE_VIDEO
-            self.common.create_dir_item(program, mode)
+            self.common.create_dir_item(play_item, mode)
 
     def view_episodes(self, url):
         slug = url.split("/")[-1]

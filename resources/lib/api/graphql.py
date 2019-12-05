@@ -5,7 +5,7 @@ import json
 import re
 import requests
 from resources.lib import logging
-from resources.lib.listing.listitem import VideoItem
+from resources.lib.listing.listitem import VideoItem, ShowItem
 
 class GraphQL:
   """
@@ -82,20 +82,22 @@ class GraphQL:
     for item in raw_items["items"]:
       item = item["item"]
       title = item["name"]
-      url = item["urls"]["svtplay"]
-      plot = item["longDescription"]
-      programs.append({
-        "title": title,
-        "url": url,
-        "thumbnail": self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else "",
-        "info": {
-          "plot": plot, 
-          "fanart": self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
-        },
-        "type" : "video" if item["__typename"] == "Single" or item["__typename"] == "Episode" else "program",
-        "onlyAvailableInSweden" : item["restrictions"]["onlyAvailableInSweden"]
-        }
-      )
+      item_id = item["urls"]["svtplay"]
+      thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+      fanart = self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+      info = {
+        "plot" : item["longDescription"]
+      }
+      play_item = None
+      if item["__typename"] == "Single" or item["__typename"] == "Episode":
+        play_item = VideoItem(title, item_id, thumbnail, geo_restricted, info, fanart)
+      else:
+        play_item = ShowItem(title, item_id, thumbnail, geo_restricted, info, fanart)
+      if play_item:
+        programs.append(play_item)
+      else:
+        logging.error("Could not create PlayItem for: {}".format(item))
     return programs
   
   def getVideoContent(self, slug):
