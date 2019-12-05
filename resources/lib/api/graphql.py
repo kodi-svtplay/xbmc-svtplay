@@ -45,7 +45,7 @@ class GraphQL:
     items = []
     pattern = "^[{}]".format(letter.upper())
     for item in programs:
-      if re.search(pattern, item["title"]):
+      if re.search(pattern, item.title):
         items.append(item)
     return items
 
