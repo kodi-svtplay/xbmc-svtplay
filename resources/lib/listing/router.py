@@ -101,25 +101,26 @@ class Router:
         programs = self.graphql.getProgramsByLetter(letter)
         self.__program_listing(programs)
 
-    def __program_listing(self, programs):
-        for program in programs:
-            if self.common.is_geo_restricted(program):
-                logging.log("Not showing {} as it is restricted to Sweden and geo setting is on".format(program["title"]))
+    def __program_listing(self, play_items):
+        for play_item in play_items:
+            logging.log(play_item.id)
+            if self.common.is_geo_restricted(play_item):
+                logging.log("Not showing {} as it is restricted to Sweden and geo setting is on".format(play_item.title))
                 continue
             folder = True
             mode = self.common.MODE_PROGRAM
             info = {}
-            if program["type"] == "video":
+            if play_item.item_type == PlayItem.VIDEO_ITEM:
                 mode = self.common.MODE_VIDEO
                 folder = False
-                info["title"] = program["title"] # Needed for now to trigger xbmcgui.ListItem::setInfo which makes the video playable
+                info["title"] = play_item.title # Needed for now to trigger xbmcgui.ListItem::setInfo which makes the video playable
             self.common.add_directory_item(
-                program["title"],
+                play_item.title,
                 {
                     "mode": mode,
-                    "url": program["url"]
+                    "url": play_item.id
                 },
-                thumbnail=program["thumbnail"],
+                thumbnail=play_item.thumbnail,
                 folder=folder,
                 info=info
             )

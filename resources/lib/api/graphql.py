@@ -277,19 +277,14 @@ class GraphQL:
       geo_restricted = raw_item["restrictions"]["onlyAvailableInSweden"]
       item = self.__create_item(title, url, geo_restricted)
       items.append(item)
-    return sorted(items, key=lambda item: item["title"])
+    return sorted(items, key=lambda item: item.title)
 
-  def __create_item(self, title, url, geo_restricted):
-    item = {}
-    item["title"] = title
-    item["url"] = url
-    item["thumbnail"] = ""
-    item["type"] = "program"
-    item["onlyAvailableInSweden"] = geo_restricted
-    if "/video/" in item["url"]:
-      item["type"] = "video"
-    return item
-  
+  def __create_item(self, title, item_id, geo_restricted):
+    if "/video/" in item_id:
+      return VideoItem(title, item_id, "", geo_restricted)
+    else:
+      return ShowItem(title, item_id, "", geo_restricted)
+
   def __get_image_url(self, image_id, image_changed, image_type):
     """
     image_id is expected to look like "12345/6789"
