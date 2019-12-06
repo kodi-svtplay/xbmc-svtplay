@@ -51,16 +51,16 @@ class Common:
         url = self.plugin_url + '?' + urlencode(params)
         xbmcplugin.addDirectoryItem(self.plugin_handle, url, list_item, folder)
 
-    def create_dir_items(self, play_items, mode):
+    def create_dir_items(self, play_items):
         for play_item in play_items:
-            self.create_dir_item(play_item, mode)
+            self.create_dir_item(play_item)
 
-    def create_dir_item(self, play_item, mode):
+    def create_dir_item(self, play_item):
         params = {}
-        params["mode"] = mode
+        params["mode"] = self.MODE_PROGRAM if play_item.item_type == PlayItem.SHOW_ITEM else self.MODE_VIDEO
         params["url"] = play_item.id
         folder = False
-        if mode == self.MODE_PROGRAM:
+        if play_item.item_type == PlayItem.SHOW_ITEM:
             folder = True
         info = None
         if self.is_geo_restricted(play_item):
@@ -96,5 +96,4 @@ class Common:
         if episodes is None:
             logging.log("No episodes found")
             return
-        for episode in episodes:
-            self.create_dir_item(episode, self.MODE_VIDEO)
+        self.create_dir_items(episodes)

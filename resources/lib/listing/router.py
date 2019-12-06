@@ -150,33 +150,25 @@ class Router:
             raise AttributeError("Section {} is not supported!".format(section))
         if not items:
             return
-        for item in items:
-            mode = self.common.MODE_VIDEO
-            if item.item_type == PlayItem.SHOW_ITEM:
-                mode = self.common.MODE_PROGRAM
-            self.common.create_dir_item(item, mode)
+        self.common.create_dir_items(items)
 
     def view_channels(self):
         channels = svt.getChannels()
         if not channels:
             return
-        self.common.create_dir_items(channels, self.common.MODE_VIDEO)
+        self.common.create_dir_items(channels)
 
     def view_latest_news(self ):
         items = self.graphql.getLatestNews()
         if not items:
             return
-        self.common.create_dir_items(items, self.common.MODE_VIDEO)
+        self.common.create_dir_items(items)
 
     def view_category(self, genre):
         play_items = self.graphql.getProgramsForGenre(genre)
         if not play_items:
             return
-        for play_item in play_items:
-            mode = self.common.MODE_PROGRAM
-            if play_item.item_type == PlayItem.VIDEO_ITEM:
-                mode = self.common.MODE_VIDEO
-            self.common.create_dir_item(play_item, mode)
+        self.common.create_dir_items(play_items)
 
     def view_episodes(self, url):
         slug = url.split("/")[-1]
@@ -193,12 +185,8 @@ class Router:
         logging.log("Search string: " + keyword)
         keyword = re.sub(r" ", "+", keyword)
         keyword = keyword.strip()
-        results = self.graphql.getSearchResults(keyword)
-        for result in results:
-            mode = self.common.MODE_VIDEO
-            if result.item_type == PlayItem.SHOW_ITEM:
-                mode = self.common.MODE_PROGRAM
-            self.common.create_dir_item(result, mode)
+        play_items = self.graphql.getSearchResults(keyword)
+        self.common.create_dir_items(play_items)
 
     def start_video(self, video_url):
         channel_pattern = re.compile(r'^ch\-')
