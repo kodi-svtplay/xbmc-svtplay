@@ -84,16 +84,15 @@ class GraphQL:
       title = item["name"]
       item_id = item["urls"]["svtplay"]
       thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
-      fanart = self.get_fanart_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
       info = {
         "plot" : item["longDescription"]
       }
       play_item = None
       if item["__typename"] == "Single" or item["__typename"] == "Episode":
-        play_item = VideoItem(title, item_id, thumbnail, geo_restricted, info, fanart)
+        play_item = VideoItem(title, item_id, thumbnail, geo_restricted, info)
       else:
-        play_item = ShowItem(title, item_id, thumbnail, geo_restricted, info, fanart)
+        play_item = ShowItem(title, item_id, thumbnail, geo_restricted, info)
       if play_item:
         programs.append(play_item)
       else:
