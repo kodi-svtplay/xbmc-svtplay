@@ -29,6 +29,11 @@ class TestGraphQLModule(unittest.TestCase):
         items = sut.getLastChance()
         self.assertItems(items)
 
+    def test_getLive(self):
+        sut = graphql.GraphQL()
+        items = sut.getLive()
+        self.assertItems(items)
+
     def test_getAtoO(self):
         sut = graphql.GraphQL()
         items = sut.getAtoO()

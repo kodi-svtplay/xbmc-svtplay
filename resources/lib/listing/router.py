@@ -144,6 +144,8 @@ class Router:
             items = self.graphql.getLatest()
         elif section == self.MODE_LAST_CHANCE:
             items = self.graphql.getLastChance()
+        elif section == self.MODE_LIVE_PROGRAMS:
+            items = self.graphql.getLive()
         else:
             raise AttributeError("Section {} is not supported!".format(section))
         if not items:

@@ -31,6 +31,9 @@ class GraphQL:
   def getLastChance(self):
     return self.__get_start_page_selection("lastchance_start")
 
+  def getLive(self):
+    return self.__get_start_page_selection("live_start")
+
   def getAtoO(self):
     return self.__get_all_programs()
 
