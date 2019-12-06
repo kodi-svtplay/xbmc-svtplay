@@ -316,7 +316,7 @@ class GraphQL:
     ext = {}
     if query_hash:
         ext["persistedQuery"] = {"version":1,"sha256Hash":query_hash}
-    query_params = "ua={ua}&operationName={op}&variables={variables}&extensions={ext}"\
+    query_params = "operationName={op}&variables={variables}&extensions={ext}&ua={ua}"\
       .format(\
         ua=param_ua, \
         op=operation_name, \
