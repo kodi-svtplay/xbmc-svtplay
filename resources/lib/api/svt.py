@@ -7,6 +7,7 @@ import time
 # own imports
 from resources.lib import logging
 from resources.lib import helper
+from resources.lib.listing.listitem import VideoItem
 
 try:
   # Python 2
@@ -152,23 +153,24 @@ def getChannels():
     return None
   items = []
   for channel in json_data["hits"]:
-    item = {}
     program_title = channel["programmeTitle"]
     ch_id = channel["channel"].lower()
     if channel["channel"] == "SVTK":
       ch_id="kunskapskanalen"
     elif channel["channel"] == "SVTB":
       ch_id="barnkanalen"
-    item["title"] = ch_id.upper() + " - " + program_title
+    title = ch_id.upper() + " - " + program_title
     if channel["live"]:
-      item["title"] = item["title"] + " [COLOR red]Live[/COLOR]"
-    item["info"] = {}
-    item["info"]["plot"] = channel.get("longDescription", "No description")
-    item["info"]["title"] = item["title"]
-    item["url"] = "ch-" + ch_id
-    item["thumbnail"] = ""
-    item["onlyAvailableInSweden"] = True # Channels are always geo restricted
-    items.append(item)
+      title = title + " [COLOR red]Live[/COLOR]"
+    info = {
+      "plot" : channel.get("longDescription", "No description"),
+      "title" : title
+    }
+    video_id = "ch-" + ch_id
+    thumbnail = ""
+    geo_restricted = True # Channels are always geo restricted
+    video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info)
+    items.append(video_item)
   return items
 
 def getVideoJSON(video_id):
