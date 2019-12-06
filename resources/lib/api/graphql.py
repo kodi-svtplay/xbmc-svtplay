@@ -170,28 +170,31 @@ class GraphQL:
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data:
       return None
+    supported_show_types = ["TvShow", "KidsTvShow", "TvSeries"]
+    supported_video_types = ["Episode", "Clip"]
     results = []
     for search_hit in json_data["search"]:
       item = search_hit["item"]
-      content_type = "video"
-      if item["__typename"] == "TvShow":
-        content_type = "program"
-      elif item["__typename"] in ["Episode", "Clip"]:
-        content_type = "video"
-      else:
+      type_name = item["__typename"]
+      if type_name not in supported_show_types + supported_video_types:
+        logging.log("Unsupported search result type \"{}\"".format(type_name))
+        logging.log(item)
         continue
-      result = {}
-      result["title"] = item["name"]
+      title = item["name"]
       if "parent" in item:
-        result["title"] = "{parent} - {name}".format(name=item["name"], parent=item["parent"]["name"])
-      result["onlyAvailableInSweden"] = item["restrictions"]["onlyAvailableInSweden"]
-      result["url"] = item["urls"]["svtplay"]
-      result["thumbnail"] = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
-      result["type"] = content_type
-      info = {}
-      info["plot"] = item["longDescription"]
-      result["info"] = info
-      results.append(result)
+        title = "{parent} - {name}".format(name=item["name"], parent=item["parent"]["name"])
+      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+      item_id = item["urls"]["svtplay"]
+      thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+      info = {
+        "plot" : item["longDescription"]
+      }
+      play_item = None
+      if type_name in supported_show_types:
+        play_item = ShowItem(title, item_id, thumbnail, geo_restricted, info)
+      elif type_name in supported_video_types:
+        play_item = VideoItem(title, item_id, thumbnail, geo_restricted, info)
+      results.append(play_item)
     return results
 
   def getVideoDataForLegacyId(self, legacy_id):

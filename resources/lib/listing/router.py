@@ -195,7 +195,7 @@ class Router:
         results = self.graphql.getSearchResults(keyword)
         for result in results:
             mode = self.common.MODE_VIDEO
-            if result["type"] == "program":
+            if result.item_type == PlayItem.SHOW_ITEM:
                 mode = self.common.MODE_PROGRAM
             self.common.create_dir_item(result, mode)
 
