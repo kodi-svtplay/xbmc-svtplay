@@ -103,7 +103,6 @@ class Router:
 
     def __program_listing(self, play_items):
         for play_item in play_items:
-            logging.log(play_item.id)
             if self.common.is_geo_restricted(play_item):
                 logging.log("Not showing {} as it is restricted to Sweden and geo setting is on".format(play_item.title))
                 continue
