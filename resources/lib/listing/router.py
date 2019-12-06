@@ -80,9 +80,6 @@ class Router:
         self.common.add_directory_item(self.localize(30001), {"mode": self.MODE_CATEGORIES})
         self.common.add_directory_item(self.localize(30006), {"mode": self.MODE_SEARCH})
 
-    def view_a_to_z(self):
-        programs = self.graphql.getAtoO()
-        self.__program_listing(programs)
 
     def view_alpha_directories(self):
         letters = svt.getAlphas()
@@ -96,6 +93,10 @@ class Router:
                     "letter": letter.encode("utf-8")
                 }
             )
+
+    def view_a_to_z(self):
+        programs = self.graphql.getAtoO()
+        self.__program_listing(programs)
 
     def view_programs_by_letter(self, letter):
         programs = self.graphql.getProgramsByLetter(letter)
