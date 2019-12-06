@@ -304,7 +304,8 @@ class GraphQL:
         size = 1080
     else:
       raise ValueError("Image type {} is not supported!".format(image_type))
-    return "{base_url}/{ratio}/{size}/{image_id}/{image_changed}".format(base_url=base_url, ratio=ratio, size=size, image_type=image_type, image_id=image_id, image_changed=image_changed)
+    return "{base_url}/{ratio}/{size}/{image_id}/{image_changed}"\
+      .format(base_url=base_url, ratio=ratio, size=size, image_type=image_type, image_id=image_id, image_changed=image_changed)
     
   def __get(self, operation_name, query_hash="", variables = {}):
     base_url = "https://api.svt.se/contento/graphql"
