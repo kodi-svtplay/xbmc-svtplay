@@ -148,20 +148,19 @@ class GraphQL:
         continue
       raw_items = selection["items"]
     latest_items = []
-    for item in raw_items:
-      title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
-      images = item["images"]
-      item = item["item"]
-      episode = {}
-      episode["title"] = title
-      episode["url"] = item["urls"]["svtplay"]
-      episode["thumbnail"] = self.get_thumbnail_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
-      episode["onlyAvailableInSweden"] = item["restrictions"].get("onlyAvailableInSweden", False)
-      episode["info"] = {
-        "duration": item["duration"],
-        "fanart": self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
+    for teaser in raw_items:
+      title = "{show} - {episode}".format(show=teaser["heading"], episode=teaser["subHeading"])
+      images = teaser.get("images", None)
+      item = teaser["item"]
+      video_id = item["urls"]["svtplay"]
+      thumbnail = self.get_thumbnail_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
+      fanart = self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
+      geo_restricted = item["restrictions"].get("onlyAvailableInSweden", False)
+      info = {
+        "duration": item["duration"]
       }
-      latest_items.append(episode)
+      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
+      latest_items.append(video_item)
     return latest_items
 
   def getSearchResults(self, query_string):

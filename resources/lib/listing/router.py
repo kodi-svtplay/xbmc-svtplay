@@ -165,8 +165,7 @@ class Router:
         items = self.graphql.getLatestNews()
         if not items:
             return
-        for item in items:
-            self.common.create_dir_item(item, self.common.MODE_VIDEO)
+        self.common.create_dir_items(items, self.common.MODE_VIDEO)
 
     def view_category(self, genre):
         play_items = self.graphql.getProgramsForGenre(genre)
