@@ -166,7 +166,7 @@ class SvtPlay:
         elif section == self.MODE_LIVE_PROGRAMS:
             items = self.graphql.getLive()
         else:
-            raise AttributeError("Section {} is not supported!".format(section))
+            raise ValueError("Section {} is not supported!".format(section))
         if not items:
             return
         self.common.create_dir_items(items)
