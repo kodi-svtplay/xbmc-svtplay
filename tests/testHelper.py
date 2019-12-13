@@ -24,9 +24,9 @@ class TestHelperModule(unittest.TestCase):
         self.assertEqual(actual_url, expected_url)
 
     def test_get_url_parameters(self):
-        url = "plugin://plugin.video.svtplay?url=http%3A%2F%2Fstream.video%2F%C3%A4.m3u8&mode=video"
+        url = "plugin://plugin.video.svtplay?id=http%3A%2F%2Fstream.video%2F%C3%A4.m3u8&mode=video"
         actual = helper.get_url_parameters(url)
-        expected = { "url" : "http://stream.video/ä.m3u8", "mode" : "video"}
+        expected = { "id" : "http://stream.video/ä.m3u8", "mode" : "video"}
         self.assertDictEqual(actual, expected)
 
     def test_episode_url_to_show_url(self):

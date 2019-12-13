@@ -60,14 +60,14 @@ class SvtPlay:
         arg_params = helper.get_url_parameters(plugin_params)
         logging.log("Addon params: {}".format(arg_params))
         arg_mode = arg_params.get("mode")
-        arg_url = arg_params.get("url", "")
+        arg_id = arg_params.get("id", "")
         if self.settings.kids_mode and not arg_params:
             logging.log("Kids mode, redirecting to genre Barn")
             arg_mode = self.MODE_CATEGORY
-            arg_url = "barn"
+            arg_id = "barn"
 
         try:
-            self.navigate(arg_mode, arg_url, arg_params)
+            self.navigate(arg_mode, arg_id, arg_params)
         except BlockedForChildrenException:
             dialog = xbmcgui.Dialog()
             dialog.ok("SVT Play", self.addon.getLocalizedString(30504))
@@ -151,7 +151,7 @@ class SvtPlay:
                 category["title"],
                 {
                     "mode": self.MODE_CATEGORY, 
-                    "url": category["genre"]
+                    "id": category["genre"]
                 }
             )
 
