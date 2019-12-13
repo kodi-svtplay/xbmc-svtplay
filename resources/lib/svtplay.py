@@ -39,7 +39,7 @@ class SvtPlay:
     MODE_LETTER = "letter"
     MODE_CATEGORY = "category"
 
-    def __init__(self, plugin_handle, plugin_url, plugin_params):
+    def __init__(self, plugin_handle, plugin_url):
         self.addon = xbmcaddon.Addon()
         self.localize = self.addon.getLocalizedString
         self.settings = Settings(self.addon)
@@ -55,26 +55,26 @@ class SvtPlay:
             "background.png")
         self.common = Common(self.addon, plugin_url, plugin_handle, 
             self.default_fanart, self.settings)
-        self.arg_params = helper.get_url_parameters(plugin_params)
-        logging.log("Addon params: {}".format(self.arg_params))
-        self.arg_mode = self.arg_params.get("mode")
-        self.arg_url = self.arg_params.get("url", "")
     
-    def run(self):
-        if self.settings.kids_mode and not self.arg_params:
+    def run(self, plugin_params):
+        arg_params = helper.get_url_parameters(plugin_params)
+        logging.log("Addon params: {}".format(arg_params))
+        arg_mode = arg_params.get("mode")
+        arg_url = arg_params.get("url", "")
+        if self.settings.kids_mode and not arg_params:
             logging.log("Kids mode, redirecting to genre Barn")
-            self.arg_mode = self.MODE_CATEGORY
-            self.arg_url = "barn"
+            arg_mode = self.MODE_CATEGORY
+            arg_url = "barn"
 
         try:
-            self.navigate(self.arg_mode, self.arg_url, self.arg_params)
+            self.navigate(arg_mode, arg_url, arg_params)
         except BlockedForChildrenException:
             dialog = xbmcgui.Dialog()
             dialog.ok("SVT Play", self.addon.getLocalizedString(30504))
             return
 
         cacheToDisc = True
-        if not self.arg_params:
+        if not arg_params:
             # No params means top-level menu.
             # The top-level menu should not be cached as it will prevent
             # Kids mode to take effect when toggled on.
