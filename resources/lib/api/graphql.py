@@ -277,9 +277,9 @@ class GraphQL:
       if raw_item["oppetArkiv"]:
         continue
       title = raw_item["name"]
-      url = raw_item["urls"]["svtplay"]
+      id = raw_item["urls"]["svtplay"]
       geo_restricted = raw_item["restrictions"]["onlyAvailableInSweden"]
-      item = self.__create_item(title, url, geo_restricted)
+      item = self.__create_item(title, id, geo_restricted)
       items.append(item)
     return sorted(items, key=lambda item: item.title)
 

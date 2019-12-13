@@ -81,7 +81,7 @@ class SvtPlay:
             cacheToDisc = False
         xbmcplugin.endOfDirectory(self.plugin_handle, cacheToDisc=cacheToDisc)
 
-    def navigate(self, mode, url, params):
+    def navigate(self, mode, id, params):
         if not mode:
             self.view_start()
         elif mode == self.MODE_A_TO_O:
@@ -92,11 +92,11 @@ class SvtPlay:
         elif mode == self.MODE_CATEGORIES:
             self.view_categories()
         elif mode == self.MODE_CATEGORY:
-            self.view_category(url)
+            self.view_category(id)
         elif mode == self.common.MODE_PROGRAM:
-            self.view_episodes(url)
+            self.view_episodes(id)
         elif mode == self.common.MODE_VIDEO:
-            self.start_video(url)
+            self.start_video(id)
         elif mode == self.MODE_POPULAR or \
             mode == self.MODE_LATEST or \
             mode == self.MODE_LAST_CHANCE or \
@@ -189,8 +189,8 @@ class SvtPlay:
             return
         self.common.create_dir_items(play_items)
 
-    def view_episodes(self, url):
-        slug = url.split("/")[-1]
+    def view_episodes(self, id):
+        slug = id.split("/")[-1]
         logging.log("View episodes for {}".format(slug))
         episodes = self.graphql.getVideoContent(slug)
         self.common.view_episodes(episodes)
