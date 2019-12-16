@@ -174,7 +174,7 @@ class GraphQL:
     if not json_data:
       return None
     supported_show_types = ["TvShow", "KidsTvShow", "TvSeries"]
-    supported_video_types = ["Episode", "Clip"]
+    supported_video_types = ["Episode", "Clip", "Single"]
     results = []
     for search_hit in json_data["search"]:
       item = search_hit["item"]
