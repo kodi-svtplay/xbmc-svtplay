@@ -189,8 +189,7 @@ class SvtPlay:
             return
         self.common.create_dir_items(play_items)
 
-    def view_episodes(self, id):
-        slug = id.split("/")[-1]
+    def view_episodes(self, slug):
         logging.log("View episodes for {}".format(slug))
         episodes = self.graphql.getVideoContent(slug)
         self.common.view_episodes(episodes)
