@@ -32,10 +32,9 @@ def get_url_parameters(url):
 def getInputFromKeyboard(heading):
   keyboard = Keyboard(heading=heading)
   keyboard.doModal()
-
+  text = ""
   if keyboard.isConfirmed():
       text = keyboard.getText()
-
   return text
 
 def get_thumb_url(thumbUrl, baseUrl):
