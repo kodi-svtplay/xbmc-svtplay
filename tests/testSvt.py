@@ -44,5 +44,16 @@ class TestSvtModule(unittest.TestCase):
     self.assertIsNotNone(video_json)
     self.assertTrue(video_json["videoReferences"])
 
+  def test_episode_url_to_show_url(self):
+    url = "/video/22132986/some-thing-here/abel-och-fant-sasong-2-kupa-pa-rymmen"
+    actual = svt.episodeUrlToShowUrl(url)
+    expected = "/some-thing-here"
+    self.assertEqual(actual, expected)
+
+  def test_single_video_url_to_show_url(self):
+    url = "/video/22132986/some-thing-here"
+    actual = svt.episodeUrlToShowUrl(url)
+    self.assertIsNone(actual)
+
 if __name__ == "__main__":
   unittest.main()

@@ -6,6 +6,7 @@ from resources.lib.playback import Playback
 from resources.lib.listing.listitem import PlayItem
 from resources.lib import helper
 from resources.lib import logging
+import resources.lib.api.svt as svt
 
 try:
   # Python 2
@@ -34,7 +35,7 @@ class Common:
             list_item.setProperty("IsLive", "true")
         if not folder and params["mode"] == self.MODE_VIDEO:
             list_item.setProperty("IsPlayable", "true")
-            show_url = helper.episodeUrlToShowUrl(params["id"])
+            show_url = svt.episodeUrlToShowUrl(params["id"])
             if show_url:
                 context_go_to_params = {
                     "mode" : self.MODE_PROGRAM,
@@ -82,7 +83,7 @@ class Common:
             logging.log("ERROR: Could not get video JSON")
             return
         try:
-            show_obj = helper.resolveShowJSON(video_json)
+            show_obj = svt.resolveShowJson(video_json)
         except ValueError:
             logging.log("Could not decode JSON for {}".format(video_json))
             return

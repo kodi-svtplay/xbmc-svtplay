@@ -128,6 +128,95 @@ def __get_video_version(versions):
     return versions[0]["contentUrl"]
   return None
 
+def episodeUrlToShowUrl(url):
+  """
+  Returns the show URL from episode url.
+  Example: "/video/22132986/abel-och-fant/abel-och-fant-sasong-2-kupa-pa-rymmen" > "/abel-och-fant"
+
+  Returns None for single video items (movies etc)
+  """
+  new_url = None
+  stub_url = url.split("/")
+  if len(stub_url) >= 5:
+    new_url = "/" + stub_url[3]
+  return new_url
+
+def resolveShowJson(json_obj):
+  """
+  Returns an object containing the video and subtitle URL for a show URL.
+  Takes all settings into account.
+  """
+  video_url = None
+  subtitle_url = None
+  video_url = __get_video_url(json_obj)
+  if video_url:
+    subtitle_url = __get_subtitle_url(json_obj)
+    video_url = __clean_url(video_url)
+  return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
+
+def __get_video_url(json_obj):
+  """
+  Returns the video URL from a SVT JSON object.
+  """
+  video_url = None
+  for video in json_obj["videoReferences"]:
+    if video["format"] == "hls":
+      if "resolve" in video:
+         video_url = __get_resolved_url(video["resolve"])
+      if video_url is None:
+          video_url = video["url"]
+  return video_url
+
+def __get_resolved_url(resolve_url):
+  location = None
+  try:
+    response = requests.get(resolve_url, timeout=2)
+    location = response.json()["location"]
+  except Exception:
+    logging.error("Exception when querying " + resolve_url)
+  return location
+
+def __get_subtitle_url(json_obj):
+  """
+  Returns a subtitleURL from a SVT JSON object.
+  """
+  url = None
+  try:
+    for subtitle in json_obj["subtitleReferences"]:
+      if subtitle["url"].endswith(".wsrt"):
+        url = subtitle["url"]
+      else:
+        if len(subtitle["url"]) > 0:
+          logging.log("Skipping unknown subtitle: " + subtitle["url"])
+  except KeyError:
+    pass
+  return url
+
+def __clean_url(video_url):
+  """
+  Returns a cleaned version of the URL.
+
+  Put all permanent and temporary cleaning rules here.
+  """
+  tmp = video_url.split("?")
+  newparas = []
+  if len(tmp) == 2:
+    # query parameters exists
+    newparas.append("?")
+    paras = tmp[1].split("&")
+    for para in paras:
+      if para.startswith("cc1"):
+        # Clean out subtitle parameters for iOS
+        # causing playback issues in xbmc.
+        pass
+      elif para.startswith("alt"):
+        # Web player specific parameter that
+        # Kodi doesn't need.
+        pass
+      else:
+        newparas.append(para)
+  return tmp[0]+"&".join(newparas).replace("?&", "?")
+
 def __get_video_json_for_video_id(video_id):
   url = VIDEO_API_URL + str(video_id)
   logging.log("Getting video JSON for {}".format(url))
