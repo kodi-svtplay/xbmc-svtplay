@@ -37,29 +37,6 @@ def getInputFromKeyboard(heading):
       text = keyboard.getText()
   return text
 
-def get_thumb_url(thumbUrl, baseUrl):
-  return __create_image_url(thumbUrl, baseUrl, "extralarge")
-
-def get_fanart_url(fanartUrl, baseUrl):
-  return __create_image_url(fanartUrl, baseUrl, "extralarge_imax")
-
-def __create_image_url(image_url, base_url, image_size):
-  if not image_url:
-    return ""
-  image_url = __clean_image_url(image_url, base_url)
-  image_url = re.sub(r"\{format\}|small|medium|large|extralarge", image_size, image_url)
-  return image_url
-
-def __clean_image_url(url, baseUrl):
-  if url.startswith("//"):
-    url = url.lstrip("//")
-    url = "http://" + url
-  elif not (url.startswith("http://") or url.startswith("https://")) and baseUrl:
-    url = baseUrl + url
-  # Kodi has issues fetching images over SSL
-  url = url.replace("https", "http")
-  return url
-
 def getVideoURL(json_obj):
   """
   Returns the video URL from a SVT JSON object.
@@ -148,9 +125,3 @@ def episodeUrlToShowUrl(url):
   if len(stub_url) >= 5:
     new_url = "/" + stub_url[3]
   return new_url
-
-def __errorMsg(msg):
-  logging.error(msg)
-
-def _infoMsg(msg):
-  logging.log(msg)
