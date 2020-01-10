@@ -224,7 +224,7 @@ class SvtPlay:
             if self.settings.inappropriate_for_children and video_data["blockedForChildren"]:
                 raise BlockedForChildrenException()
             video_json = svt.getSvtVideoJson(video_data["svtId"])
-        self.__resolve_video(video_json)
+        self.__resolve_and_play_video(video_json)
 
     def __add_directory_item(self, title, params, thumbnail="", folder=True, live=False, info=None, fanart=""):
         list_item = xbmcgui.ListItem(title)
@@ -275,7 +275,7 @@ class SvtPlay:
         return play_item.geo_restricted and \
             self.settings.geo_restriction
     
-    def __resolve_video(self, video_json):
+    def __resolve_and_play_video(self, video_json):
         if video_json is None:
             logging.log("ERROR: Could not get video JSON")
             return
