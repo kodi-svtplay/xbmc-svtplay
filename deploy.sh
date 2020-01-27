@@ -38,7 +38,8 @@ EXCLUDE_FILES="deploy.sh \
               tests/lib/CommonFunctions.py \
               tests/lib/xbmc.py \
               tests/lib/xbmcaddon.py \
-              tests/lib/xbmcgui.py"
+              tests/lib/xbmcgui.py \
+              tests/testListItem.py"
 
 FILES=`git ls-files`
 
