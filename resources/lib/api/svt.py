@@ -143,8 +143,7 @@ def episodeUrlToShowUrl(url):
 
 def resolveShowJson(json_obj):
   """
-  Returns an object containing the video and subtitle URL for a show URL.
-  Takes all settings into account.
+  Returns an object containing the video and subtitle URL.
   """
   video_url = None
   subtitle_url = None
@@ -178,16 +177,17 @@ def __get_resolved_url(resolve_url):
 
 def __get_subtitle_url(json_obj):
   """
-  Returns a subtitleURL from a SVT JSON object.
+  Returns a supported subtitle URL from a SVT JSON object.
   """
+  supported_exts = (".wsrt", ".vtt")
   url = None
   try:
     for subtitle in json_obj["subtitleReferences"]:
-      if subtitle["url"].endswith(".wsrt"):
+      if subtitle["url"].endswith(supported_exts):
         url = subtitle["url"]
       else:
         if len(subtitle["url"]) > 0:
-          logging.log("Skipping unknown subtitle: " + subtitle["url"])
+          logging.log("Skipping unsupported subtitle: " + subtitle["url"])
   except KeyError:
     pass
   return url
