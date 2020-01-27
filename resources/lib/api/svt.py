@@ -21,8 +21,8 @@ except ImportError:
 
 PLAY_BASE_URL = "https://www.svtplay.se"
 PLAY_API_URL = PLAY_BASE_URL+"/api/"
-SVT_API_BASE_URL = "https://api.svt.se/"
-VIDEO_API_URL= SVT_API_BASE_URL+"videoplayer-api/video/"
+SVT_API_BASE_URL = "https://api.svt.se"
+VIDEO_API_URL= SVT_API_BASE_URL+"/videoplayer-api/video/"
 
 def getAlphas():
   """
@@ -68,7 +68,7 @@ def getChannels():
   Returns the live channels from the page "Kanaler".
   """
   time_str = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
-  url = "program-guide/programs?channel=svt1,svt2,svt24,svtb,svtk&includePartiallyOverlapping=true&from={timestamp}&to={timestamp}".format(timestamp=time_str)
+  url = "/program-guide/programs?channel=svt1,svt2,svt24,svtb,svtk&includePartiallyOverlapping=true&from={timestamp}&to={timestamp}".format(timestamp=time_str)
   json_data = __get_svt_json(url)
   if json_data is None:
     return None
