@@ -20,32 +20,24 @@ set -e
 echo "Deploying to $1"
 DEPLOY_DIR=$1
 
-EXCLUDE_FILES="deploy.sh \
+EXCLUDED_FILES="deploy.sh \
               .gitignore \
               __pycache__ \
               .vscode \
               .travis.yml \
               requirements.txt \
-              DEPLOY.md \
               ISSUE_TEMPLATE.md \
-              CONTRIBUTING.md \
-              tests/__init__.py \
-              tests/.gitignore \
-              tests/testSvt.py \
-              tests/testHelper.py \
-              tests/testGraphQL.py \
-              tests/lib/__init__.py
-              tests/lib/CommonFunctions.py \
-              tests/lib/xbmc.py \
-              tests/lib/xbmcaddon.py \
-              tests/lib/xbmcgui.py \
-              tests/testListItem.py"
+              CONTRIBUTING.md"
 
 FILES=`git ls-files`
 
 for FILE in $FILES; do
-  if [[ $EXCLUDE_FILES =~ $FILE ]]; then
+  if [[ $EXCLUDED_FILES =~ $FILE ]]; then
     echo "Skipping excluded file $FILE"
+    continue
+  fi
+  if [[ $FILE == *"tests"* ]]; then
+    echo "Skipping test file $FILE"
     continue
   fi
   echo "Copying $FILE to $DEPLOY_DIR$FILE"
