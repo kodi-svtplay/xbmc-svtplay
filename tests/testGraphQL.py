@@ -29,6 +29,11 @@ class TestGraphQLModule(unittest.TestCase):
         items = sut.getLastChance()
         self.assertItems(items)
 
+    def test_getLive(self):
+        sut = graphql.GraphQL()
+        items = sut.getLive()
+        self.assertItems(items)
+
     def test_getAtoO(self):
         sut = graphql.GraphQL()
         items = sut.getAtoO()
@@ -44,12 +49,12 @@ class TestGraphQLModule(unittest.TestCase):
         items = sut.getGenres()
         self.assertItems(items)
     
-    def test_getProgramsForGenres(self):
+    def test_getProgramsForGenre(self):
         sut = graphql.GraphQL()
-        items = sut.getProgramsForGenre("animerat")
+        items = sut.getProgramsForGenre("drama")
         self.assertItems(items)
     
-    def test_get_episodes(self):
+    def test_get_video_content(self):
         slug = "agenda"
         sut = graphql.GraphQL()
         items = sut.getVideoContent(slug)

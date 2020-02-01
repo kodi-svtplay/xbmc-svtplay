@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# system imports
 from __future__ import absolute_import,unicode_literals
 import re
 import requests
@@ -7,6 +6,7 @@ import time
 # own imports
 from resources.lib import logging
 from resources.lib import helper
+from resources.lib.listing.listitem import VideoItem
 
 try:
   # Python 2
@@ -21,86 +21,8 @@ except ImportError:
 
 PLAY_BASE_URL = "https://www.svtplay.se"
 PLAY_API_URL = PLAY_BASE_URL+"/api/"
-SVT_API_BASE_URL = "https://api.svt.se/"
-VIDEO_API_URL= SVT_API_BASE_URL+"videoplayer-api/video/"
-
-def getCategories():
-  """
-  Returns a list of all categories.
-  """
-  json_data = __get_json("clusters")
-  if json_data is None:
-    return None
-  categories = []
-  for cluster in json_data:
-    category = {}
-    category["title"] = cluster["name"]
-    category["url"] = cluster["contentUrl"]
-    category["genre"] = cluster["slug"]
-    categories.append(category)
-  return categories
-
-def getLatestNews():
-  """
-  Returns a list of latest news programs.
-  """
-  json_data = __get_json("cluster_latest?cluster=nyheter")
-  if json_data is None:
-    return None
-  programs = []
-  for item in json_data:
-    live_str = ""
-    thumbnail = item.get("thumbnail", "")
-    if item["broadcastedNow"]:
-      live_str = " " + "[COLOR red](Live)[/COLOR]"
-    versions = item.get("versions", [])
-    url = "video/" + item["contentUrl"]
-    if versions:
-      url = __get_video_version(versions)
-    program = {
-      "title" : unescape(item["programTitle"] + " " + (item["title"] or "") + live_str),
-      "thumbnail" : helper.get_thumb_url(thumbnail, baseUrl=PLAY_BASE_URL),
-      "url" : url,
-      "info" : { 
-        "duration" : item.get("materialLength", 0), 
-        "fanart" : helper.get_fanart_url(item.get("poster", ""), baseUrl=PLAY_BASE_URL)
-      },
-      "onlyAvailableInSweden": item.get("onlyAvailableInSweden", False)
-    }
-    programs.append(program)
-  return programs
-
-def getProgramsForGenre(genre):
-  """
-  Returns a list of all programs for a genre.
-  """
-  json_data = __get_json("cluster_titles_and_episodes?cluster="+genre)
-  if json_data is None:
-    return None
-  programs = []
-  for json_item in json_data:
-    versions = json_item.get("versions", [])
-    content_type = "video"
-    if versions:
-      url = __get_video_version(versions)
-    else:
-      url = json_item["contentUrl"]
-      content_type = "program"
-    title = json_item["programTitle"]
-    plot = json_item.get("description", "")
-    thumbnail = helper.get_thumb_url(json_item.get("thumbnail", ""), PLAY_BASE_URL)
-    if not thumbnail:
-      thumbnail = helper.get_thumb_url(json_item.get("poster", ""), PLAY_BASE_URL)
-    info = {"plot": plot, "thumbnail": thumbnail, "fanart": thumbnail}
-    programs.append({
-      "title": title,
-      "url": url,
-      "thumbnail": thumbnail,
-      "info": info,
-      "type" : content_type,
-      "onlyAvailableInSweden" : json_item["onlyAvailableInSweden"]
-    })
-  return programs
+SVT_API_BASE_URL = "https://api.svt.se"
+VIDEO_API_URL= SVT_API_BASE_URL+"/videoplayer-api/video/"
 
 def getAlphas():
   """
@@ -146,29 +68,30 @@ def getChannels():
   Returns the live channels from the page "Kanaler".
   """
   time_str = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
-  url = "program-guide/programs?channel=svt1,svt2,svt24,svtb,svtk&includePartiallyOverlapping=true&from={timestamp}&to={timestamp}".format(timestamp=time_str)
+  url = "/program-guide/programs?channel=svt1,svt2,svt24,svtb,svtk&includePartiallyOverlapping=true&from={timestamp}&to={timestamp}".format(timestamp=time_str)
   json_data = __get_svt_json(url)
   if json_data is None:
     return None
   items = []
   for channel in json_data["hits"]:
-    item = {}
     program_title = channel["programmeTitle"]
     ch_id = channel["channel"].lower()
     if channel["channel"] == "SVTK":
       ch_id="kunskapskanalen"
     elif channel["channel"] == "SVTB":
       ch_id="barnkanalen"
-    item["title"] = ch_id.upper() + " - " + program_title
+    title = ch_id.upper() + " - " + program_title
     if channel["live"]:
-      item["title"] = item["title"] + " [COLOR red]Live[/COLOR]"
-    item["info"] = {}
-    item["info"]["plot"] = channel.get("longDescription", "No description")
-    item["info"]["title"] = item["title"]
-    item["url"] = "ch-" + ch_id
-    item["thumbnail"] = ""
-    item["onlyAvailableInSweden"] = True # Channels are always geo restricted
-    items.append(item)
+      title = title + " [COLOR red]Live[/COLOR]"
+    info = {
+      "plot" : channel.get("longDescription", "No description"),
+      "title" : title
+    }
+    video_id = "ch-" + ch_id
+    thumbnail = ""
+    geo_restricted = True # Channels are always geo restricted
+    video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info)
+    items.append(video_item)
   return items
 
 def getVideoJSON(video_id):
@@ -204,6 +127,95 @@ def __get_video_version(versions):
         return version["contentUrl"]
     return versions[0]["contentUrl"]
   return None
+
+def episodeUrlToShowUrl(url):
+  """
+  Returns the show URL from episode url.
+  Example: "/video/22132986/abel-och-fant/abel-och-fant-sasong-2-kupa-pa-rymmen" > "/abel-och-fant"
+
+  Returns None for single video items (movies etc)
+  """
+  new_url = None
+  stub_url = url.split("/")
+  if len(stub_url) >= 5:
+    new_url = "/" + stub_url[3]
+  return new_url
+
+def resolveShowJson(json_obj):
+  """
+  Returns an object containing the video and subtitle URL.
+  """
+  video_url = None
+  subtitle_url = None
+  video_url = __get_video_url(json_obj)
+  if video_url:
+    subtitle_url = __get_subtitle_url(json_obj)
+    video_url = __clean_url(video_url)
+  return {"videoUrl": video_url, "subtitleUrl": subtitle_url}
+
+def __get_video_url(json_obj):
+  """
+  Returns the video URL from a SVT JSON object.
+  """
+  video_url = None
+  for video in json_obj["videoReferences"]:
+    if video["format"] == "hls":
+      if "resolve" in video:
+         video_url = __get_resolved_url(video["resolve"])
+      if video_url is None:
+          video_url = video["url"]
+  return video_url
+
+def __get_resolved_url(resolve_url):
+  location = None
+  try:
+    response = requests.get(resolve_url, timeout=2)
+    location = response.json()["location"]
+  except Exception:
+    logging.error("Exception when querying " + resolve_url)
+  return location
+
+def __get_subtitle_url(json_obj):
+  """
+  Returns a supported subtitle URL from a SVT JSON object.
+  """
+  supported_exts = (".wsrt", ".vtt")
+  url = None
+  try:
+    for subtitle in json_obj["subtitleReferences"]:
+      if subtitle["url"].endswith(supported_exts):
+        url = subtitle["url"]
+      else:
+        if len(subtitle["url"]) > 0:
+          logging.log("Skipping unsupported subtitle: " + subtitle["url"])
+  except KeyError:
+    pass
+  return url
+
+def __clean_url(video_url):
+  """
+  Returns a cleaned version of the URL.
+
+  Put all permanent and temporary cleaning rules here.
+  """
+  tmp = video_url.split("?")
+  newparas = []
+  if len(tmp) == 2:
+    # query parameters exists
+    newparas.append("?")
+    paras = tmp[1].split("&")
+    for para in paras:
+      if para.startswith("cc1"):
+        # Clean out subtitle parameters for iOS
+        # causing playback issues in xbmc.
+        pass
+      elif para.startswith("alt"):
+        # Web player specific parameter that
+        # Kodi doesn't need.
+        pass
+      else:
+        newparas.append(para)
+  return tmp[0]+"&".join(newparas).replace("?&", "?")
 
 def __get_video_json_for_video_id(video_id):
   url = VIDEO_API_URL + str(video_id)
