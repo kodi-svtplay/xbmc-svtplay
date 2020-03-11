@@ -26,10 +26,6 @@ class TestSvtModule(unittest.TestCase):
     alphas = svt.getAlphas()
     self.assertHasContentStrict(alphas)
 
-  def test_get_channels(self):
-    items = svt.getChannels()
-    self.assertHasContentStrict(items)
-
   def test_get_video_json(self):
     json_obj = svt.getVideoJSON("ch-svt2")
     self.assertHasContent(json_obj)
