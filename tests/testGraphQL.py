@@ -95,3 +95,8 @@ class TestGraphQLModule(unittest.TestCase):
         sut = graphql.GraphQL()
         actual_url = sut.get_thumbnail_url(image_id, image_changed)
         self.assertEqual(expected_url, actual_url)
+
+    def test_getChannels(self):
+        sut = graphql.GraphQL()
+        channels = sut.getChannels()
+        self.assertItems(channels)
