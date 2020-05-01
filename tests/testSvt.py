@@ -33,9 +33,10 @@ class TestSvtModule(unittest.TestCase):
   def test_get_svt_video_json(self):
     """
     This test is using an actual video ID.
-    Might break in April 2020... 
+    https://www.svtplay.se/video/22789702/babblarna/sov-gott-babblarna-sasong-5-avsnitt-9
+    Might break in Match 4th 2021... 
     """
-    svt_id = "KABdbpw"
+    svt_id = "ew17zDY"
     video_json = svt.getSvtVideoJson(svt_id)
     self.assertIsNotNone(video_json)
     self.assertTrue(video_json["videoReferences"])

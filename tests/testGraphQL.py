@@ -79,10 +79,11 @@ class TestGraphQLModule(unittest.TestCase):
     def test_get_video_data_for_legacy_id(self):
         """
         This test is using an actual video ID.
-        Might break in April 2020... 
+        https://www.svtplay.se/video/22789702/babblarna/sov-gott-babblarna-sasong-5-avsnitt-9
+        Might break in Match 4th 2021... 
         """
-        legacy_id = "24186626"
-        expected_id = "KABdbpw"
+        legacy_id = "22789702"
+        expected_id = "ew17zDY"
         sut = graphql.GraphQL()
         video_data = sut.getVideoDataForLegacyId(legacy_id)
         self.assertEqual(video_data["svtId"], expected_id)
