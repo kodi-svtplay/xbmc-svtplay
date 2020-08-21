@@ -65,6 +65,9 @@ class SvtPlay:
         logging.log("Addon params: {}".format(arg_params))
         arg_mode = arg_params.get("mode")
         arg_id = arg_params.get("id", "")
+        if arg_id is "":
+            arg_id = arg_params.get("url", "")
+        
         if self.settings.kids_mode and not arg_params:
             logging.log("Kids mode, redirecting to genre Barn")
             arg_mode = self.MODE_CATEGORY
