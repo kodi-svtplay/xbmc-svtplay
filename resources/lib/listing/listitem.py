@@ -9,7 +9,7 @@ class PlayItem(object):
     VIDEO_ITEM = "video"
     SHOW_ITEM = "show"
 
-    def __init__(self, title, id, item_type, thumbnail="", geo_restricted=False, info={}, fanart=""):
+    def __init__(self, title, id, item_type, thumbnail="", geo_restricted=False, info={}, fanart="", season_title=""):
         if not title:
             raise ValueError("Title is missing!")
         if not id:
@@ -23,6 +23,7 @@ class PlayItem(object):
         self.item_type = item_type
         self.info = info
         self.fanart = fanart
+        self.season_title = season_title
 
     def __str__(self):
         return "{title:" + self.title + ", id:" + self.id + "}"
@@ -34,8 +35,8 @@ class VideoItem(PlayItem):
     """
     A video list item.
     """
-    def __init__(self, title, video_id, thumbnail, geo_restricted, info={}, fanart=""):
-        super(VideoItem, self).__init__(title, video_id, PlayItem.VIDEO_ITEM, thumbnail, geo_restricted, info, fanart)
+    def __init__(self, title, video_id, thumbnail, geo_restricted, info={}, fanart="", season_title=""):
+        super(VideoItem, self).__init__(title, video_id, PlayItem.VIDEO_ITEM, thumbnail, geo_restricted, info, fanart, season_title)
 
 class ShowItem(PlayItem):
     """

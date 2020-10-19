@@ -113,6 +113,9 @@ class GraphQL:
         continue
       for item in content["items"]:
         item = item["item"]
+        season_title = ""
+        if content["type"] == "Season" and content["name"]:
+          season_title = content["name"]
         title = item["name"]
         video_id = item["urls"]["svtplay"]
         geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
@@ -122,7 +125,7 @@ class GraphQL:
           "plot" : item["longDescription"],
           "duration" : item.get("duration", 0)
         }
-        video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
+        video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart, season_title)
         video_items.append(video_item)
     return video_items
 
@@ -155,6 +158,7 @@ class GraphQL:
       info = {
         "duration": item["duration"]
       }
+      season_title = ""
       video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
       latest_items.append(video_item)
     return latest_items
@@ -261,6 +265,7 @@ class GraphQL:
     for item in selection["items"]:
       image_id = item["images"]["cleanWide"]["id"]
       image_changed = item["images"]["cleanWide"]["changed"]
+      logging.log("item: {}".format(item))
       title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       item = item["item"]
       video_id = item["urls"]["svtplay"]
