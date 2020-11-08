@@ -158,7 +158,6 @@ class GraphQL:
       info = {
         "duration": item["duration"]
       }
-      season_title = ""
       video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
       latest_items.append(video_item)
     return latest_items
@@ -265,7 +264,6 @@ class GraphQL:
     for item in selection["items"]:
       image_id = item["images"]["cleanWide"]["id"]
       image_changed = item["images"]["cleanWide"]["changed"]
-      logging.log("item: {}".format(item))
       title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       item = item["item"]
       video_id = item["urls"]["svtplay"]
