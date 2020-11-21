@@ -8,6 +8,8 @@ on:
     branches: [ krypton ]
   pull_request:
     branches: [ krypton ]
+  schedule:
+    - cron: '0 19 * * *'
 
 jobs:
   build:
