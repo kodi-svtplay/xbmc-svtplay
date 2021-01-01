@@ -4,5 +4,6 @@
 .travis.yml export-ignore
 .github export-ignore
 ISSUE_TEMPLATE.md export-ignore
+requirements.txt export-ignore
 deploy.sh export-ignore
 
