@@ -1,5 +1,5 @@
 # Kodi SVT Play Addon
-![Python tests](https://github.com/nilzen/xbmc-svtplay/workflows/Python%20package/badge.svg?branch=krypton)
+![Python test suite](https://github.com/kodi-svtplay/xbmc-svtplay/workflows/Python%20test%20suite/badge.svg)
 
 With this addon you can stream content from SVT Play (svtplay.se).
 
