@@ -21,7 +21,7 @@ jobs:
         addon-id: plugin.video.svtplay
         kodi-matrix: true
       env: # Make sure you create the below secrets (GH_TOKEN and EMAIL)
-        GH_USERNAME: ${{ github.actor }}
+        GH_USERNAME: ${{ secrets.GH_USERNAME }}
         GH_TOKEN: ${{secrets.GH_TOKEN}}
         EMAIL: ${{secrets.EMAIL}}
     - name: Create Github Release
