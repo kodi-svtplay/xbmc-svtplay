@@ -156,7 +156,7 @@ class GraphQL:
       fanart = self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
       geo_restricted = item["restrictions"].get("onlyAvailableInSweden", False)
       info = {
-        "duration": item["duration"]
+        "duration": item.get("duration", 0)
       }
       video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
       latest_items.append(video_item)
