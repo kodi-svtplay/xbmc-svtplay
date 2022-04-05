@@ -243,9 +243,10 @@ class GraphQL:
     return self.__get_image_url(image_id, image_changed, "poster")
 
   def __get_start_page_selection(self, selection_id):
-    operation_name = "StartPage"
-    query_hash = "c011159df51539c3604fc09a6ca856af833715d1477d0082afe5a9a871477569"
-    json_data = self.__get(operation_name, query_hash=query_hash)
+    operation_name = "GridPage"
+    query_hash = "b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24"
+    variables = { "selectionId": selection_id }
+    json_data = self.__get(operation_name, query_hash=query_hash, variables=variables)
     if not json_data:
       return None
     selections = json_data["startForSvtPlay"]["selections"]
@@ -262,20 +263,17 @@ class GraphQL:
       return None
     video_items = []
     for item in selection["items"]:
-      image_id = item["images"]["cleanWide"]["id"]
-      image_changed = item["images"]["cleanWide"]["changed"]
+      image_id = item["images"]["wide"]["id"]
+      image_changed = item["images"]["wide"]["changed"]
       title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       item = item["item"]
       video_id = item["urls"]["svtplay"]
-      parent_image_id = item["parent"]["images"]["wide"]["id"]
-      parent_image_changed = item["parent"]["images"]["wide"]["changed"]
       thumbnail = self.get_thumbnail_url(image_id, image_changed)
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
       video_info = {
         "plot": item["longDescription"]
       }
-      fanart = self.get_fanart_url(parent_image_id, parent_image_changed)
-      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, video_info, fanart)
+      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info=video_info)
       video_items.append(video_item)
     return video_items
 
