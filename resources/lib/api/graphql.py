@@ -164,27 +164,25 @@ class GraphQL:
 
   def getSearchResults(self, query_string):
     operation_name = "SearchPage"
-    query_hash = "bed799b6f3105046779adff02a29028c1847782da4b171e9fe1bcc48622a342d"
+    query_hash = "ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606"
     variables = {"querystring":query_string}
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data:
       return None
     results = []
-    for search_hit in json_data["search"]:
-      item = search_hit["item"]
+    for search_hit in json_data["searchPage"]["flat"]["hits"]:
+      item = search_hit["teaser"]["item"]
       type_name = item["__typename"]
       if not self.__is_supported_type(type_name):
         logging.log("Unsupported search result type \"{}\"".format(type_name))
         logging.log(item)
         continue
-      title = item["name"]
-      if "parent" in item:
-        title = "{parent} - {name}".format(name=item["name"], parent=item["parent"]["name"])
+      title = search_hit["teaser"]["heading"]
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
       item_id = item["urls"]["svtplay"]
       thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
       info = {
-        "plot" : item["longDescription"]
+        "plot" : search_hit["teaser"]["description"]
       }
       play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info)
       results.append(play_item)
