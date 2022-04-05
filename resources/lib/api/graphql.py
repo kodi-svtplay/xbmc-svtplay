@@ -211,7 +211,7 @@ class GraphQL:
 
   def getChannels(self):
     operation_name = "ChannelsQuery"
-    query_hash = "65ceeccf67cc8334bc14eb495eb921cffebf34300562900076958856e1a58d37"
+    query_hash = "210be4b72f03223b990f031d9a2e3501ff9284f8d2c66b01b255a807775f0b19"
     json_data = self.__get(operation_name, query_hash)
     if not json_data:
       return None
