@@ -279,12 +279,12 @@ class SvtPlay:
     
     def __resolve_and_play_video(self, video_json):
         if video_json is None:
-            logging.log("ERROR: Could not get video JSON")
+            logging.error("Could not get video JSON")
             return
         try:
             show_obj = svt.resolveShowJson(video_json)
         except ValueError:
-            logging.log("Could not decode JSON for {}".format(video_json))
+            logging.error("Could not decode JSON for {}".format(video_json))
             return
         if show_obj["videoUrl"]:
             self.playback.play_video(show_obj["videoUrl"], show_obj.get("subtitleUrl", None), self.settings.show_subtitles)
