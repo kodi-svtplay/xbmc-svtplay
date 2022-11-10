@@ -269,7 +269,7 @@ class SvtPlay:
         fanart = play_item.fanart if play_item.item_type == PlayItem.VIDEO_ITEM else ""
         title = play_item.title
         if play_item.item_type == PlayItem.VIDEO_ITEM and play_item.season_title:
-            title = "{season} - {episode}".format(season=play_item.season_title, episode=play_item.title)
+            title = "{episode} ({season})".format(season=play_item.season_title, episode=play_item.title)
         self.__add_directory_item(title, params, play_item.thumbnail, folder, False, info, fanart)
 
     def __is_geo_restricted(self, play_item):
