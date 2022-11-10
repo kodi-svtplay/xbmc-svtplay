@@ -89,6 +89,17 @@ class TestGraphQLModule(unittest.TestCase):
         self.assertEqual(video_data["svtId"], expected_id)
         self.assertEqual(video_data["blockedForChildren"], False)
 
+    def test_get_video_data_for_video_url(self):
+        """
+        This test is using an actual video url.
+        """
+        video_url = "/video/36902895/agenda/agenda-6-nov-21-15-1"
+        expected_id = "KZL454V"
+        sut = graphql.GraphQL()
+        video_data = sut.getVideoDataForVideoUrl(video_url)
+        self.assertEqual(video_data["svtId"], expected_id)
+        self.assertEqual(video_data["blockedForChildren"], False)
+
     def test_get_thumbnail_url(self):
         image_id = "1234"
         image_changed = 5678
