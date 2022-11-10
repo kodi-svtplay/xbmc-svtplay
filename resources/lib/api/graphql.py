@@ -114,7 +114,7 @@ class GraphQL:
       for item in content["items"]:
         item = item["item"]
         season_title = ""
-        if content["type"] == "Season" and content["name"] and item["positionInSeason"]:
+        if content["type"] == "Season" and content["name"] and "positionInSeason" in item:
           season_title = content["name"]
         title = item["name"]
         video_id = item["urls"]["svtplay"]
