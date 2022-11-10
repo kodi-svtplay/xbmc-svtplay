@@ -20,6 +20,7 @@
     <forum>https://forum.kodi.tv/showthread.php?tid=67110</forum>
     <news>
 - Fix broken playback and listing for some items
+- Change item listing to "TITLE (SEASON)" for easier episode overview
     </news>
     <assets>
       <icon>icon.png</icon>
