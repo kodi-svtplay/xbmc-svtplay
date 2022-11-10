@@ -219,8 +219,7 @@ class SvtPlay:
         if channel_pattern.search(video_url):
             video_json = svt.getVideoJSON(video_url)
         else:
-            legacy_id = video_url.split("/")[2]
-            video_data = self.graphql.getVideoDataForLegacyId(legacy_id)
+            video_data = self.graphql.getVideoDataForVideoUrl(video_url)
             if self.settings.inappropriate_for_children and video_data["blockedForChildren"]:
                 raise BlockedForChildrenException()
             video_json = svt.getSvtVideoJson(video_data["svtId"])
