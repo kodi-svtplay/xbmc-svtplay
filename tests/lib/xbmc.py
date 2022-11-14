@@ -11,17 +11,13 @@ LOGERROR = 2
 def log(msg, level=None):
   print(msg)
 
-def translatePath(path):
-  if path.startswith("special://profile/addon_data/"):
-    return "favorites.json"
-  return "./"
-
-
 class Player:
 
-  def play(self, item=None, listitem=None, windowed=None, startpos=None):
-    if item:
-      log("Player is playing "+str(item))
+  def isPlaying(self):
+    return True
+
+  def showSubtitles(self, show):
+    pass
 
 class PlayList:
 
