@@ -1,8 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
 import re
-import sys
 
 import xbmc  # pylint: disable=import-error
 import xbmcaddon  # pylint: disable=import-error
