@@ -34,5 +34,8 @@ class TestSvtPlay(unittest.TestCase):
         sut.run(url)
         if isFolder:
             self.assertDirectoryHasItems()
-        else:
-            self.assertTrue("m3u8" in xbmcplugin.getResolvedListItemPath(), "Path is not a m3u8 playlist")
+            item = xbmcplugin.getRandomDirectoryItem()
+            (url, _, isFolder) = item
+            xbmcplugin.clearDirectoryItems()
+            sut.run(url)
+        self.assertTrue("m3u8" in xbmcplugin.getResolvedListItemPath(), "Path is not a m3u8 playlist")
