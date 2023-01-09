@@ -47,6 +47,12 @@ class TestSvtModule(unittest.TestCase):
     expected = "some-thing-here"
     self.assertEqual(actual, expected)
 
+  def test_episode_url_to_show_url_2(self):
+    url = "/bluey"
+    actual = svt.episodeUrlToShowUrl(url)
+    expected = "bluey"
+    self.assertEqual(actual, expected)
+
   def test_single_video_url_to_show_url(self):
     url = "/video/22132986/some-thing-here"
     actual = svt.episodeUrlToShowUrl(url)
