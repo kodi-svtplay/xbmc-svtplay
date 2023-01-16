@@ -169,7 +169,12 @@ class GraphQL:
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data:
       return None
+
+    if not json_data['searchPage']['flat']:
+        return []
+
     results = []
+
     for search_hit in json_data["searchPage"]["flat"]["hits"]:
       item = search_hit["teaser"]["item"]
       type_name = item["__typename"]
