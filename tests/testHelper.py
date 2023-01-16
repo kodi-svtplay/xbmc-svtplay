@@ -15,5 +15,20 @@ class TestHelperModule(unittest.TestCase):
         expected = { "id" : "http://stream.video/ä.m3u8", "mode" : "video"}
         self.assertDictEqual(actual, expected)
 
+    def test_strip_html_tags_with_tags(self):
+        actual = helper.strip_html_tags('<em>Once upon a time</em>')
+        expected = 'Once upon a time'
+        self.assertEqual(actual, expected)
+
+    def test_strip_html_tags_without_tags(self):
+        actual = helper.strip_html_tags('Once upon a time')
+        expected = 'Once upon a time'
+        self.assertEqual(actual, expected)
+
+    def test_strip_html_tags_with_None(self):
+        actual = helper.strip_html_tags(None)
+        expected = None
+        self.assertEqual(actual, expected)
+
 if __name__ == "__main__":
   unittest.main()

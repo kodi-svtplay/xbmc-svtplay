@@ -3,6 +3,7 @@ from __future__ import absolute_import,unicode_literals
 import json
 import re
 import requests
+from resources.lib.helper import strip_html_tags
 from resources.lib import logging
 from resources.lib.listing.listitem import VideoItem, ShowItem
 
@@ -312,6 +313,11 @@ class GraphQL:
     return sorted(items, key=lambda item: item.title)
 
   def __create_item(self, title, type_name, item_id, geo_restricted, thumbnail="", info={}, fanart=""):
+    title = strip_html_tags(title)
+
+    for k in info:
+        info[k] = strip_html_tags(info[k])
+
     if self.__is_video(type_name):
       return VideoItem(title, item_id, thumbnail, geo_restricted, info=info, fanart=fanart)
     elif self.__is_show(type_name):
