@@ -76,19 +76,6 @@ class TestGraphQLModule(unittest.TestCase):
             # any results => raise error to alert
             self.fail("search returned no results")
 
-    def test_get_video_data_for_legacy_id(self):
-        """
-        This test is using an actual video ID.
-        https://www.svtplay.se/video/22789702/babblarna/sov-gott-babblarna-sasong-5-avsnitt-9
-        Might break in Match 4th 2021... 
-        """
-        legacy_id = "22789702"
-        expected_id = "ew17zDY"
-        sut = graphql.GraphQL()
-        video_data = sut.getVideoDataForLegacyId(legacy_id)
-        self.assertEqual(video_data["svtId"], expected_id)
-        self.assertEqual(video_data["blockedForChildren"], False)
-
     def test_get_video_data_for_video_url(self):
         """
         This test is using an actual video url.

@@ -194,25 +194,6 @@ class GraphQL:
       results.append(play_item)
     return results
 
-  def getVideoDataForLegacyId(self, legacy_id):
-    """
-    legacy_id is the integer part of a video URL.
-    24186626 in the case of /video/24186626/filip-och-mona/filip-och-mona-sasong-1-avsnitt-1
-    """
-    operation_name = "VideoPage"
-    query_hash = "ae75c500d4f6f8743f6673f8ade2f8af89fb019d4b23f464ad84658734838c78"
-    variables = {"legacyIds":[legacy_id]}
-    json_data = self.__get(operation_name, query_hash, variables=variables)
-    if not json_data:
-      return None
-    if not json_data["listablesByEscenicId"]:
-      logging.error("Could not find legacy ID {}".format(legacy_id))
-      return None
-    return {
-      "svtId" : json_data["listablesByEscenicId"][0]["svtId"],
-      "blockedForChildren" : json_data["listablesByEscenicId"][0]["restrictions"]["blockedForChildren"]
-    }
-
   def getVideoDataForVideoUrl(self, video_url):
     """
     Returns video data for any video url.
