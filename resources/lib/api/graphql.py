@@ -365,4 +365,8 @@ class GraphQL:
       logging.error("Request failed, code: {code}, url: {url}".format(code=response.status_code, url=url))
       return None
     json_data = response.json()
-    return json_data["data"]
+    try:
+      return json_data["data"]
+    except KeyError:
+      logging.error("Missing key 'data' in JSON response: {} for operationName={}, variables={}, queryHash={}".format(response.json(), operation_name, variables, query_hash))
+      return None
