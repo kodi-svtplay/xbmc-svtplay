@@ -9,6 +9,10 @@ LOGDEBUG = 1
 LOGERROR = 2
 
 def log(msg, level=None):
+  FAIL = '\033[91m'
+  ENDC = '\033[0m'
+  if level == LOGERROR:
+    print("{} {} {}".format(FAIL, msg, ENDC))
   print(msg)
 
 class Player:
