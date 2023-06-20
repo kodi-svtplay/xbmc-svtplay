@@ -263,12 +263,13 @@ class GraphQL:
     if not selection:
       logging.error("Selection {selection_id} was not found in selections".format(selection_id=selection_id))
       return None
-    video_items = []
+    list_items = []
     for item in selection["items"]:
       image_id = item["images"]["wide"]["id"]
       image_changed = item["images"]["wide"]["changed"]
       title = "{show} - {episode}".format(show=item["heading"], episode=item["subHeading"])
       item = item["item"]
+      type_name = item["__typename"]
       video_id = item["urls"]["svtplay"]
       thumbnail = self.get_thumbnail_url(image_id, image_changed)
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
@@ -276,9 +277,14 @@ class GraphQL:
         "plot": item["longDescription"]
       }
       fanart = self.get_fanart_url(image_id, image_changed)
-      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info=video_info, fanart=fanart)
-      video_items.append(video_item)
-    return video_items
+      if self.__is_video(type_name):
+        list_items.append(VideoItem(title, video_id, thumbnail, geo_restricted, info=video_info, fanart=fanart))
+      elif self.__is_show(type_name):
+        slug = video_id.split("/")[-1]
+        list_items.append(ShowItem(title, slug, thumbnail, geo_restricted, info=video_info, fanart=fanart))
+      else:
+        raise ValueError("Type {} is not supported!".format(type_name))
+    return list_items
 
   def __get_all_programs(self):
     operation_name = "ProgramsListing"
