@@ -132,9 +132,9 @@ class GraphQL:
 
   def getSearchResults(self, query_string):
     operation_name = "SearchPage"
-    query_hash = "ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606"
-    variables = {"querystring":query_string}
-    json_data = self.__get(operation_name, query_hash, variables=variables)
+    query_hash = "f097c31299aa9b4ecdc4aaaf98a14444efda5dfbbc8cdaaeb7c3be37ae2b036a"
+    variables = {"query":query_string}
+    json_data = self.__fetch(operation_name, query_hash, variables=variables)
     if not json_data:
       return None
 
