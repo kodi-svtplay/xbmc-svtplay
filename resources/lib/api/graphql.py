@@ -130,39 +130,6 @@ class GraphQL:
         video_items.append(video_item)
     return video_items
 
-  def getLatestNews(self):
-    return self.__get_latest_for_genre("nyheter")
-  
-  def __get_latest_for_genre(self, genre):
-    operation_name = "GenreLists"
-    query_hash = "90dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c"
-    variables = {"genre":[genre]}
-    json_data = self.__get(operation_name, query_hash, variables=variables)
-    if not json_data or not json_data["genres"]:
-      return None
-    raw_items = []
-    if not json_data["genres"][0]["selectionsForWeb"]:
-      return None
-    for selection in json_data["genres"][0]["selectionsForWeb"]:
-      if selection["id"] != "latest-{}".format(genre):
-        continue
-      raw_items = selection["items"]
-    latest_items = []
-    for teaser in raw_items:
-      title = "{show} - {episode}".format(show=teaser["heading"], episode=teaser["subHeading"])
-      images = teaser.get("images", None)
-      item = teaser["item"]
-      video_id = item["urls"]["svtplay"]
-      thumbnail = self.get_thumbnail_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
-      fanart = self.get_fanart_url(images["wide"]["id"], images["wide"]["changed"]) if images else ""
-      geo_restricted = item["restrictions"].get("onlyAvailableInSweden", False)
-      info = {
-        "duration": item.get("duration", 0)
-      }
-      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart)
-      latest_items.append(video_item)
-    return latest_items
-
   def getSearchResults(self, query_string):
     operation_name = "SearchPage"
     query_hash = "ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606"
