@@ -53,13 +53,13 @@ class GraphQL:
     return items
 
   def getGenres(self):
-    operation_name = "AllGenres"
-    query_hash = "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c"
+    operation_name = "MainGenres"
+    query_hash = "65b3d9bccd1adf175d2ad6b1aaa482bb36f382f7bad6c555750f33322bc2b489"
     json_data = self.__get(operation_name, query_hash)
     if not json_data:
       return None
     genres = []
-    for item in json_data["genresSortedByName"]["genres"]:
+    for item in json_data["genresInMain"]["genres"]:
       genre = {}
       genre["title"] = item["name"]
       genre["genre"] = item["id"]
@@ -67,29 +67,29 @@ class GraphQL:
     return genres
 
   def getProgramsForGenre(self, genre):
-    operation_name = "GenreProgramsAO"
-    query_hash = "189b3613ec93e869feace9a379cca47d8b68b97b3f53c04163769dcffa509318"
-    variables = {"genre":[genre]}
+    operation_name = "CategoryPageQuery"
+    query_hash = "00be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf"
+    variables = {"id":genre, "tab": "all"}
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data:
       return None
-    raw_items = []
-    for selection in json_data["genres"][0]["selectionsForWeb"]:
-      if selection["id"] == "all-{}".format(genre):
-        raw_items = selection
+    selections = []
+    for tab in json_data["categoryPage"]["lazyLoadedTabs"]:
+      if tab["id"] == "program-ao-{}".format(genre):
+        selections = tab["selections"][0]
         break
-    if not raw_items:
+    if not selections:
       logging.error("Could not find content for genre {}".format(genre))
       return None
     programs = []
-    for item in raw_items["items"]:
-      item = item["item"]
+    for teaser in selections["items"]:
+      item = teaser["item"]
       title = item["name"]
       item_id = item["urls"]["svtplay"]
       thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
       info = {
-        "plot" : item["longDescription"]
+        "plot" : teaser["subHeading"]
       }
       type_name = item["__typename"]
       play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info)
