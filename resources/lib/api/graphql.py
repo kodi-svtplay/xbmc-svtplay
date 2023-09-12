@@ -136,21 +136,19 @@ class GraphQL:
     show_data = json_data["detailsPageByPath"]
     show_image_id = show_data["images"]["wide"]["id"]
     show_image_changed = show_data["images"]["wide"]["changed"]
-    for content in json_data["detailsPageByPath"]["associatedContent"]:
-      if content["id"] == "upcoming":
+    for selection in json_data["detailsPageByPath"]["associatedContent"]:
+      if selection["id"] == "upcoming":
         continue
-      for content_item in content["items"]:
-        item = content_item["item"]
-        season_title = ""
-        if content["selectionType"] == "season" and content["name"]:
-          season_title = content["name"]
+      for teaser in selection["items"]:
+        item = teaser["item"]
+        season_title = selection["name"] if selection["selectionType"] == "season" else ""
         title = item["name"]
         video_id = item["urls"]["svtplay"]
         geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
-        thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+        thumbnail = self.get_thumbnail_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
         fanart = self.get_fanart_url(show_image_id, show_image_changed)
         info = {
-          "plot" : content_item["description"],
+          "plot" : teaser["description"],
           "duration" : item.get("duration", 0),
           "episode" : item.get("number", 0),
           "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
