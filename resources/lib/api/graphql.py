@@ -104,24 +104,24 @@ class GraphQL:
     if not json_data:
       return None
     items = json_data["selectionById"]["items"]
-    video_items = []
+    list_items = []
     for teaser in items:
       raw_item = teaser["item"]
-      season_title = ""
-      if teaser["__typename"] == "season" and teaser["name"]:
-        season_title = teaser["name"]
       title = raw_item["name"]
-      video_id = raw_item["urls"]["svtplay"]
+      if self.__is_video(raw_item["__typename"]) and raw_item["__typename"] != "Single":
+        title = "{tvshow} - {episode}".format(episode=raw_item["name"], tvshow=raw_item["parent"]["name"])
+      item_id = raw_item["urls"]["svtplay"]
       geo_restricted = raw_item["restrictions"]["onlyAvailableInSweden"]
       thumbnail = self.get_thumbnail_url(raw_item["images"]["cleanWide"]["id"], raw_item["images"]["cleanWide"]["changed"]) if "images" in raw_item else ""
       fanart = self.get_fanart_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
       info = {
         "plot" : teaser["description"],
-        "duration" : raw_item.get("duration", 0)
+        "duration" : raw_item.get("duration", 0),
+        "episode" : raw_item.get("number", 0),
+        "tvshowtitle" : raw_item["parent"]["name"] if "parent" in raw_item else ""
       }
-      video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart, season_title)
-      video_items.append(video_item)
-    return video_items
+      list_items.append(self.__create_item(title, raw_item["__typename"], item_id, geo_restricted, thumbnail, info, fanart))
+    return list_items
 
   def getVideoContent(self, slug):
     operation_name = "DetailsPageQuery"
@@ -151,7 +151,9 @@ class GraphQL:
         fanart = self.get_fanart_url(show_image_id, show_image_changed)
         info = {
           "plot" : content_item["description"],
-          "duration" : item.get("duration", 0)
+          "duration" : item.get("duration", 0),
+          "episode" : item.get("number", 0),
+          "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
         }
         video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart, season_title)
         video_items.append(video_item)
