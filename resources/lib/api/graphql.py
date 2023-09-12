@@ -106,21 +106,21 @@ class GraphQL:
     items = json_data["selectionById"]["items"]
     list_items = []
     for teaser in items:
-      raw_item = teaser["item"]
-      title = raw_item["name"]
-      if self.__is_video(raw_item["__typename"]) and raw_item["__typename"] != "Single":
-        title = "{tvshow} - {episode}".format(episode=raw_item["name"], tvshow=raw_item["parent"]["name"])
-      item_id = raw_item["urls"]["svtplay"]
-      geo_restricted = raw_item["restrictions"]["onlyAvailableInSweden"]
-      thumbnail = self.get_thumbnail_url(raw_item["images"]["cleanWide"]["id"], raw_item["images"]["cleanWide"]["changed"]) if "images" in raw_item else ""
+      item = teaser["item"]
+      title = item["name"]
+      if self.__is_video(item["__typename"]) and item["__typename"] != "Single":
+        title = "{tvshow} - {episode}".format(episode=item["name"], tvshow=item["parent"]["name"])
+      item_id = item["urls"]["svtplay"]
+      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+      thumbnail = self.get_thumbnail_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
       fanart = self.get_fanart_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
       info = {
         "plot" : teaser["description"],
-        "duration" : raw_item.get("duration", 0),
-        "episode" : raw_item.get("number", 0),
-        "tvshowtitle" : raw_item["parent"]["name"] if "parent" in raw_item else ""
+        "duration" : item.get("duration", 0),
+        "episode" : item.get("number", 0),
+        "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
       }
-      list_items.append(self.__create_item(title, raw_item["__typename"], item_id, geo_restricted, thumbnail, info, fanart))
+      list_items.append(self.__create_item(title, item["__typename"], item_id, geo_restricted, thumbnail, info, fanart))
     return list_items
 
   def getVideoContent(self, slug):
