@@ -57,7 +57,7 @@ class TestGraphQLModule(unittest.TestCase):
     def test_get_video_content(self):
         slug = "agenda"
         sut = graphql.GraphQL()
-        items = sut.getVideoContent(slug)
+        items = sut.getEpisodesForPath(slug)
         self.assertItems(items)
   
     def test_search_results(self):

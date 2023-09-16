@@ -185,7 +185,7 @@ class SvtPlay:
 
     def view_episodes(self, slug):
         logging.log("View episodes for {}".format(slug))
-        episodes = self.graphql.getVideoContent(slug)
+        episodes = self.graphql.getEpisodesForPath(slug)
         if episodes is None:
             logging.log("No episodes found for {}".format(slug))
             return

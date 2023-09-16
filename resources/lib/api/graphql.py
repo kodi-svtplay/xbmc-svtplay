@@ -123,7 +123,7 @@ class GraphQL:
       list_items.append(self.__create_item(title, item["__typename"], item_id, geo_restricted, thumbnail, info, fanart))
     return list_items
 
-  def getVideoContent(self, slug):
+  def getEpisodesForPath(self, slug):
     operation_name = "DetailsPageQuery"
     query_hash = "e240d515657bbb54f33cf158cea581f6303b8f01f3022ea3f9419fbe3a5614b0"
     variables = {"path":"/{}".format(slug)}
