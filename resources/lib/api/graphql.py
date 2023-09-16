@@ -86,13 +86,14 @@ class GraphQL:
       item = teaser["item"]
       title = item["name"]
       item_id = item["urls"]["svtplay"]
-      thumbnail = self.get_thumbnail_url(item["image"]["id"], item["image"]["changed"]) if "image" in item else ""
+      thumbnail = self.get_thumbnail_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
+      fanart = self.get_fanart_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
       geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
       info = {
-        "plot" : teaser["subHeading"]
+        "plot" : teaser.get("description", "")
       }
       type_name = item["__typename"]
-      play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info)
+      play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info, fanart)
       programs.append(play_item)
     return programs
 
