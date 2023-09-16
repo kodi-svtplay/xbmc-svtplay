@@ -256,7 +256,7 @@ class SvtPlay:
             logging.log("Hiding geo restricted item {} as setting is on".format(play_item.title))
             return
         info = play_item.info
-        fanart = play_item.fanart if play_item.item_type == PlayItem.VIDEO_ITEM else ""
+        fanart = play_item.fanart
         title = play_item.title
         if play_item.item_type == PlayItem.VIDEO_ITEM and play_item.season_title:
             title = "{episode} ({season})".format(season=play_item.season_title, episode=play_item.title)
