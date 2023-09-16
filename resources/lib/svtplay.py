@@ -187,7 +187,7 @@ class SvtPlay:
         logging.log("View episodes for {}".format(slug))
         episodes = self.graphql.getVideoContent(slug)
         if episodes is None:
-            logging.log("No episodes found")
+            logging.log("No episodes found for {}".format(slug))
             return
         self.__create_dir_items(episodes)
 
