@@ -23,16 +23,16 @@ class GraphQL:
     pass
 
   def getPopular(self):
-    return self.getGridPageContents("popular_start")
+    return self.getFionaPageContainer("popular_start")
 
   def getLatest(self):
-    return self.getGridPageContents("latest_start")
+    return self.getFionaPageContainer("latest_start")
   
   def getLastChance(self):
-    return self.getGridPageContents("lastchance_start")
+    return self.getFionaPageContainer("lastchance_start")
 
   def getLive(self):
-    return self.getGridPageContents("live_start")
+    return self.getFionaPageContainer("live_start")
 
   def getAtoO(self):
     return self.__get_all_programs()
@@ -95,10 +95,10 @@ class GraphQL:
       play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info)
       programs.append(play_item)
     return programs
-  
-  def getGridPageContents(self, selectionId):
+
+  def getFionaPageContainer(self, selectionId):
     operation_name = "GridPage"
-    query_hash = "a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40"
+    query_hash = "1e2d15ff7ffa578d33ebf1287d3f7af7fd47125552b564e96fd277a744345a69"
     variables = {"selectionId" : selectionId}
     json_data = self.__get(operation_name, query_hash, variables=variables)
     if not json_data:
