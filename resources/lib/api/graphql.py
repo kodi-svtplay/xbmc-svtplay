@@ -83,18 +83,7 @@ class GraphQL:
       return None
     programs = []
     for teaser in selections["items"]:
-      item = teaser["item"]
-      title = item["name"]
-      item_id = item["urls"]["svtplay"]
-      thumbnail = self.get_thumbnail_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
-      fanart = self.get_fanart_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
-      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
-      info = {
-        "plot" : teaser.get("description", "")
-      }
-      type_name = item["__typename"]
-      play_item = self.__create_item(title, type_name, item_id, geo_restricted, thumbnail, info, fanart)
-      programs.append(play_item)
+      programs.append(self.__convert_teaser_to_play_item(teaser))
     return programs
 
   def getFionaPageContainer(self, selectionId):
@@ -107,21 +96,7 @@ class GraphQL:
     items = json_data["selectionById"]["items"]
     list_items = []
     for teaser in items:
-      item = teaser["item"]
-      title = item["name"]
-      if self.__is_video(item["__typename"]) and item["__typename"] != "Single":
-        title = "{tvshow} - {episode}".format(episode=item["name"], tvshow=item["parent"]["name"])
-      item_id = item["urls"]["svtplay"]
-      geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
-      thumbnail = self.get_thumbnail_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
-      fanart = self.get_fanart_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
-      info = {
-        "plot" : teaser["description"],
-        "duration" : item.get("duration", 0),
-        "episode" : item.get("number", 0),
-        "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
-      }
-      list_items.append(self.__create_item(title, item["__typename"], item_id, geo_restricted, thumbnail, info, fanart))
+      list_items.append(self.__convert_teaser_to_play_item(teaser))
     return list_items
 
   def getEpisodesForPath(self, slug):
@@ -141,21 +116,9 @@ class GraphQL:
       if selection["id"] == "upcoming":
         continue
       for teaser in selection["items"]:
-        item = teaser["item"]
         season_title = selection["name"] if selection["selectionType"] == "season" else ""
-        title = item["name"]
-        video_id = item["urls"]["svtplay"]
-        geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
-        thumbnail = self.get_thumbnail_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
         fanart = self.get_fanart_url(show_image_id, show_image_changed)
-        info = {
-          "plot" : teaser["description"],
-          "duration" : item.get("duration", 0),
-          "episode" : item.get("number", 0),
-          "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
-        }
-        video_item = VideoItem(title, video_id, thumbnail, geo_restricted, info, fanart, season_title)
-        video_items.append(video_item)
+        video_items.append(self.__convert_teaser_to_play_item(teaser, fanart, season_title))
     return video_items
 
   def getSearchResults(self, query_string):
@@ -256,22 +219,52 @@ class GraphQL:
         items.append(item)
     return sorted(items, key=lambda item: item.title)
 
-  def __create_item(self, title, type_name, item_id, geo_restricted, thumbnail="", info={}, fanart=""):
+  def __create_item(self, title, type_name, item_id, geo_restricted, thumbnail="", info={}, fanart="", season_title=""):
     title = strip_html_tags(title)
 
     for k in info:
         info[k] = strip_html_tags(info[k])
 
     if self.__is_video(type_name):
-      return VideoItem(title, item_id, thumbnail, geo_restricted, info=info, fanart=fanart)
+      return VideoItem(title, item_id, thumbnail, geo_restricted, info=info, fanart=fanart, season_title=season_title)
     elif self.__is_show(type_name):
       slug = item_id.split("/")[-1]
       return ShowItem(title, slug, thumbnail, geo_restricted, info=info, fanart=fanart)
     else:
       raise ValueError("Type {} is not supported!".format(type_name))
 
+  TEASER_TYPE = "Teaser"
   SHOW_TYPES = ["TvShow", "KidsTvShow", "TvSeries"]
   VIDEO_TYPES = ["Episode", "Clip", "Single"]
+  
+  def __convert_teaser_to_play_item(self, teaser, fanart="", season_title=""):
+    """
+    Converts an SvtPlay Teaser object to an PlayItem
+    """
+    typename = teaser["__typename"]
+    if typename != self.TEASER_TYPE:
+      raise ValueError("Type {} is not of the expected teaser type".format(typename))
+
+    item = teaser["item"]
+    item_type = item["__typename"]
+    title = item["name"]
+    if self.__is_video(item_type) and item_type != "Single":
+      # "Singles" are movies and similar that does not belong to a TvShow
+      title = "{} - {}".format(item["name"], item["parent"]["name"])
+    item_id = item["urls"]["svtplay"]
+    geo_restricted = item["restrictions"]["onlyAvailableInSweden"]
+    thumbnail = self.get_thumbnail_url(teaser["images"]["wide"]["id"], teaser["images"]["wide"]["changed"]) if "images" in teaser else ""
+    if not fanart:
+      fanart = self.get_fanart_url(item["images"]["cleanWide"]["id"], item["images"]["cleanWide"]["changed"]) if "images" in item else ""
+    info = {
+      "plot" : teaser["description"],
+      "duration" : item.get("duration", 0),
+      "episode" : item.get("number", 0),
+      "tvshowtitle" : item["parent"]["name"] if "parent" in item else ""
+    }
+    play_item = self.__create_item(title, item_type, item_id, geo_restricted, thumbnail, info, fanart, season_title)
+    return play_item
+
 
   def __is_supported_type(self, type_name):
     return type_name in self.SHOW_TYPES + self.VIDEO_TYPES
