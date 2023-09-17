@@ -113,7 +113,7 @@ class GraphQL:
     show_image_id = show_data["images"]["wide"]["id"]
     show_image_changed = show_data["images"]["wide"]["changed"]
     for selection in json_data["detailsPageByPath"]["associatedContent"]:
-      if selection["id"] == "upcoming":
+      if selection["id"] in ["upcoming", "related"]:
         continue
       for teaser in selection["items"]:
         season_title = selection["name"] if selection["selectionType"] == "season" else ""
