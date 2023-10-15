@@ -235,7 +235,7 @@ class GraphQL:
 
   TEASER_TYPE = "Teaser"
   SHOW_TYPES = ["TvShow", "KidsTvShow", "TvSeries"]
-  VIDEO_TYPES = ["Episode", "Clip", "Single"]
+  VIDEO_TYPES = ["Episode", "Clip", "Single", "Trailer"]
   
   def __convert_teaser_to_play_item(self, teaser, fanart="", season_title=""):
     """
