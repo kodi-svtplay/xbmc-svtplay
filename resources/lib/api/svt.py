@@ -129,25 +129,13 @@ def __get_video_url(json_obj):
   Returns the video URL from a SVT JSON object.
   """
   video_references = json_obj["videoReferences"]
-  video_url = __search_references(video_references, ["dashhbbtv", "dash-hbbtv-avc", "dash", "dash-avc", "dash-full"])
-  if video_url is None:
-    video_url = __search_references(video_references, ["hls"])
-  return video_url
 
-def __search_references(video_references, video_formats):
-  for video in video_references:
-    if video["format"] in video_formats:
-      return video["url"]
+  for video_format in ["dashhbbtv", "dash-hbbtv-avc", "dash", "dash-avc", "dash-full", "hls"]:
+    for video in video_references:
+      if video["format"] == video_format:
+        logging.log("Found video for format " + video_format + " : " + video["url"])
+        return video["url"]
   return None
-
-def __get_resolved_url(resolve_url):
-  location = None
-  try:
-    response = requests.get(resolve_url, timeout=2)
-    location = response.json()["location"]
-  except Exception:
-    logging.error("Exception when querying " + resolve_url)
-  return location
 
 def __get_subtitle_url(json_obj):
   """
